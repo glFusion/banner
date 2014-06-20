@@ -1,12 +1,12 @@
 <?php
-//  $Id: banner.php 85 2012-05-29 22:58:50Z root $
+//  $Id: banner.php 96 2014-04-02 20:19:25Z root $
 /**
 *   Table definitions and other static config variables.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2014 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.5
+*   @version    0.1.7
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -33,8 +33,8 @@ $_TABLES['banneraccount']       = $_DB_table_prefix . 'banneraccount';
 $_TABLES['bannertrans']         = $_DB_table_prefix . 'bannertrans';
 
 $_CONF_BANR['pi_name']           = 'banner';
-$_CONF_BANR['pi_version']        = '0.1.6';
-$_CONF_BANR['gl_version']        = '1.2.0';
+$_CONF_BANR['pi_version']        = '0.1.7';
+$_CONF_BANR['gl_version']        = '1.3.0';
 $_CONF_BANR['pi_url']            = 'http://www.leegarner.com';
 $_CONF_BANR['pi_display_name']   = 'Banner Ads';
 

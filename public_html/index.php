@@ -1,5 +1,4 @@
 <?php
-//  $Id: index.php 80 2011-05-09 18:50:23Z root $
 /**
 *   This is the main user-facing page for the Banner Plugin.
 *   Provides a way for users to view and edit banners that they own.
@@ -21,12 +20,6 @@ USES_banner_class_banner();
 // Nothing here for anonymous users.
 if (!in_array('banner', $_PLUGINS) || COM_isAnonUser()) {
     COM_404();
-}
-
-// Clean $_POST and $_GET, in case magic_quotes_gpc is set
-if (GVERSION < '1.3.0') {
-    $_POST = BANR_stripslashes($_POST);
-    $_GET = BANR_stripslashes($_GET);
 }
 
 // MAIN

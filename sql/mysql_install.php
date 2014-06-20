@@ -1,5 +1,4 @@
 <?php
-//  $Id: mysql_install.php 84 2011-05-09 21:40:07Z root $
 /**
 *   Table definitions for the Banner plugin
 *   @author     Lee Garner <lee@leegarner.com>
@@ -55,7 +54,7 @@ $banner_def =
   `perm_anon` tinyint(1) unsigned NOT NULL default '2',
   `options` text,
   `weight` int(2) unsigned default '5',
-  `tid` varchar(20) default 'all',
+  `tid` varchar(20) default 'all'
 ";
 
 $_SQL['banner'] = "

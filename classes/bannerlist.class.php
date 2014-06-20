@@ -83,9 +83,12 @@ class BannerList
         $form_arr = array();
 
         $header_arr = array(
-            array(  'text' => $LANG_BANNER['action'], 
-                    'field' => 'action',
-                    'sort' => false, 'nowrap' => 'true'),
+            array(  'text' => $LANG_BANNER['edit'], 
+                    'field' => 'edit',
+                    'sort' => false),
+            array(  'text' => $LANG_BANNER['enabled'], 
+                    'field' => 'enabled',
+                    'sort' => false),
             array(  'text' => $LANG_BANNER['banner_id'], 
                     'field' => 'bid', 
                     'sort' => true),
@@ -249,20 +252,20 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
 
     $retval = '';
 
-    $access = SEC_hasAccess($A['owner_id'],$A['group_id'],
+    /*$access = SEC_hasAccess($A['owner_id'],$A['group_id'],
             $A['perm_owner'], $A['perm_group'],
-            $A['perm_members'], $A['perm_anon']);
-    if ($access <= 0)
+            $A['perm_members'], $A['perm_anon']);*/
+/*    if ($access <= 0)
         return;
-
+*/
     $base_url = $A['isAdmin'] == 1 ? BANR_ADMIN_URL : BANR_URL;
 
     switch($fieldname) {
-    case 'action':
-        if ($access < 3) {
+    case 'edit':
+/*        if ($access < 3) {
             break;
-        }
-        if ($A['enabled'] == 1) {
+        }*/
+        /*if ($A['enabled'] == 1) {
             $ena_icon = 'on.png';
             $enabled = 0;
             $ena_icon_txt = $LANG_BANNER['enabled'];
@@ -270,24 +273,40 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
             $ena_icon = 'off.png';
             $enabled = 1;
             $ena_icon_txt = $LANG_BANNER['click_enable'];
-        }
+        }*/
+        if (!$A['isAdmin']) break;
 
-        $retval = '<table border="0"><tr height="22">';
-        if ($A['isAdmin']) {
-            $retval .= '<td>' . 
+        /*$retval = '<table border="0"><tr height="22">';
+        $retval .= '<td>' . */
+        $retval = 
                 COM_createLink(
                 $icon_arr['edit'],
                 $base_url . '/index.php?edit=x&item=banner&amp;bid=' .$A['bid']
-                ) . '</td>';
+                );
+            // . '</td>';
+        break;
+
+    case 'enabled':
+        if ($A['enabled'] == '1') {
+            $switch = 'checked="checked"';
+            //$newval = 0;
+        } else {
+            $switch = '';
+            //$newval = 1;
         }
-        $retval .= '<td>' .
+        $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"banr_ena_check\"
+                id=\"togena{$A['bid']}\"
+                onclick='BANR_toggleEnabled(this, \"{$A['bid']}\",\"banner\", \"{$_CONF['site_url']}\");' />\n";
+        break;
+
+        /*$retval .= '<td>' .
                 "<span id=\"togena{$A['bid']}\"> " .
                 "<img src=\"" .
                 BANR_URL . "/images/{$ena_icon}\" " .
                 "border=\"0\" width=\"16\" height=\"16\" " .
                 "onclick='BANR_toggleEnabled({$enabled}, \"{$A['bid']}\", \"banner\", \"{$_CONF['site_url']}\");' ".
                 '></span></td>' . " \n" ;
-        $retval .= '</tr></table>';
+        $retval .= '</tr></table>';*/
         break;
 
     case 'delete':

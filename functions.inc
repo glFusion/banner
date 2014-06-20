@@ -1,12 +1,11 @@
 <?php
-//  $Id: functions.inc 90 2012-11-28 22:43:37Z root $
 /**
 *   glFusion API functions for the Banner plugin
 *
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009-2012 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.6
+*   @version    0.1.7
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -234,7 +233,7 @@ function plugin_chkVersion_banner ()
 *   @param    int     $showsitestats  Flag to let us know which stats to get
 *   @param    string                  HTML for the stats section
 */
-function plugin_showstats_banner ($showsitestats)
+/*function plugin_showstats_banner ($showsitestats)
 {
     global $_CONF, $_TABLES, $LANG_BANNER;
 
@@ -288,7 +287,7 @@ function plugin_showstats_banner ($showsitestats)
     }
 
     return $retval;
-}
+}*/
 
 
 /**
@@ -300,9 +299,7 @@ function plugin_statssummary_banner ()
 {
     global $LANG_BANNER_STATS, $_TABLES;
 
-    $result = DB_query ("SELECT 
-            COUNT(*) AS count,
-            SUM(hits) AS clicks 
+    $result = DB_query("SELECT COUNT(*) AS count, SUM(hits) AS clicks 
         FROM {$_TABLES['banner']} 
         WHERE (publishstart IS NULL OR publishstart < NOW()) 
         AND (publishend IS NULL OR publishend > NOW())" . 
@@ -865,27 +862,12 @@ function phpblock_banner_topic_random($A= array(), $param='')
  */
 function plugin_getheaderjs_banner()
 {
-    global $_CONF;
-
     $path = BANR_PI_PATH . '/js';
 
     $files = array(
         $path . '/toggleEnabled.js',
-        //$path . 'moocrop.js',
     );
 
-/*    if (!defined('HAVE_CALENDAR_JS')) {
-        $iso_lang = $_CONF['iso_lang'];
-        if (!is_file("{$path}/calendar/lang/calendar-{$iso_lang}.js")) {
-            $iso_lang = 'en';
-        }
-
-        $files[] = "$path/calendar/calendar.js";
-        $files[] = "$path/calendar/lang/calendar-{$iso_lang}.js";
-        $files[] = "$path/calendar/calendar-setup.js";
-        define('HAVE_CALENDAR_JS', 1);
-    }
-*/
 	return $files;
 }
 
@@ -903,11 +885,6 @@ function plugin_getheadercss_banner() {
         'style.css', 
     );
 
-/*    if (!defined('HAVE_CALENDAR_CSS')) {
-        $files[] = 'calendar-blue.css';
-        define('HAVE_CALENDAR_CSS', 1);
-    }
-*/
     $path = "{$_CONF['path']}/plugins/{$_CONF_BANR['pi_name']}/css";
     foreach ($files as $file) {
     	$styles[] = $path . '/' . $file;

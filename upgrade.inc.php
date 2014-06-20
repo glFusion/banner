@@ -1,12 +1,12 @@
 <?php
-//  $Id: upgrade.inc.php 75 2010-05-18 18:03:56Z root $
+//  $Id: upgrade.inc.php 97 2014-05-23 17:19:12Z root $
 /**
 *   Upgrade routines for the Banner plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.0
+*   @version    0.1.7
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *   GNU Public License v2 or later
 *   @filesource
@@ -53,6 +53,12 @@ function banner_do_upgrade($current_ver)
             ADD `tid` varchar(20) default 'all'
             AFTER `weight`", 1);
 
+        if ($error)
+            return $error;
+    }
+
+    if ($current_ver < '0.1.7') {
+        $error = banner_upgrade_0_1_7();
         if ($error)
             return $error;
     }
@@ -115,7 +121,27 @@ function banner_upgrade_0_1_0()
     }
 
     return banner_do_upgrade_sql('0.1.0');
+}
 
+
+/**
+*   Upgrade to version 0.1.7.
+*   Adds configuration item for centerblock replacing home page.
+*/
+function banner_upgrade_0_1_7()
+{
+    global $_CONF_BANR, $BANR_DEFAULT;
+
+    USES_banner_install_defaults();
+
+    // Add new configuration items
+    $c = config::get_instance();
+    if ($c->group_exists($_CONF_BANR['pi_name'])) {
+        $c->add('uagent_dontshow', $_BANR_DEFAULT['uagent_dontshow'], 
+                '%text', 0, 1, 0, 25, true, $_CONF_BANR['pi_name']);
+    }
+
+    return banner_do_upgrade_sql('0.1.7');
 }
 
 

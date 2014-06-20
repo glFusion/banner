@@ -1,6 +1,5 @@
 <?php
 /**
- *  $Id: install.php 1 2009-07-26 17:53:10Z root $
  *  Manual installation for the Banner plugin
  *
  *  @author     Lee Garner <lee@leegarner.com>

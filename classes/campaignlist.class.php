@@ -70,7 +70,9 @@ class CampaignList
         $retval = '';
 
         $header_arr = array(
-            array('text' => $LANG_ADMIN['edit'], 'field' => 'action', 
+            array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 
+                    'sort' => false),
+            array('text' => $LANG_ADMIN['enabled'], 'field' => 'enabled', 
                     'sort' => false),
             array('text' => $LANG_BANNER['camp_id'], 'field' => 'camp_id', 
                     'sort' => true),
@@ -130,7 +132,7 @@ class CampaignList
                     {$_TABLES['bannercampaigns']} AS c
                 WHERE 1=1" .
                 COM_getPermSQL('AND', 0, 3, 'c'),
-            'query_fields' => '',
+            'query_fields' => array('camp_id', 'description'),
             'default_filter' => ''
         );
         if ($uid > 0) {
@@ -168,45 +170,51 @@ function BANNER_getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr)
 
     $retval = '';
 
-    $access = SEC_hasAccess($A['owner_id'], $A['group_id'],
+    /*$access = SEC_hasAccess($A['owner_id'], $A['group_id'],
             $A['perm_owner'], $A['perm_group'],
             $A['perm_members'], $A['perm_anon']);
     if ($access <= 0)
-        return '';
+        return '';*/
 
     $base_url = $A['isAdmin'] == 1 ? BANR_ADMIN_URL : BANR_URL;
     switch($fieldname) {
-    case 'action':
-        if ($access < 3) {
+    case 'edit':
+        /*if ($access < 3) {
             // If they don't have read/write access, no actions are available
             $retval = '';
             break;
-        }
+        }*/
 
-        if ($A['enabled'] == 1) {
+        /*if ($A['enabled'] == 1) {
             $ena_icon = 'on.png';
             $enabled = 0;
         } else {
             $ena_icon = 'off.png';
             $enabled = 1;
-        }
-
-        $retval = '';
+        }*/
 
         // Create action icons.  Some actions are currently only supported
         // for administrators, regardless of access level
-        if ($A['isAdmin'] == 1) {
-            $retval .= COM_createLink(
+        if ($A['isAdmin'] != 1) {
+            break;
+        }
+
+        $retval .= COM_createLink(
                 $icon_arr['edit'],
                 "$base_url/index.php?edit=x&item=campaign&amp;camp_id=" . 
                 urlencode($A['camp_id']));
-        }
+        break;
 
-        $retval .= "<span id=togena{$A['camp_id']}>\n" .
+    case 'enabled':
+        $switch = $fieldvalue == 1 ? 'checked="checked"' : '';
+        /*$retval .= "<span id=togena{$A['camp_id']}>\n" .
             "<img style=\"display:inline; width:16px; height:16px;\" src=\"" . 
             BANR_URL . "/images/{$ena_icon}\" ".
             "onclick='BANR_toggleEnabled({$enabled}, \"{$A['camp_id']}\", \"campaign\", \"{$_CONF['site_url']}\");'>\n" .
-            "</span>\n";
+            "</span>\n";*/
+        $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"camp_ena_check\"
+                id=\"togena{$A['camp_id']}\"
+                onclick='BANR_toggleEnabled(this, \"{$A['camp_id']}\",\"campaign\", \"{$_CONF['site_url']}\");' />\n";
         break;
 
     case 'delete':

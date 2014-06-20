@@ -1,5 +1,4 @@
 <?php
-//  $Id: banner_functions.php 67 2010-03-19 15:01:52Z root $
 /**
 *   Plugin-specific functions for the Banner plugin
 *
@@ -15,7 +14,6 @@
 if (!defined('GVERSION')) {
     die('This file can not be used on its own.');
 }
-
 
 
 /**
@@ -107,7 +105,5 @@ function BANR_stripslashes($var)
 		return $var;
 	}
 }
-
-
 
 ?>

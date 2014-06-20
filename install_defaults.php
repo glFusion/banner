@@ -1,5 +1,4 @@
 <?php
-//  $Id: install_defaults.php 78 2011-01-31 23:48:13Z root $
 /**
 *   Installation Defaults used when loading the online configuration.
 *   These settings are only used during the initial installation 
@@ -121,19 +120,13 @@ $_BANR_DEFAULT['def_weight'] = 5;
 */
 //$_BANR_DEFAULT['users_dontshow'] = array();
 $_BANR_DEFAULT['ipaddr_dontshow'] = array();
+$_BANR_DEFAULT['uagent_dontshow'] = array();
 
 /**
 *   Limit number of banners shown in a block
 */
 $_BANR_DEFAULT['block_limit'] = 0;      // 0 = unlimited
 
-
-
-/**
- *  Paths and URLS to banner images
- */
-$pi_html = $_CONF['path_html'] . $_CONF_BANR['pi_name'];
-$pi_url = $_CONF['site_url'] . '/' . $_CONF_BANR['pi_name'];
 
 /**
 * Initialize Banner plugin configuration
@@ -184,6 +177,8 @@ function plugin_initconfig_banner()
                 'select', 0, 1, 3, 10, true, $me);
         $c->add('ipaddr_dontshow', $_BANR_DEFAULT['ipaddr_dontshow'], 
                 '%text', 0, 1, 0, 20, true, $me);
+        $c->add('uagent_dontshow', $_BANR_DEFAULT['uagent_dontshow'], 
+                '%text', 0, 1, 0, 25, true, $me);
         $c->add('adshow_owner', $_BANR_DEFAULT['adshow_owner'], 
                 'select', 0, 1, 3, 30, true, $me);
         $c->add('adshow_admins', $_BANR_DEFAULT['adshow_admins'], 

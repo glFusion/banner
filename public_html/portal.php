@@ -1,5 +1,4 @@
 <?php
-//  $Id: portal.php 84 2011-05-09 21:40:07Z root $
 /**
 *   Portal page that tracks banner clicks and redirects users to
 *   the destination url.

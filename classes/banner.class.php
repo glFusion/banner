@@ -1,12 +1,11 @@
 <?php
-//  $Id: banner.class.php 87 2012-11-28 22:41:59Z root $
 /**
 *   Class to handle banner ads.
 *
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009-2011 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.5
+*   @version    0.1.7
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -86,7 +85,7 @@ class Banner
      *  Constructor
      *  @param string $bid Banner ID to retrieve, blank for empty class
      */
-    function __construct($bid='', $table='')
+    public function __construct($bid='', $table='')
     {
         global $_USER, $_GROUPS, $_CONF_BANR;
 
@@ -121,30 +120,31 @@ class Banner
     }
 
 
-    function getID()
+    public function getID()
     {   return $this->bid;  }
 
-    function setAdmin($isadmin)
+    public function setAdmin($isadmin)
     {   $this->isAdmin = $isadmin ? true : false;   }
 
-    function setTable($table)
+    public function setTable($table)
     {   $this->table = $table == 'bannersubmission' ? 'bannersubmission' : 'banner';
     }
 
-    function getOpt($name)
+    public function getOpt($name)
     {
-        if (isset($options[$name])) {
-            return $options[$name];
+        if (isset($this->options[$name])) {
+            return $this->options[$name];
         } else {
             return NULL;
         }
     }
 
     /**
-     *  Read a banner record from the database
-     *  @param  string  $bid    Banner ID to read (required)
-     */
-    function Read($bid)
+    *   Read a banner record from the database
+    *
+    *   @param  string  $bid    Banner ID to read (required)
+    */
+    public function Read($bid)
     {
         global $_TABLES;
 
@@ -156,8 +156,6 @@ class Banner
             WHERE bid='".DB_escapeString($bid)."'", false));
 
         if (!empty($A)) {
-            // From database, we strip slashes that may have been added
-            // to the ad code.
             $this->isNew = false;
             $A['options'] = unserialize($A['options']);
             $this->setVars($A, true);
@@ -170,11 +168,14 @@ class Banner
 
 
     /**
-     *  Set the banner variables from the supplied array.
-     *  The array may be from a form ($_POST) or database record
-     *  @param  array   $A  Array of values
-     */
-    function setVars($A='', $fromDB=false)
+    *   Set the banner variables from the supplied array.
+    *   The array may be from a form ($_POST) or database record
+    *
+    *   @see    _CreateHTMLTemplate()
+    *   @param  array   $A          Array of values
+    *   @param  boolean $fromDB     Indicates if reading from DB or submission
+    */
+    public function setVars($A='', $fromDB=false)
     {
         global $_CONF_BANR, $_CONF;
 
@@ -255,7 +256,7 @@ class Banner
             // Create the HTML template for click tracking if this is
             // an HTML or Javascript ad.
             if ($this->ad_type == BANR_TYPE_SCRIPT) {
-                $this->CreateHTMLTemplate();
+                $this->_CreateHTMLTemplate();
             }
 
         }
@@ -275,7 +276,6 @@ class Banner
         $this->hits = (int)$A['hits'];
         $this->max_hits = (int)$A['max_hits'];
         $this->tid = $A['tid'];
-//var_dump($A);die;
 
         $this->owner_id = (int)$A['owner_id'];
         $this->group_id = (int)$A['group_id'];
@@ -315,7 +315,7 @@ class Banner
      *  @param  string  $bid    Optional ad ID.  Current object if blank
      *  @return boolean         True if toggled, False otherwise
      */
-    function toggleEnabled($newval)
+    public function toggleEnabled($newval)
     {
         global $_TABLES;
 
@@ -334,7 +334,7 @@ class Banner
     /**
      *  Update the impression (display) count.
      */
-    function updateImpressions()
+    public function updateImpressions()
     {
         global $_TABLES, $_CONF_BANR, $_USER;
 
@@ -359,19 +359,16 @@ class Banner
 
 
     /**
-     *  Update the hit count.
-     */
-    function updateHits()
+    *   Increment the hit count.
+    */
+    public function updateHits()
     {
         global $_TABLES, $_CONF_BANR, $_USER;
 
         // Don't update the count for ads show to admins or owners, if
         // so configured.
-        if (
-            ($_CONF_BANR['cntclicks_admins'] == 0 && 
-                SEC_hasRights('banner.admin'))
-        || ($_CONF_BANR['cntclicks_owner'] == 0 && 
-                $this->owner_id == $_USER['uid'])
+        if (($_CONF_BANR['cntclicks_admins'] == 0 && SEC_hasRights('banner.admin'))
+            || ($_CONF_BANR['cntclicks_owner'] == 0 && $this->owner_id == $_USER['uid'])
         ) {
             return;
         }
@@ -391,11 +388,11 @@ class Banner
 
 
     /**
-     *  Delete the current banner.
-     *
-     *  @param  string  $bid    Optional banner ID to delete
-     */
-    function Delete()
+    *   Delete the current banner.
+    *
+    *   @param  string  $bid    Optional banner ID to delete
+    */
+    public function Delete()
     {
         global $_TABLES, $_CONF_BANR;
 
@@ -411,10 +408,11 @@ class Banner
 
 
     /**
-     *  Returns the current user's access level to this banner
-     *  @return integer     User's access level (1 - 3)
-     */
-    function Access()
+    *   Returns the current user's access level to this banner
+    *
+    *   @return integer     User's access level (1 - 3)
+    */
+    public function Access()
     {
         global $_USER;
 
@@ -429,13 +427,14 @@ class Banner
 
 
     /**
-     *  Determines whether the current user has a given level of access
-     *  to this banner object.
-     *  @see    Access()
-     *  @param  integer $level  Minimum access level required
-     *  @return boolean     True if user has access >= level, false otherwise
-     */
-    function hasAccess($level=3)
+    *   Determines whether the current user has a given level of access
+    *   to this banner object.
+    *
+    *   @see    Access()
+    *   @param  integer $level  Minimum access level required
+    *   @return boolean     True if user has access >= level, false otherwise
+    */
+    public function hasAccess($level=3)
     {
         if ($this->Access() < $level) {
             return false;
@@ -446,12 +445,12 @@ class Banner
 
 
     /**
-     *  Save the current banner object using the supplied values.
-     *
-     *  @param  array   $A  Array of values from $_POST or database
-     *  @return string      Error message, empty if successful
-     */
-    function Save($A)
+    *   Save the current banner object using the supplied values.
+    *
+    *   @param  array   $A  Array of values from $_POST or database
+    *   @return string      Error message, empty if successful
+    */
+    public function Save($A)
     {
         global $_CONF, $_GROUPS, $_TABLES, $_USER, $MESSAGE, 
                 $_CONF_BANR, $LANG12, $LANG_BANNER;
@@ -587,7 +586,7 @@ class Banner
     /**
     *   Insert a new record.
     */
-    function Insert($checksubmission = true)
+    public function Insert($checksubmission = true)
     {
         global $_TABLES, $LANG_BANNER;
 
@@ -662,9 +661,9 @@ class Banner
 
 
     /**
-     *  Update the current banner's database record
-     */
-    function Update()
+    *   Update the current banner's database record
+    */
+    public function Update()
     {
         global $_TABLES;
 
@@ -711,13 +710,13 @@ class Banner
 
 
     /**
-     *  Returns the banner id, title, and content for a banner.
-     *  Called as a standalone function: Banner::GetBanner($options)
-     *
-     *  @param  array   $fields Fields to use in where clause
-     *  @return string          Banner id, empty for none available
-     */
-    function GetBanner($fields='')
+    *   Returns the banner id, title, and content for a banner.
+    *   Called as a standalone function: Banner::GetBanner($options)
+    *
+    *   @param  array   $fields Fields to use in where clause
+    *   @return string          Banner id, empty for none available
+    */
+    public function GetBanner($fields='')
     {
         global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
 
@@ -812,10 +811,11 @@ class Banner
 
 
     /**
-     *  Returns an array of the newest banners for the "What's New" block
-     *  @return array   Array of banner records
-     */
-    function GetNewest()
+    *   Returns an array of the newest banners for the "What's New" block
+    *
+    *   @return array   Array of banner records
+    */
+    public function GetNewest()
     {
         global $_TABLES, $_CONF_BANR;
 
@@ -839,15 +839,15 @@ class Banner
 
 
     /**
-     *  Creates the banner image and href link for display.
-     *
-     *  @param  string  $title      Banner Title, optional
-     *  @param  integer $width      Image width, optional
-     *  @param  integer $height     Image height, optional
-     *  @param  boolean $link       True to create link, false for only image
-     *  @return string              Banner Link
-     */
-    function BuildBanner($title = '', $width=0, $height=0, $link = true)
+    *   Creates the banner image and href link for display.
+    *
+    *   @param  string  $title      Banner Title, optional
+    *   @param  integer $width      Image width, optional
+    *   @param  integer $height     Image height, optional
+    *   @param  boolean $link       True to create link, false for only image
+    *   @return string              Banner Link
+    */
+    public function BuildBanner($title = '', $width=0, $height=0, $link = true)
     {
         global $_CONF, $LANG_DIRECTION, $_CONF_BANR, $LANG_BANNER;
 
@@ -927,13 +927,14 @@ class Banner
 
 
     /**
-     *  Determine the maximum number of days that a user may run an ad.
-     *  Based on the account balance, unless either purchasing is disabled
-     *  or the user is exempt (like administrators).
-     *  @param  integer $uid    User ID, current user if zero
-     *  @return integer         Max ad days available, -1 if unlimited
-     */
-    function MaxDaysAvailable($uid=0)
+    *   Determine the maximum number of days that a user may run an ad.
+    *   Based on the account balance, unless either purchasing is disabled
+    *   or the user is exempt (like administrators).
+    *
+    *   @param  integer $uid    User ID, current user if zero
+    *   @return integer         Max ad days available, -1 if unlimited
+    */
+    public function MaxDaysAvailable($uid=0)
     {
         global $_TABLES, $_CONF_BANR, $_USER, $_GROUPS;
 
@@ -957,11 +958,12 @@ class Banner
 
 
     /**
-     *  Validate this banner's url
-     *  @param string $url Optional URL to test, so this can be called standalone
-     *  @return string  Response, or empty if no test performed.
-     */
-    function validateUrl($url='')
+    *   Validate this banner's url
+    *
+    *   @param string $url Optional URL to test, so this can be called standalone
+    *   @return string  Response, or empty if no test performed.
+    */
+    public function validateUrl($url='')
     {
         global $LANG_BANNER_STATUS;
 
@@ -997,12 +999,12 @@ class Banner
 
 
     /**
-     *  Creates the edit form.
-     *
-     *  @param  string  $mode   Type of editing being done
-     *  @return string          HTML for edit form
-     */
-    function Edit($mode = 'edit')
+    *   Creates the edit form.
+    *
+    *   @param  string  $mode   Type of editing being done
+    *   @return string          HTML for edit form
+    */
+    public function Edit($mode = 'edit')
     {
         global $_CONF, $_GROUPS, $_TABLES, $_USER, $_CONF_BANR, $_PLUGINS,
             $LANG_ACCESS, $MESSAGE, $LANG_BANNER, $LANG_ADMIN,
@@ -1257,7 +1259,7 @@ class Banner
     *   @param  array   $A  All form variables
     *   @return boolean     True if valid, False otherwise
     */
-    function Validate($A)
+    public function Validate($A)
     {
         // Must have a title
         if (empty($A['title']))
@@ -1286,7 +1288,7 @@ class Banner
     /**
     *   Send an email notification for a new submission.
     */
-    function Notify()
+    public function Notify()
     {
         global $_CONF, $_TABLES, $LANG_BANNER, $LANG08;
 
@@ -1313,36 +1315,73 @@ class Banner
     *
     *   @return boolean     True to show banners, False to not.
     */
-    function CanShow()
+    public function CanShow()
     {
         global $_CONF_BANR, $_CONF, $_USER;
 
+        // Set some static variables since this function can be called
+        // multiple times per page load.
+        static $in_admin_url = 'X';
+        static $is_admin = 'X';
+        static $is_blocked_user = 'X';
+        static $is_blocked_ip = 'X';
+
         // Check if this is an admin URL and the banner should be shown.
         if ($_CONF_BANR['show_in_admin'] == 0) {
-            $urlparts = parse_url($_CONF['site_admin_url']);
-            if (stristr($_SERVER['REQUEST_URI'], $urlparts['path']) != false) {
+            if ($in_admin_url === 'X') {
+                $urlparts = parse_url($_CONF['site_admin_url']);
+                if (stristr($_SERVER['REQUEST_URI'], $urlparts['path']) != false) {
+                    $in_admin_url = true;
+                } else {
+                    $in_admin_url = false;
+                }
+            }
+            if ($in_admin_url) {
                 return false; 
             }
         }
 
         // See if this is a banner admin, and we shouldn't show it
-        if ($_CONF_BANR['adshow_admins'] == 0 &&
-                SEC_hasRights('banner.admin')) {
-            return false;
+        if ($_CONF_BANR['adshow_admins'] == 0) {
+            if ($is_admin === 'X') {
+                $is_admin = SEC_hasRights('banner.admin') ? true : false;
+            }
+            if ($is_admin) {
+                return false;
+            }
         }
 
         // Now check if this user or IP address is in the blocked lists
-        /*if (isset($_USER['uid']) && !empty($_CONF_BANR['users_dontshow'])) {
+        /*if (isset($_USER['uid']) && is_array($_CONF_BANR['users_dontshow'])) {
             if (in_array($_USER['uid'], $_CONF_BANR['users_dontshow'])) {
                 return false;
             }
         }*/
-        if (!empty($_CONF_BANR['ipaddr_dontshow'])) {
-            foreach ($_CONF_BANR['ipaddr_dontshow'] as $addr) {
-                if (strstr($_SERVER['REMOTE_ADDR'], $addr)) {
-                    return false;
+
+        if (is_array($_CONF_BANR['ipaddr_dontshow'])) {
+            if ($is_blocked_ip === 'X') {
+                $is_blocked_ip = false;
+                foreach ($_CONF_BANR['ipaddr_dontshow'] as $addr) {
+                    if (strstr($_SERVER['REMOTE_ADDR'], $addr)) {
+                        $is_blocked_ip = true;
+                        break;
+                    }
                 }
             }
+            if ($is_blocked_ip) return false;
+        }
+
+        if (is_array($_CONF_BANR['uagent_dontshow'])) {
+            if ($is_blocked_user === 'X') {
+                $is_blocked_user = false;
+                foreach ($_CONF_BANR['uagent_dontshow'] as $agent) {
+                    if (stristr($_SERVER['HTTP_USER_AGENT'], $agent)) {
+                        $is_blocked_user = true;
+                        break;
+                    }
+                }
+            }
+            if ($is_blocked_user) return false;
         }
 
         // Allow the site admin to implement a custom banner control function
@@ -1354,11 +1393,15 @@ class Banner
 
         // Passed all the tests, ok to show banners
         return true;
-
     }
 
 
-    function CreateHTMLTemplate()
+    /**
+    *  Create the HTML template for javascript-based banners
+    *
+    *   @return string  HTML for the banner
+    */ 
+    private function _CreateHTMLTemplate()
     {
         $buffer = $this->options['ad_code'];
         if (empty($buffer))

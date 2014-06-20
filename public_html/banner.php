@@ -1,5 +1,4 @@
 <?php
-//  $Id: banner.php 82 2011-05-09 21:01:30Z root $
 /**
 *   Display a specific banner image
 *

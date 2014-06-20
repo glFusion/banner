@@ -3,9 +3,9 @@
 /**
 *   Class to handle banner categories
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2012 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2014 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.6
+*   @version    0.1.7
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -17,17 +17,6 @@
 */
 class Category
 {
-    /*var $cid;
-    var $oldcid;
-    var $tid;
-    var $type;
-    var $category;
-    var $description;
-    var $enabled;
-    var $owner_id, $group_id;
-    var $perm_owner, $perm_group, $perm_members, $perm_anon;
-    var $max_img_height, $max_img_width;*/
-
     /** Properties of the category
         @var array() */
     var $properties;
@@ -41,7 +30,7 @@ class Category
     *   Create empty object, or read a single category.
     *   @param  string  $id     Category ID to load
     */
-    function Category($id='')
+    public function __construct($id='')
     {
         global $_USER, $_TABLES;
             
@@ -76,11 +65,12 @@ class Category
 
 
     /**
-     *  Read the data for a single category into the current object
-     *  @param  string  $id     Database ID of category to retrieve
-     *  @see    $this->setVars()
-     */
-    function Read($id)
+    *   Read the data for a single category into the current object
+    *
+    *   @param  string  $id     Database ID of category to retrieve
+    *   @see    $this->setVars()
+    */
+    public function Read($id)
     {
         global $_TABLES;
 
@@ -101,7 +91,7 @@ class Category
     *   @param  string  $key    Name of property
     *   @param  mixed   $valu   Value to set
     */
-    function __set($key, $value)
+    public function __set($key, $value)
     {
         switch ($key) {
         case 'cid':
@@ -141,7 +131,7 @@ class Category
     *   @param  string  $key    Name of property
     *   @return mixed           Value of property
     */
-    function __get($key)
+    public function __get($key)
     {
         if (array_key_exists($key, $this->properties))
             return $this->properties[$key];
@@ -151,13 +141,14 @@ class Category
 
 
     /**
-     *  Sets this object's values from the supplied array.
-     *  The array may be a database record or a $_POST array.
-     *  All values will be set, so missing values will result in empty
-     *  variables.
-     *  @param  array   $A      Array of values to set
-     */
-    function setVars($A)
+    *   Sets this object's values from the supplied array.
+    *   The array may be a database record or a $_POST array.
+    *   All values will be set, so missing values will result in empty
+    *   variables.
+    *
+    *   @param  array   $A      Array of values to set
+    */
+    public function setVars($A)
     {
         if (!is_array($A))
             return;
@@ -192,11 +183,12 @@ class Category
 
 
     /**
-     *  Update the 'enabled' value for a banner ad.
-     *  @param  integer $newval     New value to set (1 or 0)
-     *  @param  string  $bid        Optional ad ID.  Current object if blank
-     */
-    function toggleCenterblock($newval, $id='')
+    *   Update the "cenberblock" flag for a category
+    *
+    *   @param  integer $newval     New value to set (1 or 0)
+    *   @param  string  $bid        Optional category ID.  Current object if blank
+    */
+    public function toggleCenterblock($newval, $id='')
     {
         global $_TABLES;
 
@@ -216,11 +208,12 @@ class Category
 
 
     /**
-     *  Update the 'enabled' value for a banner ad.
-     *  @param  integer $newval     New value to set (1 or 0)
-     *  @param  string  $bid        Optional ad ID.  Current object if blank
-     */
-    function toggleEnabled($newval, $id='')
+    *   Update the 'enabled' value for a category
+    *
+    *   @param  integer $newval     New value to set (1 or 0)
+    *   @param  string  $bid        Optional ad ID.  Current object if blank
+    */
+    public function toggleEnabled($newval, $id='')
     {
         global $_TABLES;
 
@@ -240,12 +233,13 @@ class Category
 
 
     /**
-     *  Delete a single category.
-     *  This may be called as a standalone function with a supplied
-     *  category ID, or as "$object->Delete()"
-     *  @param  string  $id     Optional category ID to delete
-     */
-    function Delete($id='')
+    *   Delete a single category.
+    *   This may be called as a standalone function with a supplied
+    *   category ID, or as "$object->Delete()"
+    *
+    *   @param  string  $id     Optional category ID to delete
+    */
+    public function Delete($id='')
     {
         global $_TABLES;
 
@@ -268,12 +262,13 @@ class Category
 
 
     /**
-     *  Determine if the current category, or supplied category ID, is used
-     *  by any banners
-     *  @param  string  $id     Optional ID to check
-     *  @return boolean         True if the category is in use, fales otherwise.
-     */
-    function isUsed($id='')
+    *   Determine if the current category, or supplied category ID, is used
+    *   by any banners
+    *
+    *   @param  string  $id     Optional ID to check
+    *   @return boolean         True if the category is in use, fales otherwise.
+    */
+    public function isUsed($id='')
     {
         global $_TABLES;
 
@@ -294,10 +289,11 @@ class Category
 
 
     /**
-     *  Display the edit form for the current category
-     *  @return string  HTML for the edit form
-     */
-    function Edit($cid='')
+    *   Display the edit form for the current category
+    *
+    *   @return string  HTML for the edit form
+    */
+    public function Edit($cid='')
     {
         global $_CONF, $_CONF_BANR, $MESSAGE, $LANG_BANNER,
                 $LANG_ADMIN, $LANG_ACCESS, $LANG_BANNER_ADMIN;
@@ -373,7 +369,7 @@ class Category
     *
     *   @param  array   $A      Optional array of values
     */
-    function Save($A='')
+    public function Save($A='')
     {
         global $_TABLES, $LANG_BANNER;
 
@@ -394,32 +390,16 @@ class Category
 
             $sql1 = "INSERT INTO {$_TABLES['bannercategories']} SET ";
             $sql3 = '';
-                    /*(cid, type, category, description, tid,
-                    enabled, centerblock,
-                    max_img_height, max_img_width,
-                    owner_id, group_id,
-                    perm_owner, perm_group, perm_members, perm_anon)
-                VALUES (
-                    '". DB_escapeString($this->cid) . "',
-                    '". DB_escapeString($this->type) ."',
-                    '". DB_escapeString($this->category) ."',
-                    '". DB_escapeString($this->description)."',
-                    '". DB_escapeString($this->tid)."',
-                    {$this->enabled},
-                    {$this->centerblock},
-                    {$this->max_img_height},
-                    {$this->max_img_width},
-                    {$this->owner_id}, {$this->group_id},
-                    {$this->perm_owner}, {$this->perm_group},
-                    {$this->perm_members}, {$this->perm_anon}
-                )";*/
+
         } else {
+
             if ($this->cid == '') {
                 $this->cid = $this->oldcid;
             }
 
             $sql1 = "UPDATE {$_TABLES['bannercategories']} SET ";
             $sql3 = " WHERE cid='" . DB_escapeString($this->oldcid) . "'";
+
         }
         $sql2 = "cid='" . DB_escapeString($this->cid) . "',
                 type='".DB_escapeString($this->type)."',
@@ -436,8 +416,7 @@ class Category
                 perm_anon={$this->perm_anon},
                 max_img_height={$this->max_img_height},
                 max_img_width={$this->max_img_width}";
-        //echo $sql;die;
-        DB_query($sql);
+        DB_query($sql1 . $sql2 . $sql3);
     }
 
 
@@ -446,7 +425,7 @@ class Category
     *
     *   @return integer Access level
     */
-    function hasAccess()
+    public function hasAccess()
     {
         $access = SEC_hasAccess($this->owner_id, $this->group_id,
                     $this->perm_owner, $this->perm_group, 
@@ -461,7 +440,7 @@ class Category
     *   @param  string  $sel    Category ID to show as selected
     *   @return string          HTML for option statements
     */
-    function DropDown($access = 3, $sel='')
+    public function DropDown($access = 3, $sel='')
     {
         global $_TABLES;
 
@@ -498,7 +477,7 @@ class Category
     *   @param  string  $id     Optional category ID.  Current id if empty.
     *   @return boolean         True if category is required, False otherwise.
     */
-    function isRequired($id='')
+    public function isRequired($id='')
     {
         global $_TABLES;
 
@@ -561,8 +540,11 @@ function BANNER_adminCategories()
 
     $retval = '';
     $header_arr = array(      # display 'text' and use table field 'field'
-                array('text' => $LANG_BANNER['action'],
+                array('text' => $LANG_BANNER['edit'],
                     'field' => 'edit', 
+                    'sort' => false),
+                array('text' => $LANG_BANNER['enabled'],
+                    'field' => 'enabled',
                     'sort' => false),
                 array('text' => $LANG_BANNER['centerblock'],
                     'field' => 'centerblock',
@@ -628,27 +610,23 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
     $access = 3;
     switch ($fieldname) {
     case 'edit':
-        if ($access != 3) {
-            break;
-        }
-
-        if ($A['enabled'] == 1) {
-            $ena_icon = 'on.png';
-            $enabled = 0;
-        } else {
-            $ena_icon = 'off.png';
-            $enabled = 1;
-        }
-
         $retval = COM_createLink(
                     $icon_arr['edit'],
                     "$admin_url?edit=x&item=category&amp;cid=" . urlencode($A['cid'])
-                    ) .
-                    "<span id=togena{$A['cid']} istyle=\"width=16px;\">\n" .
-                    "<img src=\"" . BANR_URL . "/images/{$ena_icon}\" ".
-                    "onclick='BANR_toggleEnabled({$enabled}, \"{$A['cid']}\", \"category\", \"{$_CONF['site_url']}\");' width=\"16\" height=\"16\" />\n" .
-                    "</span>\n";
+                    );
         break;
+
+    case 'enabled':
+        if ($A['enabled'] == '1') {
+            $switch = 'checked="checked"';
+        } else {
+            $switch = '';
+        }
+        $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"cat_ena_check\"
+                id=\"togena{$A['cid']}\"
+                onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"category\", \"{$_CONF['site_url']}\");' />\n";
+        break;
+
 
     case 'delete':
         if (!Category::isRequired($A['cid']) && !Category::isUsed($A['cid'])) {
@@ -660,22 +638,16 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'centerblock':
-        if ($access != 3) {
-            break;
-        }
-
         if ($fieldvalue == '1') {
-            $ena_icon = 'on.png';
-            $enabled = 0;
+            $switch = 'checked="checked"';
+            //$newval = 0;
         } else {
-            $ena_icon = 'off.png';
-            $enabled = 1;
+            $switch = '';
+            //$newval = 1;
         }
-
-        $retval = "<span id=togcatcb{$A['cid']} istyle=\"width=16px;\">\n" .
-                    "<img src=\"" . BANR_URL . "/images/{$ena_icon}\" ".
-                    "onclick='BANR_toggleEnabled({$enabled}, \"{$A['cid']}\", \"cat_cb\", \"{$_CONF['site_url']}\");' width=\"16\" height=\"16\" />\n" .
-                    "</span>\n";
+        $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"catcb_ena_check\"
+                id=\"togcatcb{$A['cid']}\"
+                onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"cat_cb\", \"{$_CONF['site_url']}\");' />\n";
         break;
 
     case 'access':

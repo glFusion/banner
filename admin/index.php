@@ -1,5 +1,4 @@
 <?php
-//  $Id: updatecatxml.php 101 2008-12-12 16:51:21Z root $
 /**
  *  Banner admin entry point.
  *
@@ -28,11 +27,6 @@ if (!SEC_hasRights('banner.edit')) {
 }
 
 USES_banner_functions();
-// Clean $_POST and $_GET, in case magic_quotes_gpc is set
-if (GVERSION < '1.3.0') {
-    $_POST = BANR_stripslashes($_POST);
-    $_GET = BANR_stripslashes($_GET);
-}
 
 $mode = '';
 $var = '';
@@ -56,13 +50,10 @@ if ($mode == 'mode') {
     $mode = $var;
 }
 
-//$page = isset($_REQUEST['view']) ? $_REQUEST['view'] : $mode;
 $item = isset($_REQUEST['item']) ? $_REQUEST['item'] : 'banner';
 $view = isset($_REQUEST['view']) ? $_REQUEST['view'] : $mode;
 $type = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';
 
-/*if (isset($_REQUEST['mode'])) {
-    $mode = $_REQUEST['mode'];*/
 if ($mode == 'delitem') {
     switch ($item) {
     case 'banner':
@@ -73,8 +64,6 @@ if ($mode == 'delitem') {
         break;
     }
 }
-//var_dump($_POST);
-//var_dump($_GET);die;
 
 if (isset($_REQUEST['bid'])) {
     $bid = COM_sanitizeID($_REQUEST['bid'], false);
@@ -85,8 +74,7 @@ if (isset($_REQUEST['bid'])) {
 $display .= COM_siteHeader('menu', $LANG_BANNER['banners']);
 
 switch ($mode) {
-//case $LANG_ADMIN['save']:       // TODO- see if this can be removed
-case $LANG_ADMIN['submit']:
+/*case $LANG_ADMIN['submit']:
 case 'savebanner':
 echo "here in savebanner";die;
     $status = '';
@@ -155,12 +143,11 @@ echo "here in deletecampaign";die;
     $C->Delete();
     $page = 'campaigns';
     break;
-
+*/
 case 'toggleEnabled':
     USES_banner_class_banner();
     $B = new Banner($_REQUEST['bid']);
     $B->toggleEabled($_REQUEST['newval']);
-//    Banner::toggleEnabled($_REQUEST['newval'], $_REQUEST['bid']);
     $page = 'banners';
     break;
 
@@ -193,7 +180,7 @@ case 'delete':
     }
     break;
 
-case 'deletebanner':
+/*case 'deletebanner':
 case $LANG_ADMIN['delete']:
 echo "here in deletebanner";die;
     USES_banner_class_banner();
@@ -207,7 +194,7 @@ echo "here in deletebanner";die;
     if ($B->hasAccess(3))
         $B->Delete();
     break;
-
+*/
 case 'delMultiBanner':
     USES_banner_class_banner();
     foreach ($_POST['delitem'] as $item) {
@@ -230,7 +217,7 @@ case 'toggleEnabledCampaign':
     $page = 'campaigns';
     break;
 
-
+/*
 case 'deleteCategory':
 case $LANG_BANNER_ADMIN[33]:
 echo "Here in deletecategory";die;
@@ -242,7 +229,7 @@ echo "Here in deletecategory";die;
     $display .= $C->Delete();
     $page = 'categories';
     break;
-
+*/
 //case 'savecategory':
 //case $LANG_BANNER_ADMIN[35]:
 case 'save':

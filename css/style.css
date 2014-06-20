@@ -68,3 +68,8 @@ form.banerform select {
   background: #fee3ad;
 }
 */
+div.showbanner div.centerblock {
+    align: center;
+    padding-bottom: 10px;
+}
+

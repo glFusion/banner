@@ -1,5 +1,4 @@
 <?php
-//  $Id: autoinstall.php 84 2011-05-09 21:40:07Z root $
 /**
 *   Provides automatic installation of the Banner plugin.
 *

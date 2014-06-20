@@ -1,60 +1,8 @@
 {# begin {templatelocation} #}
-<!--<script src="{site_url}/javascript/nogray_date_calendar_vs1_min.js" type="text/javascript"></script>-->
 <script type="text/javascript">
-//window.addEvent('domready',function() {
-//    var myValidator = new fValidator("submit");
-//});
-
-/*window.addEvent("domready", function(){
-  var today = new Date();
-
-  var sYear = document.getElementById('start_year').value;
-  var sMonth = document.getElementById('start_month').value;
-  var sDay   = document.getElementById('start_day').value;
-
-  var calender1 = new Calendar("calendar1", "toggler",
-    {inputField:{date:'start_day',
-    month:'start_month',
-    year:'start_year'},
-    inputType:'select',
-    idPrefix:'cal1',
-    startDate:new Date(sYear-1,0,1),
-    selectedDate: new Date(sYear,sMonth-1,sDay),
-    allowDaysOffSelection:true,
-    allowWeekendSelection:true,
-    allowDatesOffSelection:true,
-    numMonths:1
-  });
-});
-
-window.addEvent("domready", function(){
-  var ctoday = new Date();
-
-  var cYear  = document.getElementById('end_year').value;
-  var cMonth = document.getElementById('end_month').value;
-  var cDay   = document.getElementById('end_day').value;
-
-  var calender2 = new Calendar("calendar2", "toggler1",
-    {inputField:{date:'end_day',
-    month:'end_month',
-    year:'end_year'},
-    inputType:'select',
-    idPrefix:'cal2',
-    startDate:new Date(cYear-1,0,1),
-    selectedDate:  new Date(cYear,cMonth-1,cDay),
-    allowDaysOffSelection:true,
-    allowWeekendSelection:true,
-    allowDatesOffSelection:true,
-    numMonths:1
-  });
-});
-*/
-
 window.addEvent('load', function() {
     var element = document.getElementById("f_adtype");
     BANR_changeType(element.options[element.selectedIndex].value);
-    //toggleDateField(document.getElementById('start_dt_limit').checked, 'start_');
-    //toggleDateField(document.getElementById('end_dt_limit').checked, 'end_');
 });
 
 function toggleDateField(val, id)
@@ -197,8 +145,6 @@ function BANR_changeType(value)
       </label>
     </td>
     <td>
-      <!--<input name="publishstart" id="f_pubstart" type="text" size="24" 
-            value="{publishstart}" />-->
       <span id="start_date_nolimit" style="display:{startdt_txt_show};">
         {$LANG_BANNER['no_dt_limit']}
       </span>
@@ -215,16 +161,10 @@ function BANR_changeType(value)
           {start_year_options}
         </select>
                                 
-        <!--<a href="#" id="toggler">
-          <img src="{site_url}/images/datepicker.jpg" alt="Date Picker" 
-            style="vertical-align:middle;border:none;"/>
-        </a>
-        <span id="calendar1"></span>-->
         <img src="{site_url}/images/datepicker.jpg" 
             id="start_trigger"
             style="cursor: pointer;"
-            title="Select Date"
-        />
+            title="Select Date" />
 
         &nbsp;&nbsp;
         <select name="start_hour">
@@ -247,8 +187,6 @@ function BANR_changeType(value)
       </label>
     </td>
     <td>
-      <!--<input name="publishend" id="f_pubend" type="text" size="24" 
-            value="{publishend}" /> -->
       <span id="end_date_nolimit" style="display:{enddt_txt_show};">
         {$LANG_BANNER['no_dt_limit']}
       </span>
@@ -265,16 +203,10 @@ function BANR_changeType(value)
           {end_year_options}
         </select>
                                 
-        <!--<a href="#" id="toggler1">
-          <img src="{site_url}/images/datepicker.jpg" alt="Date Picker" 
-            style="vertical-align:middle;border:none;"/>
-        </a>
-        <span id="calendar2"></span>-->
         <img src="{site_url}/images/datepicker.jpg" 
             id="end_trigger"
             style="cursor: pointer;"
-            title="Select Date"
-        />
+            title="Select Date" />
 
         &nbsp;&nbsp;
         <select name="end_hour">
@@ -296,8 +228,7 @@ function BANR_changeType(value)
     </td>
     <td>
       <select id="f_adtype" name="ad_type" 
-        onchange="BANR_changeType(this.value)"
-        />
+        onchange="BANR_changeType(this.value)" />
         {adtype_select}
       </select>
     </td>
@@ -585,21 +516,6 @@ function BANR_changeType(value)
 <script type="text/javascript" src="{site_url}/banner/js/calendar-setup.js">
 </script>-->
 <script type="text/javascript">
-/*  Calendar.setup({
-        inputField     :    "f_pubstart",
-        ifFormat       :    "%Y-%m-%d %H:%M",
-        showsTime      :    true,
-        timeFormat     :    "24",
-        button          :   "pubstart_trigger"
-    });
-    Calendar.setup({
-        inputField     :    "f_pubend",
-        ifFormat       :    "%Y-%m-%d %H:%M",
-        showsTime      :    true,
-        timeFormat     :    "24",
-        button          :   "pubend_trigger"
-    });
-*/
 function updateDate(d, fld)
 {
     document.getElementById(fld + "_month").selectedIndex = d.getMonth();

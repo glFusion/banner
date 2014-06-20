@@ -1,5 +1,5 @@
 {# begin {templatelocation} #}
-<div class="aligncenter" style="padding-bottom:10px;">
+<div class="banner_centerblock">
 {banner}
 </div>
 {# end {templatelocation} #}
