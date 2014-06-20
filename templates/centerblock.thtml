@@ -1,0 +1,5 @@
+{# begin {templatelocation} #}
+<div class="aligncenter" style="padding-bottom:10px;">
+{banner}
+</div>
+{# end {templatelocation} #}

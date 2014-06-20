@@ -1,0 +1,70 @@
+.bannerform label
+{
+  width: 16em;
+  float: left;
+  text-align: right;
+  margin-right: 0.5em;
+}
+
+.required,
+.bannerform label.required
+{
+  color: red;
+  font-weight: normal;
+}
+
+.bannerform p {
+  line-height: 1px;
+  margin-top: 0px;
+}
+
+.bannerform form div {
+  clear: left;
+  display: block;
+  height: expression('1%');
+  margin: 5px 0 0 0;
+  padding: 1px 3px;
+}
+
+.bannerform formbutton {
+cursor:pointer;
+border:outset 1px #ccc;
+background:#999;
+color:#666;
+font-weight:bold;
+margin-left:3em;
+padding: 1px 2px;
+}
+
+
+/*
+form.bannerform input
+{
+  color: #781351;
+  background: #fee3ad;
+  border: 1px solid #781351
+}
+
+form.bannerform submit input
+{
+  color: #000;
+  background: #ffa20f;
+  border: 2px outset #d7b9c9
+}
+
+div.bannerform input.file {
+    position: relative;
+    text-align: right;
+    -moz-opacity:0 ;
+    filter:alpha(opacity: 0);
+    opacity: 0;
+    z-index: 2;
+  color: #781351;
+  background: #fee3ad;
+}
+
+form.banerform select {
+  color: #781351;
+  background: #fee3ad;
+}
+*/

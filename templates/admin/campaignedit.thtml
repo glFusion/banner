@@ -1,0 +1,224 @@
+{# begin {templatelocation} #}
+<script type="text/javascript">
+window.addEvent('domready',function() {
+    var myValidator = new fValidator("submit");
+});
+</script>
+<p>{instructions}</p>
+<br style="clear:both" />
+<form id="submit" action="{site_admin_url}/plugins/banner/index.php" 
+    method="post" class="bannerform">
+
+  <input name="old_camp_id" type="hidden" value="{camp_id}">
+  <table border="0" cellspacing="0" cellpadding="2" width="100%">
+    <tr>
+      <td align="right" width="175">
+        {$LANG_BANNER['camp_id']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_camp_id', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input type="text" name="camp_id" size="40" maxlength="40" 
+            class="fValidate['required']" value="{camp_id}" />
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['description']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_descrip', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input type="text" name="description" size="32" maxlength="255" 
+            class="fValidate['required']" value="{description}" />
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['pubstart']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_start', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input name="start" id="f_start" type="text" size="32"
+            value="{dt_start}" />
+        <img src="{site_url}/images/datepicker.jpg" 
+            id="f_start_trigger"
+            style="cursor: pointer;"
+            title="Select Date"
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['pubend']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_finish', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input name="finish" id="f_finish" type="text" size="32" maxlength="32" 
+            value="{dt_finish}" />
+        <img src="{site_url}/images/datepicker.jpg" 
+            id="f_finish_trigger"
+            style="cursor: pointer;"
+            title="Select Date"
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['topic']}
+        <a href="#" onclick="popupWindow('{help_url}#desc_topic', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <select name="tid">
+          {topic_selection}
+        </select>
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['enabled']}?
+        <a href="#" onclick="popupWindow('{help_url}#desc_enabled', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input name="enabled" type="checkbox" value="1" {enabled}>
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['user_can_add']}?
+        <a href="#" onclick="popupWindow('{help_url}#desc_user_can_add', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input name="usercanadd" type="checkbox" value="1" {usercanadd}>
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['hits']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_hits', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input name="hits" id="f_hits" type="text" size="12" maxlength="12" 
+            value="{total_hits}" />
+      </td>
+    </tr>
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['max_hits']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_max_hits', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input name="max_hits" id="f_max_hits" type="text" size="12" maxlength="12" 
+            value="{max_hits}" />
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['impressions']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_impressions', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input name="impressions" id="f_impressions" type="text" size="12" maxlength="12" 
+            value="{impressions}" />
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['max_impressions']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_max_impressions', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input name="max_impressions" id="f_max_impressions" type="text" 
+            size="12" maxlength="12" value="{max_impressions}" />
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['max_banners']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_max_banners', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <input name="max_banners" id="f_max_banners" type="text" size="12" maxlength="12" 
+            value="{max_banners}" />
+        &nbsp;{$LANG_BANNER['zero_eq_unlimited']}
+      </td>
+    </tr>
+
+  <tr>
+    <td align="right" width="150">
+      {$LANG_ACCESS['owner']}:
+      <a href="#" onclick="popupWindow('{help_url}#desc_owner', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </td>
+    <td>
+      <select id="owner_id" name="owner_id">
+        {owner_selection}
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td align="right">
+        {$LANG_ACCESS['group']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_group', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </td>
+    <td>{group_dropdown}</td>
+  </tr>
+    <tr>
+      <td align="right">{$LANG_ACCESS['permissions']}:</td>
+      <td>
+        {$LANG_ACCESS['permissionskey']}<br />
+        {permissions_editor}
+        {$LANG_ACCESS['permmsg']}
+      </td>
+    </tr>
+  </table>
+
+  <input type="hidden" value="{cid}" name="oldcid" /> 
+  <input type="hidden" name="{gltoken_name}" value="{gltoken}" />
+  <input type="hidden" name="view" value="campaigns" />
+  <input type="hidden" name="item" value="campaign" />
+  <input name="save" type="submit" value="{$LANG_BANNER_ADMIN[36]}" />
+  <input type="reset" value="{$LANG_BANNER['reset']}" name="reset" />
+  <input type="reset" value="{$LANG_ADMIN['cancel']}" name="cancel" 
+      onclick="javascript: document.location.href='{cancel_url}'"
+       />
+  {!if delete_option}
+      <input name="delete" type="submit" value="{$LANG_BANNER_ADMIN[37]}"
+          onclick="return confirm('{$LANG_BANNER['ok_to_delete']}');" />
+  {!endif}
+
+</form>
+
+<fieldset>
+<legend>{$LANG_BANNER['ads_in_campaign']}</legend>
+<table border="0">
+<th>ID<th>{$LANG_BANNER['banner_content']}<th>{$LANG_BANNER['hits']}
+<!-- BEGIN AdRow -->
+<tr><td>{ad_id}</td><td>{image}</td><td>{url}</td><td align="right">{hits}</td></tr>
+<!-- END AdRow -->
+</table>
+</fieldset>
+
+<script type="text/javascript">
+    Calendar.setup({
+        inputField     :    "f_start",
+        ifFormat       :    "%Y-%m-%d %H:%M",
+        showsTime      :    true,
+        timeFormat     :    "24",
+        button          :   "f_start_trigger"
+    });
+    Calendar.setup({
+        inputField     :    "f_finish",
+        ifFormat       :    "%Y-%m-%d %H:%M",
+        showsTime      :    true,
+        timeFormat     :    "24",
+        button          :   "f_finish_trigger"
+    });
+</script>
+{# end {templatelocation} #}
+

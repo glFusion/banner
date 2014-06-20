@@ -1,0 +1,144 @@
+{# begin {templatelocation} #}
+<p>{instructions}</p>
+<br style="clear:both" />
+<form action="{site_admin_url}/plugins/banner/index.php" method="post">
+  <input type="hidden" name="cid" value="{cid_value}">
+  <table border="0" cellspacing="0" cellpadding="2" width="100%">
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['cid']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_cid', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td><input type="text" name="cid" size="40" maxlength="40" 
+            value="{cid}" /></td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['category']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_category', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td><input type="text" name="category" size="32" maxlength="32" 
+            value="{category_value}" /></td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['type']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_type', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td><input type="text" name="type" size="32" maxlength="32" value="{type_value}" /></td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['description']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_description', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td><input type="text" name="description" size="50" maxlength="255" value="{description_value}" /></td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['topic']}
+        <a href="#" onclick="popupWindow('{help_url}#desc_topic', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        <select name="tid">
+          {topic_selection}
+        </select>
+      </td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['max_img_width']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_max_img_width', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td><input type="text" name="max_img_width" size="4" maxlength="4" value="{max_img_width}" /></td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['max_img_height']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_max_img_height', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td><input type="text" name="max_img_height" size="4" maxlength="4" value="{max_img_height}" /></td>
+    </tr>
+    
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['enabled']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_max_enabled', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td><input name="enabled" type="checkbox" value="1" {chk_enabled}></td>
+    </tr>
+
+    <tr>
+      <td align="right">
+        {$LANG_BANNER['centerblock']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_centerblock', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td><input name="centerblock" type="checkbox" value="1" {chk_centerblock}></td>
+    </tr>
+
+    <tr>
+      <td colspan="2"><hr /></td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>{$LANG_ACCESS['accessrights']}</b></td>
+    </tr>
+    <tr>
+      <td align="right">
+        {$LANG_ACCESS['owner']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_owner', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>{owner_name}<input type="hidden" name="owner_id" value="{cat_ownerid}" /></td>
+    </tr>
+    <tr>
+      <td align="right">
+        {$LANG_ACCESS['group']}:
+        <a href="#" onclick="popupWindow('{help_url}#desc_group', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+      </td>
+      <td>
+        {group_dropdown}
+      </td>
+    <tr>
+    <tr>
+      <td colspan="2"><b>{$LANG_ACCESS['permissions']}</b>:</td>
+    </tr>
+    <tr>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td colspan="2">{$LANG_ACCESS['permissionskey']}</td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        {permissions_editor}
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">{$LANG_ACCESS['permmsg']}<td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+    <tr>
+      <td colspan="2">
+        <input type="hidden" value="{cid}" name="oldcid" /> 
+        <input type="hidden" name="{gltoken_name}" value="{gltoken}" />
+        <input type="hidden" name="view" value="categories" />
+        <input type="hidden" name="item" value="category" />
+        <input name="save" type="submit" value="{$LANG_BANNER_ADMIN[35]}" />
+        <input type="reset" value="{$LANG_BANNER['reset']}" name="reset" />
+        <input type="reset" value="{$LANG_ADMIN['cancel']}" name="cancel" 
+            onclick="javascript: document.location.href='{cancel_url}'" />
+        {!if delete_option}
+          <input name="delete" type="submit" value="{$LANG_BANNER_ADMIN[33]}"
+            onclick="return confirm('{$LANG_BANNER['ok_to_delete']}');" />
+        {!endif}
+      </td>
+    </tr>
+  </table>
+</form>
+{# end {templatelocation} #}
