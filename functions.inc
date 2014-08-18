@@ -120,9 +120,7 @@ function plugin_centerblock_banner($where=1,$page=1,$topic ='')
 
     USES_banner_functions();
     $banner = BANNER_centerblock($where, $page, $topic);
-    if ($_CONF_BANR['cb_replhome'] == 1 && 
-        $on_homepage
-    ) {
+    if ($_CONF_BANR['cb_replhome'] == 1 && $on_homepage) {
         // Replacing the homepage, and we're currently on the homepage
         echo COM_siteHeader() . $banner . COM_siteFooter(true);
         exit;
@@ -386,6 +384,32 @@ function plugin_user_delete_banner ($uid)
 }
 
 
+/**
+*   Support merging local accounts into remote accounts
+*
+*   @param  integer $origUID    Original (remote) user ID
+*   @param  integer $destUID    Merged (local) user ID
+*/
+function plugin_user_move_banner($origUID, $destUID)
+{
+    global $_TABLES;
+
+    $origUID = (int)$origUID;
+    $destUID = (int)$destUID;
+
+    // Tables containing a "uid" field
+    $tables = array(
+        'banner',
+        'bannersubmission',
+        'banneraccount',
+    );
+    foreach ($tables as $table) {
+        DB_query("UPDATE {$_TABLES[$table]}
+            SET uid = $destUID WHERE uid = $origUID", 1);
+    }
+}
+
+ 
 /**
 *   Update the Banner plugin
 *
