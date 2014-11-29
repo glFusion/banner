@@ -59,7 +59,7 @@ $banner_def =
 
 $_SQL['banner'] = "
 CREATE TABLE {$_TABLES['banner']} (
-  $banner_def
+  $banner_def,
   PRIMARY KEY  (`bid`),
   KEY `banner_category` (`cid`),
   KEY `banner_date` (`date`)
@@ -67,7 +67,7 @@ CREATE TABLE {$_TABLES['banner']} (
 
 $_SQL['bannersubmission'] = "
 CREATE TABLE {$_TABLES['bannersubmission']} (
-  $banner_def
+  $banner_def,
   PRIMARY KEY  (`bid`)
 )";
 
