@@ -710,13 +710,13 @@ class Banner
 
 
     /**
-    *   Returns the banner id, title, and content for a banner.
+    *   Returns the banner id for a banner or group of banners
     *   Called as a standalone function: Banner::GetBanner($options)
     *
     *   @param  array   $fields Fields to use in where clause
     *   @return string          Banner id, empty for none available
     */
-    public function GetBanner($fields='')
+    public static function GetBanner($fields='')
     {
         global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
 
@@ -1315,7 +1315,7 @@ class Banner
     *
     *   @return boolean     True to show banners, False to not.
     */
-    public function CanShow()
+    public static function CanShow()
     {
         global $_CONF_BANR, $_CONF, $_USER;
 

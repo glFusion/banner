@@ -144,8 +144,6 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
 {
     global $_CONF, $_TABLES, $LANG_DIRECTION;
 
-    USES_banner_class_banner();
-
     if ($op == 'tagname' ) {
         return array('banner','randombanner','bannercategory');
     } else if ($op == 'parse') {
@@ -154,6 +152,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
         switch( $autotag['tag'] ) {
         case 'banner':
             // Get a specific banner
+            USES_banner_class_banner();
             $bid = COM_sanitizeID($autotag['parm1'], false);
             $B = new Banner($bid);
             $banner = $B->BuildBanner($title);
@@ -162,6 +161,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
 
         case 'randombanner':
             // Get a random banner, optionally from a specific category
+            USES_banner_class_banner();
             $cid = COM_applyFilter($autotag['parm1']);
             $options = array('limit' => 1);
             if (!empty($cid)) {
@@ -174,33 +174,37 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             break;
 
         case 'bannercategory' :
+            USES_banner_class_banner();
             $cid = COM_applyFilter($autotag['parm1']);
-            $result = DB_query("SELECT b.bid
-                    FROM {$_TABLES['banner']} AS b 
-                    LEFT JOIN {$_TABLES['bannercategories']} AS c 
+            if (!empty($cid)) {
+                // if there's a cid, join that table
+                $cid_sql = "LEFT JOIN {$_TABLES['bannercategories']} AS c 
                     ON b.cid=c.cid 
                     WHERE c.cid='{$cid}' 
-                    AND (b.publishstart IS NULL OR b.publishstart < NOW()) 
+                    AND ";
+            } else {
+                $cid_sql = " WHERE ";   
+            }
+            $result = DB_query("SELECT b.bid
+                    FROM {$_TABLES['banner']} AS b 
+                    $cid_sql
+                    (b.publishstart IS NULL OR b.publishstart < NOW()) 
                     AND (b.publishend IS NULL OR b.publishend > NOW())" . 
                     COM_getPermSQL('AND', 0, 2, 'c') . 
                     ' ORDER BY RAND()');
-            $nrows = DB_numRows($result);
-            if ($nrows > 0) {
-                $format = '%s<br' . XHTML . '>';
-                if (!empty($autotag['parm2']) && strpos($autotag['parm2'], '%s') !== false) {
-                    $format = $autotag['parm2'];
-                }
-                $format = COM_checkHTML (COM_checkWords ($format) );
-                $B = new Banner();
-                for ($i = 0; $i < $nrows; $i++) {
-                    list($bid) = DB_fetchArray($result);
-                    $B->Read($bid);
-                    $build = $B->BuildBanner();
-                    $B->updateImpressions();
-                    $banner .= sprintf($format, $build);
-                }
+            $T = new Template(BANR_PI_PATH . '/templates');
+            $T->set_file('block', 'bannercategory.thtml');
+            $T->set_block('block', 'bannerRow', 'BRow');
+            $B = new Banner();
+            while ($A = DB_fetchArray($result, false)) {
+                $B->Read($A['bid']);
+                $T->set_var('banner', $B->BuildBanner());
+                $T->parse('BRow', 'bannerRow', true);
             }
+            $T->parse('output','block');
+            $banner = $T->finish($T->get_var('output'));
             break;
+
         }
         
         $content = str_replace($autotag['tagstr'], $banner, $content);
