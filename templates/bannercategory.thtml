@@ -1,0 +1,7 @@
+{# begin {templatelocation} #}
+<!-- BEGIN bannerRow -->
+<div class="banner_list">
+{banner}
+</div>
+<!-- END bannerRow -->
+{# end {templatelocation} #}
