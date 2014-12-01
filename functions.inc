@@ -180,8 +180,9 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
                 // if there's a cid, join that table
                 $cid_sql = "LEFT JOIN {$_TABLES['bannercategories']} AS c 
                     ON b.cid=c.cid 
-                    WHERE c.cid='{$cid}' 
-                    AND ";
+                    WHERE c.cid='{$cid}' " .
+                        COM_getPermSQL('AND', 0, 2, 'c') .
+                         ' AND ';
             } else {
                 $cid_sql = " WHERE ";   
             }
@@ -189,9 +190,8 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
                     FROM {$_TABLES['banner']} AS b 
                     $cid_sql
                     (b.publishstart IS NULL OR b.publishstart < NOW()) 
-                    AND (b.publishend IS NULL OR b.publishend > NOW())" . 
-                    COM_getPermSQL('AND', 0, 2, 'c') . 
-                    ' ORDER BY RAND()');
+                    AND (b.publishend IS NULL OR b.publishend > NOW()) 
+                    ORDER BY RAND()");
             $T = new Template(BANR_PI_PATH . '/templates');
             $T->set_file('block', 'bannercategory.thtml');
             $T->set_block('block', 'bannerRow', 'BRow');
