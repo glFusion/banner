@@ -129,12 +129,12 @@
         <input type="hidden" name="{gltoken_name}" value="{gltoken}" />
         <input type="hidden" name="view" value="categories" />
         <input type="hidden" name="item" value="category" />
-        <input name="save" type="submit" value="{$LANG_BANNER_ADMIN[35]}" />
-        <input type="reset" value="{$LANG_BANNER['reset']}" name="reset" />
-        <input type="reset" value="{$LANG_ADMIN['cancel']}" name="cancel" 
+        <input type="submit" class="lgButton green" name="save" value="{$LANG_BANNER_ADMIN[35]}" />
+        <input type="reset" class="lgButton blue" value="{$LANG_BANNER['reset']}" name="reset" />
+        <input type="reset" class="lgButton grey" value="{$LANG_ADMIN['cancel']}" name="cancel" 
             onclick="javascript: document.location.href='{cancel_url}'" />
         {!if delete_option}
-          <input name="delete" type="submit" value="{$LANG_BANNER_ADMIN[33]}"
+          <input name="delete" type="submit" class="lgButton red" value="{$LANG_BANNER_ADMIN[33]}"
             onclick="return confirm('{$LANG_BANNER['ok_to_delete']}');" />
         {!endif}
       </td>

@@ -491,13 +491,13 @@ function BANR_changeType(value)
   {!endif}
 
   </p>
-  <input type="submit" value="{lang_save}" name="save"/>
-  <input type="reset" value="{$LANG_BANNER['reset']}" name="reset"/>
-  <input type="reset" value="{$LANG_ADMIN['cancel']}" name="cancel" 
+  <input type="submit" class="lgButton green" value="{lang_save}" name="save"/>
+  <input type="reset" class="lgButton blue" value="{$LANG_BANNER['reset']}" name="reset"/>
+  <input type="reset" class="lgButton grey" value="{$LANG_ADMIN['cancel']}" name="cancel" 
         onclick="javascript: document.location.href='{cancel_url}'"
         />
   {!if can_delete}
-  <input type="submit" name="delete" value="{$LANG_ADMIN['delete']}" 
+  <input type="submit" class="lgButton red" name="delete" value="{$LANG_ADMIN['delete']}" 
         onclick="return confirm('{$LANG_BANNER['confirm_delitem']}');" />
   {!endif}
   {submission_option}
@@ -509,12 +509,6 @@ function BANR_changeType(value)
 </fieldset>
 </form>
 
-<!--<script type="text/javascript" src="{site_url}/banner/js/calendar.js">
-</script>
-<script type="text/javascript" src="{site_url}/banner/js/calendar-en.js">
-</script>
-<script type="text/javascript" src="{site_url}/banner/js/calendar-setup.js">
-</script>-->
 <script type="text/javascript">
 function updateDate(d, fld)
 {
