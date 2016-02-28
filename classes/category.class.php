@@ -96,6 +96,7 @@ class Category
         switch ($key) {
         case 'cid':
         case 'oldcid':
+        case 'tid':
             $this->properties[$key] = COM_sanitizeId($value, false);
             break;
 
@@ -153,8 +154,8 @@ class Category
         if (!is_array($A))
             return;
 
-        $this->cid = COM_sanitizeID($A['cid'], false);
-        $this->tid = COM_sanitizeID($A['tid'], false);
+        $this->cid = $A['cid'];
+        $this->tid = $A['tid'];
         $this->type = trim($A['type']);
         $this->category = trim($A['category']);
         $this->description = trim($A['description']);

@@ -23,3 +23,23 @@ at http://www.leegarner.com/dokuwiki/doku.php/glfusion:glbanner:start.
 
 Suggesions are welcome.
 
+Template Changes
+================
+To display a banner in the header you must add a template variable "banner_header" to your layout's header.thtml file.
+
+For example, to display a banner in the upper right corner, replacing the default search box in the Nouveau theme, you can edit your header.html like so, adding the left-justified lines below:
+''''html
+{!if banner_header}
+{banner_header}
+{!else}
+						<form method="get" action="{site_url}/search.php">
+							<div>
+								<input id="header-textbox" type="text" name="query" maxlength="255" value="{$LANG09[10]}" title="{$LANG09[10]}" onfocus="if (this.value=='{$LANG09[10]}')this.value='';" onblur="if(this.value=='')this.value='{$LANG09[10]}';"/>
+								<input type="hidden" name="type" value="all" />
+								<input type="hidden" name="mode" value="search" />
+								<input type="hidden" name="results" value="{num_search_results}" />
+							</div>
+						</form>
+{!endif}
+''''
+You can add a similar variable named "banner_footer". For other display locations you can create a variable name of your choice and use that as the "type" in the category definition for banners.
