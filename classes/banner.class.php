@@ -890,7 +890,7 @@ class Banner
                 if ($height == 0) $height = $this->options['height'];
 
                 $img = '<img width="' . $width . '" height="' . $height . 
-                        '" src="' . $img . '" border="0" alt="' . 
+                        '" class="banner_img" src="' . $img . '" border="0" alt="' . 
                         urlencode($this->options['alt']) . '" />';
                 if ($link == true) {
                     $retval = COM_createLink($img, $url, $attr);

@@ -1108,7 +1108,7 @@ function BANNER_block_banner($extra='')
         $B = new Banner();
         foreach ($bids as $bid) {
             $B->Read($bid);
-            $retval .= $B->BuildBanner() . '<br' . XHTML . '>';
+            $retval .= $B->BuildBanner() . '<br />';
             $B->updateImpressions();
         }
         $retval .= "</div>\n";
@@ -1167,7 +1167,7 @@ function BANNER_auditLog($logentry = '')
 
     // Can't open the log file?  Return an error
     if (!$file = fopen($logfile, 'a')) {
-        return $LANG01[33] . $logfile . ' (' . $timestamp . ')<br' . XHTML . '>' . LB;
+        return $LANG01[33] . $logfile . ' (' . $timestamp . ')<br />' . LB;
     }
 
     // Get the user name if it's not anonymous
