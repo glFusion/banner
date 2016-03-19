@@ -4,9 +4,9 @@
 *   Class to handle banner lists for administrators and regular users
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.0.1
+*   @version    0.1.7
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -39,7 +39,7 @@ class BannerList
     /**
     *   Constructor.
     */
-    function __construct($isAdmin = false)
+    public function __construct($isAdmin = false)
     {
         $this->setAdmin($isAdmin);
         $this->campID = '';
@@ -47,7 +47,12 @@ class BannerList
     }
 
 
-    function setAdmin($isAdmin)
+    /**
+    *   Sets the isAdmin variable and the plugin URL based on it.
+    *
+    *   @param  boolean $isAdmin    True if the current user is an admin.
+    */
+    public function setAdmin($isAdmin)
     {
         $this->isAdmin = $isAdmin == true ? true : false;
         if ($this->isAdmin) {
@@ -57,12 +62,24 @@ class BannerList
         }
     }
 
-    function setCampID($id)
+
+    /**
+    *   Sanitize and set the Campaign ID
+    *
+    *   @param  string  $id     Campaign ID
+    */
+    public function setCampID($id)
     {
         $this->campID = COM_sanitizeID($id, false);
     }
 
-    function setCatID($id)
+
+    /**
+    *   Santize and set the Category ID
+    *
+    *   @param  string  $id     Category ID
+    */
+    public function setCatID($id)
     {
         $this->catID = COM_sanitizeID($id, false);
     }
@@ -71,7 +88,7 @@ class BannerList
     /**
     *   Create the list
     */
-    function ShowList()
+    public function ShowList()
     {
         global $LANG_ADMIN, $LANG_BANNER, 
                  $_TABLES, $_CONF, $_CONF_BANR;
@@ -140,11 +157,12 @@ class BannerList
 
             $validate = '';
             if (isset($_GET['validate'])) {
+                $instr_key = 'validate';
                 $token = SEC_createToken();
                 $dovalidate_url = BANR_ADMIN_URL . 
                     '/index.php?validate=validate&amp;'. CSRF_TOKEN.'='.$token;
-                $dovalidate_text = $LANG_BANNER['validate_now'];
-
+                $dovalidate_text = '<button class="lgButton green">' .
+                    $LANG_BANNER['validate_now'] . '</button>';
                 $form_arr['top'] = COM_createLink($dovalidate_text, $dovalidate_url);
     
                 if ($_GET['validate'] == 'enabled') {
@@ -178,6 +196,9 @@ class BannerList
 
         $defsort_arr = array('field' => 'category', 'direction' => 'asc');
 
+        if (!isset($LANG_BANNER['banner_instr_' . $instr_key])) {
+            $instr_key = 'list';
+        }
         $retval .= COM_startBlock($LANG_BANNER['banner_mgr'] . ' ' . 
                         $LANG_BANNER['version'] . ' ' . 
                         $_CONF_BANR['pi_version']
@@ -185,7 +206,7 @@ class BannerList
                         COM_getBlockTemplate('_admin_block', 'header'));
 
         $retval .= ADMIN_createMenu($menu_arr, 
-                $LANG_BANNER['banner_mgr_instr'] . $validate_help, 
+                $LANG_BANNER['banner_instr_'.$instr_key] . $validate_help, 
                 plugin_geticon_banner());
 
         $query_arr = array('table' => 'banner',
@@ -252,61 +273,28 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
 
     $retval = '';
 
-    /*$access = SEC_hasAccess($A['owner_id'],$A['group_id'],
-            $A['perm_owner'], $A['perm_group'],
-            $A['perm_members'], $A['perm_anon']);*/
-/*    if ($access <= 0)
-        return;
-*/
     $base_url = $A['isAdmin'] == 1 ? BANR_ADMIN_URL : BANR_URL;
 
     switch($fieldname) {
     case 'edit':
-/*        if ($access < 3) {
-            break;
-        }*/
-        /*if ($A['enabled'] == 1) {
-            $ena_icon = 'on.png';
-            $enabled = 0;
-            $ena_icon_txt = $LANG_BANNER['enabled'];
-        } else {
-            $ena_icon = 'off.png';
-            $enabled = 1;
-            $ena_icon_txt = $LANG_BANNER['click_enable'];
-        }*/
+        // Not available to non-admins
         if (!$A['isAdmin']) break;
 
-        /*$retval = '<table border="0"><tr height="22">';
-        $retval .= '<td>' . */
-        $retval = 
-                COM_createLink(
+        $retval = COM_createLink(
                 $icon_arr['edit'],
                 $base_url . '/index.php?edit=x&item=banner&amp;bid=' .$A['bid']
                 );
-            // . '</td>';
         break;
 
     case 'enabled':
         if ($A['enabled'] == '1') {
             $switch = 'checked="checked"';
-            //$newval = 0;
         } else {
             $switch = '';
-            //$newval = 1;
         }
         $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"banr_ena_check\"
                 id=\"togena{$A['bid']}\"
                 onclick='BANR_toggleEnabled(this, \"{$A['bid']}\",\"banner\", \"{$_CONF['site_url']}\");' />\n";
-        break;
-
-        /*$retval .= '<td>' .
-                "<span id=\"togena{$A['bid']}\"> " .
-                "<img src=\"" .
-                BANR_URL . "/images/{$ena_icon}\" " .
-                "border=\"0\" width=\"16\" height=\"16\" " .
-                "onclick='BANR_toggleEnabled({$enabled}, \"{$A['bid']}\", \"banner\", \"{$_CONF['site_url']}\");' ".
-                '></span></td>' . " \n" ;
-        $retval .= '</tr></table>';*/
         break;
 
     case 'delete':

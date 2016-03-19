@@ -482,11 +482,13 @@ function plugin_enablestatechange_banner($enabled)
     $enabled = $enabled == 1 ? 1 : 0;
     $blockfns = array('phpblock_banner_');
 
-    foreach ($blockfns as $blockfn) {
+    if ($enabled == 0) {
+        foreach ($blockfns as $blockfn) {
         $sql = "UPDATE {$_TABLES['blocks']}
                 SET is_enabled=$enabled
                 WHERE phpblockfn like '{$blockfn}%'";
         DB_query($sql);
+        }
     }
 
 }
@@ -1108,7 +1110,7 @@ function BANNER_block_banner($extra='')
         $B = new Banner();
         foreach ($bids as $bid) {
             $B->Read($bid);
-            $retval .= $B->BuildBanner() . '<br />';
+            $retval .= '<div class="blockbanner">' . $B->BuildBanner() . '</div>';
             $B->updateImpressions();
         }
         $retval .= "</div>\n";

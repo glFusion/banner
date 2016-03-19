@@ -4,16 +4,12 @@
 *   Default English Language file for the Banner plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.1
+*   @version    0.1.7
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
+*               GNU Public License v2 or later
 *   @filesource
-*
-*   This file does two things: 1) it implements the necessary Geeklog Plugin
-*   API method and 2) implements all the common code needed by the Banner
-*   Plugins' PHP files.
 */
 
 global $LANG32;
@@ -76,7 +72,8 @@ $LANG_BANNER = array(
 'html_status'   => 'HTML Status',
 'validate_instr' => '<p>To validate all banner displayed, please click on the "Validate now" banner below. Please note that this might take some time depending on the amount of banner displayed.</p>',
 'banner_mgr'    => 'Banner Manager',
-'banner_mgr_instr' => 'To modify or delete a banner, click on that banner\'s edit icon below.  To create a new banner or a new category, click on "New banner" or "New category" above. To edit multiple categories, click on "Edit categories" above.',
+'banner_instr_list' => 'To modify or delete a banner, click on that banner\'s edit icon below.  To create a new banner or a new category, click on "New banner" or "New category" above. To edit multiple categories, click on "Edit categories" above.',
+'banner_instr_validate' => 'Click the &quot;Validate now&quot; button to validate the HTTP response from the banner links.',
 'enabled'       => 'Enabled',
 'centerblock'   => 'Centerblock?',
 'click_disable' => 'Click to disable',

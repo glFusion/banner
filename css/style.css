@@ -69,7 +69,6 @@ form.banerform select {
 }
 */
 div.showbanner div.centerblock {
-    align: center;
     padding-bottom: 10px;
 }
 
@@ -80,5 +79,10 @@ div.banner_list {
 
 img.banner_img {
     margin: 1px;
+}
+
+div.blockbanner {
+    padding-bottom: 2px;
+    text-align: center;
 }
 
