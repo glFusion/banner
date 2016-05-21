@@ -90,13 +90,13 @@ class BannerList
     */
     public function ShowList()
     {
-        global $LANG_ADMIN, $LANG_BANNER, 
+        global $LANG_ADMIN, $LANG_BANNER, $_USER,
                  $_TABLES, $_CONF, $_CONF_BANR;
 
         USES_lib_admin();
 
+        $uid = (int)$_USER['uid'];
         $retval = '';
-
         $form_arr = array();
 
         $header_arr = array(
@@ -105,6 +105,7 @@ class BannerList
                     'sort' => false),
             array(  'text' => $LANG_BANNER['enabled'], 
                     'field' => 'enabled',
+                    'align' => 'center',
                     'sort' => false),
             array(  'text' => $LANG_BANNER['banner_id'], 
                     'field' => 'bid', 
@@ -133,31 +134,11 @@ class BannerList
                     'align' => 'center'),
         );
 
-        $menu_arr = array (
-            array(
-                'url' => $_CONF['site_url'] . '/submit.php?type=' . 
-                    $_CONF_BANR['pi_name'],
-              'text' => $LANG_BANNER['new_banner']),
-            array(
-                'url' => $this->url . '/index.php?view=campaigns',
-                'text' => $LANG_BANNER['campaigns']),
-        );
-
         if ($this->isAdmin) {
-            $menu_arr[] = array(
-                'url' => $this->url . '/index.php?validate=enabled',
-                'text' => $LANG_BANNER['validate_banner']);
-            $menu_arr[] = array(
-                'url' => $this->url . '/index.php?view=categories',
-                'text' => $LANG_BANNER['categories']);
-            $menu_arr[] = array(
-                'url' => $_CONF['site_admin_url'],
-                'text' => $LANG_ADMIN['admin_home']);
             $sql_value = 1;
 
             $validate = '';
             if (isset($_GET['validate'])) {
-                $instr_key = 'validate';
                 $token = SEC_createToken();
                 $dovalidate_url = BANR_ADMIN_URL . 
                     '/index.php?validate=validate&amp;'. CSRF_TOKEN.'='.$token;
@@ -186,28 +167,11 @@ class BannerList
             );
         } else {
             $sql_value = 0;
-            $text_arr = array(
-                'has_extras' => true,
-                'form_url' => BANR_URL . '/index.php?mode=banners',
-            );
         }
 
         $options = array('chkdelete' => 'true', 'chkfield' => 'bid');
 
         $defsort_arr = array('field' => 'category', 'direction' => 'asc');
-
-        if (!isset($LANG_BANNER['banner_instr_' . $instr_key])) {
-            $instr_key = 'list';
-        }
-        $retval .= COM_startBlock($LANG_BANNER['banner_mgr'] . ' ' . 
-                        $LANG_BANNER['version'] . ' ' . 
-                        $_CONF_BANR['pi_version']
-                        , '',
-                        COM_getBlockTemplate('_admin_block', 'header'));
-
-        $retval .= ADMIN_createMenu($menu_arr, 
-                $LANG_BANNER['banner_instr_'.$instr_key] . $validate_help, 
-                plugin_geticon_banner());
 
         $query_arr = array('table' => 'banner',
             'sql' => "SELECT
@@ -225,12 +189,12 @@ class BannerList
                     {$_TABLES['banner']} AS b
                 LEFT JOIN
                     {$_TABLES['bannercategories']} AS c
-                ON b.cid=c.cid WHERE 1=1 ",
+                ON b.cid=c.cid WHERE ($sql_value = 1 OR b.owner_id = $uid) ",
 
             'query_fields' => array('title', 'category', 
                 'b.publishstart', 'b.publishend', 'b.hits'),
 
-            'default_filter' => COM_getPermSql ('AND', 0, 3, 'b')
+            'default_filter' => COM_getPermSql('AND', 0, 3, 'b')
         );
 
         // Limit to a specific campaign, if requested
@@ -243,14 +207,8 @@ class BannerList
             $query_arr['sql'] .= " AND b.cid = '{$this->catID}' ";
         }
 
-        /*if (!empty($_GET['bannercategory'])) {
-            $query_arr['sql'] .= " AND c.cid = '".
-                    addslashes($_GET['bannercategory']). "'";
-        }*/
-
         $retval .= ADMIN_list('banner', 'BANNER_getField_banner', $header_arr,
                 $text_arr, $query_arr, $defsort_arr, '', '', $options, $form_arr);
-        $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
         return $retval;
     }
@@ -322,7 +280,7 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
 
     case 'camp_id':
         $retval = COM_createLink($A['camp_id'], 
-                "{$base_url}/index.php?mode=campaigns&camp_id="
+                "{$base_url}/index.php?campaigns=x&camp_id="
                 . urlencode($A['camp_id']));
         break;
 

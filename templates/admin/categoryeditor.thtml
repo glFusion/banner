@@ -2,7 +2,7 @@
 <p>{instructions}</p>
 <br style="clear:both" />
 <form action="{site_admin_url}/plugins/banner/index.php" method="post">
-  <input type="hidden" name="cid" value="{cid_value}">
+  <input type="hidden" name="old_cid" value="{cid}">
   <table border="0" cellspacing="0" cellpadding="2" width="100%">
 
     <tr>
@@ -20,7 +20,7 @@
         <a href="#" onclick="popupWindow('{help_url}#desc_category', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
       </td>
       <td><input type="text" name="category" size="32" maxlength="32" 
-            value="{category_value}" /></td>
+            value="{category}" /></td>
     </tr>
 
     <tr>
@@ -28,7 +28,7 @@
         {$LANG_BANNER['type']}:
         <a href="#" onclick="popupWindow('{help_url}#desc_type', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
       </td>
-      <td><input type="text" name="type" size="32" maxlength="32" value="{type_value}" /></td>
+      <td><input type="text" name="type" size="32" maxlength="32" value="{type}" /></td>
     </tr>
 
     <tr>
@@ -36,7 +36,7 @@
         {$LANG_BANNER['description']}:
         <a href="#" onclick="popupWindow('{help_url}#desc_description', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
       </td>
-      <td><input type="text" name="description" size="50" maxlength="255" value="{description_value}" /></td>
+      <td><input type="text" name="description" size="50" maxlength="255" value="{description}" /></td>
     </tr>
 
     <tr>

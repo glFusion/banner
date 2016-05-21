@@ -951,7 +951,7 @@ function plugin_getuseroption_banner()
     if ($camp_cnt < 1) return '';*/
 
     $menu = array($LANG_BANNER['banners'],
-            BANR_URL . '/index.php?mode=banners', 
+            BANR_URL . '/index.php?banners=x', 
             $camp_cnt);
     return $menu;
 
@@ -1187,5 +1187,7 @@ function BANNER_auditLog($logentry = '')
 
 }
 
+// This is temporary, and will be included in glFusion 1.6.0
+isset($_SYSTEM['framework']) || $_SYSTEM['framework'] = 'legacy';
 
 ?>

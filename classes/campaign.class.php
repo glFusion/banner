@@ -3,11 +3,11 @@
 /**
 *   Class to handle advertising campaigns
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    banner
 *   @version    0.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
+*               GNU Public License v2 or later
 *   @filesource
 */
 
@@ -17,20 +17,6 @@
 */
 class Campaign
 {
-    /*var $camp_id;
-    var $oldID;
-    var $uname;
-    var $description;
-    var $start;
-    var $finish;
-    var $enabled;
-    var $usercanadd;
-    var $hits, $max_hits;
-    var $impressions, $max_impressions;
-    var $max_banners;
-    var $owner_id;
-    var $tid;*/
-
     /** Properties of a campaign
         @var array */
     var $properties;
@@ -288,13 +274,14 @@ class Campaign
     */
     function Edit()
     {
-        global $_CONF, $_CONF_BANR, $_TABLES, $LANG_ACCESS, $LANG_BANNER;
+        global $_CONF, $_CONF_BANR, $_TABLES, $LANG_ACCESS, $LANG_BANNER, $_SYSTEM;
 
         USES_banner_class_image();      // for banner dimensions
 
         $T = new Template($_CONF['path'] . 'plugins/' . 
                         $_CONF_BANR['pi_name'].'/templates/admin/');
-        $T->set_file (array('editform' => 'campaignedit.thtml'));
+        $tpltype = $_SYSTEM['framework'] == 'uikit' ? '.uikit' : '';
+        $T->set_file (array('editform' => "campaignedit$tpltype.thtml"));
         
         $ownername = COM_getDisplayName ($this->owner_id);
         $topics = COM_topicList('tid,topic', $this->tid, 1, true);
@@ -353,8 +340,8 @@ class Campaign
         }
  
         $T->parse ('output', 'editform');
-        $menu = BANNER_menu_adminCampaigns();
-        return $menu . $T->finish($T->get_var('output'));
+        //$menu = BANNER_menu_adminCampaigns();
+        return $T->finish($T->get_var('output'));
     }
 
 

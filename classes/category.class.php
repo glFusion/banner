@@ -3,7 +3,7 @@
 /**
 *   Class to handle banner categories
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2014 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    banner
 *   @version    0.1.7
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
@@ -297,19 +297,16 @@ class Category
     public function Edit($cid='')
     {
         global $_CONF, $_CONF_BANR, $MESSAGE, $LANG_BANNER,
-                $LANG_ADMIN, $LANG_ACCESS, $LANG_BANNER_ADMIN;
+                $LANG_ADMIN, $LANG_ACCESS, $LANG_BANNER_ADMIN,
+                $_SYSTEM;
 
         if (!$this->hasAccess()) {
             return COM_showMessage(6, 'banner');
         }
 
-        /*// Sanitize the supplied parent ID, if one is given.
-        if ($cid == '') {
-            $cid = $this->cid;
-        }*/
-
         $T = new Template(BANR_PI_PATH . '/templates/admin');
-        $T->set_file(array('page' => 'categoryeditor.thtml'));
+        $tpltype = $_SYSTEM['framework'] == 'uikit' ? '.uikit' : '';
+        $T->set_file(array('page' => "categoryeditor$tpltype.thtml"));
 
         $T->set_var(array(
             'help_url'      => BANNER_docURL('categoryform.html'),
@@ -325,10 +322,10 @@ class Category
 
         $T->set_var(array(
             'cid'               => $this->cid,
-            'oldcid'            => $this->cid,
-            'type_value'        => $this->type,
-            'category_value'    => $this->category,
-            'description_value' => $this->description,
+            'old_cid'           => $this->cid,
+            'type'              => $this->type,
+            'category'          => $this->category,
+            'description'       => $this->description,
             'chk_enabled'       => $this->enabled == 0 ? '' : 'checked="checked"',
             'chk_centerblock'   => $this->centerblock == 0 ? '' : 'checked="checked"',
             'max_img_width'     => $this->max_img_width,
@@ -358,7 +355,6 @@ class Category
         $T->set_var('gltoken', SEC_createToken());
 
         $T->parse ('output', 'page');
-        $retval .= BANNER_menu_adminCategories();
         return $retval . $T->finish($T->get_var('output'));
     }
 
@@ -502,33 +498,6 @@ class Category
 
 
 /**
-*   Create the admin menu for category administration
-*
-*   @return string      HTML for menu block (from ADMIN_createMenu)
-*/ 
-function BANNER_menu_adminCategories()
-{
-    global $LANG_BANNER, $_CONF, $LANG_ADMIN;
-
-    USES_lib_admin();
-
-    $admin_url = BANR_ADMIN_URL . '/index.php';
-    $menu_arr = array (
-        array('url' => "$admin_url?edit=x&item=category",
-              'text' => $LANG_BANNER['new_cat']),
-        array('url' => "$admin_url?view=banners",
-              'text' => $LANG_BANNER['banners']),
-        array('url' => "$admin_url?view=campaigns",
-              'text' => $LANG_BANNER['campaigns']),
-        array('url' => $_CONF['site_admin_url'],
-              'text' => $LANG_ADMIN['admin_home'])
-    );
-
-    return ADMIN_createMenu($menu_arr, $LANG_BANNER['cat_mgmt'], plugin_geticon_banner());
-}
-
-
-/**
 *   Create the category administration home page.
 *
 *   @return string  HTML for administration page
@@ -570,23 +539,12 @@ function BANNER_adminCategories()
 
     $defsort_arr = array('field' => 'category', 'direction' => 'asc');
 
-    $retval .= COM_startBlock($LANG_BANNER['cat_mgmt'], '',
-                              COM_getBlockTemplate('_admin_block', 'header'));
-
-    $retval .= BANNER_menu_adminCategories();
-
-    /*$text_arr = array(
-        'has_extras' => true,
-        'form_url'   => BANR_ADMIN_URL . '/bannercategory.php'
-    );*/
-
     $text_arr = array();
     $dummy = array();
     $data_arr = BANNER_list_categories($dummy, $_CONF_BANR['root'], 0);
 
     $retval .= ADMIN_simpleList('BANNER_getField_Category', $header_arr,
                                 $text_arr, $data_arr);
-    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
     return $retval;
 }
@@ -662,7 +620,7 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
     case 'bannercategory':
         $indent = ($A['indent'] - 1) * 20;
         $cat = COM_createLink($A['category'],
-                        "$admin_url?mode=banners&category=" . urlencode($A['cid']));
+                        "$admin_url?banners=x&category=" . urlencode($A['cid']));
         $retval = "<span style=\"padding-left:{$indent}px;\">$cat</span>";
         break;
 

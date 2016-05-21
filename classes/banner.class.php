@@ -1008,7 +1008,7 @@ class Banner
     {
         global $_CONF, $_GROUPS, $_TABLES, $_USER, $_CONF_BANR, $_PLUGINS,
             $LANG_ACCESS, $MESSAGE, $LANG_BANNER, $LANG_ADMIN,
-            $LANG12;
+            $LANG12, $_SYSTEM;
 
         USES_banner_class_campaign();
         USES_banner_class_category();
@@ -1041,7 +1041,8 @@ class Banner
         }
 
         $T = new Template(BANR_PI_PATH . '/templates/');
-        $T->set_file('editor','bannerform.thtml');
+        $tpltype = $_SYSTEM['framework'] == 'uikit' ? '.uikit' : '';
+        $T->set_file('editor',"bannerform$tpltype.thtml");
 
         $T->set_var(array(
             'help_url'      => BANNER_docURL('bannerform.html'),
@@ -1102,6 +1103,7 @@ class Banner
         }
 
         $T->set_var(array(
+            'mootools'      => $_SYSTEM['disable_jquery'] ? 'true' : '',
             'banner_title' => htmlspecialchars($this->title),
             'max_url_length' => 255,
             'category_options' => Category::Dropdown(0, $this->cid),

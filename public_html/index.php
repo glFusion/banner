@@ -16,6 +16,7 @@ require_once '../lib-common.php';
 
 USES_banner_functions();
 USES_banner_class_banner();
+USES_lib_admin();
 
 // Nothing here for anonymous users.
 if (!in_array('banner', $_PLUGINS) || COM_isAnonUser()) {
@@ -28,8 +29,6 @@ $view = 'campaigns';
 $expected = array('banners', 'campaigns', 'campaignDetail', 'report', 
         'edit', 'toggleEnabled', 'toggleEnabledCampaign',
         'action', 'view');
-$action = 'view';
-$actionval = 'campaigns';
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
         $action = $provided;
@@ -62,7 +61,7 @@ case 'report':
         list($url, $title) = DB_fetchArray($result);
 
         $editurl = $_CONF['site_admin_url']
-                 . '/plugins/banner/index.php?mode=edit&bid=' . $bid;
+                 . '/plugins/banner/index.php?edit=x&bid=' . $bid;
         $msg = $LANG_BANNER[119] . LB . LB . "$title, <$url>". LB . LB
                  .  $LANG_BANNER[120] . LB . '<' . $editurl . '>' . LB . LB
                  .  $LANG_BANNER[121] . $_USER['username'] . ', IP: '
@@ -100,12 +99,13 @@ case 'delmulti':
     break;
 
 default:
-    $view = $actionval;
+    $view = $action;
     break;
 }
 
 switch ($view) {
 case 'banners':
+default:
     $view_title = $LANG_BANNER[114];
     $camp_id = '';
     USES_banner_class_bannerlist();
@@ -130,9 +130,9 @@ case 'campaignDetail':
     $C->getBanners();
 
     $menu_arr = array(
-        array('url' => BANR_URL . '/index.php?mode=banners',
+        array('url' => BANR_URL . '/index.php?banners=x',
               'text' => $LANG_BANNER['banners']),
-        array('url' => BANR_URL . '/index.php?mode=campaigns',
+        array('url' => BANR_URL . '/index.php?campaigns=x',
                 'text' => 'Campaigns'),
     );
     $content .= ADMIN_createMenu($menu_arr, $LANG_BANNER['banners'] . $validate_help, plugin_geticon_banner());
@@ -168,9 +168,61 @@ case 'edit':
 
 }
 
-$display .= COM_siteHeader('menu', $view_title);
-$display .= $content;
-$display .= COM_siteFooter();
-echo $display;
+echo COM_siteHeader('menu', $view_title);
+echo BANR_userMenu($view);
+echo $content;
+echo COM_siteFooter();
+exit;
+
+/**
+*   Create the administrator menu
+*
+*   @param  string  $view   View being shown, so set the help text
+*   @return string      Administrator menu
+*/
+function BANR_userMenu($view='')
+{
+    global $_CONF, $LANG_ADMIN, $LANG_BANNER, $_CONF_BANR;
+
+    if (isset($LANG_BANNER['admin_hdr_' . $view]) && 
+        !empty($LANG_BANNER['admin_hdr_' . $view])) {
+        $hdr_txt = $LANG_BANNER['admin_hdr_' . $view];
+    } else {
+        $hdr_txt = $LANG_BANNER['admin_hdr'];
+    }
+
+    if ($view == 'banners') {
+        $menu_arr[] = array(
+                    'url'  => BANR_URL . '/index.php?edit=x',
+                    'text' => '<span class="banrNewAdminItem">' .
+                            $LANG_BANNER['new_banner'], '</span>');
+    } else {
+        $menu_arr[] = array(
+                    'url'  => BANR_URL . '/index.php?banners',
+                    'text' => $LANG_BANNER['banners']);
+    }
+
+    if ($view == 'campaigns') {
+        $menu_arr[] = array(
+                    'url'  => BANR_URL . '/index.php?edit=x&item=campaign',
+                    'text' => '<span class="banrNewAdminItem">' .
+                            $LANG_BANNER['new_camp'] . '</span>');
+    } else {
+        $menu_arr[] = array('url'  => BANR_URL . 
+                            '/index.php?campaigns=x',
+                    'text' => $LANG_BANNER['campaigns']);
+    }
+
+    $T = new Template(BANR_PI_PATH . '/templates');
+    $T->set_file('title', 'banner_admin_title.thtml');
+    $T->set_var('title', 
+        $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . $_CONF_BANR['pi_version'] . ')');
+    $retval = $T->parse('', 'title');
+    $retval .= ADMIN_createMenu($menu_arr, $hdr_txt, 
+            plugin_geticon_banner());
+
+    return $retval;
+
+}
 
 ?>

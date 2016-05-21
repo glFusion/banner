@@ -95,30 +95,6 @@ class CampaignList
 
         $defsort_arr = array('field' => 'camp_id', 'direction' => 'asc');
 
-        $retval .= COM_startBlock($LANG_BANNER['camp_mgr'], '',
-                              COM_getBlockTemplate('_admin_block', 'header'));
-
-        // Create the menu
-        $menu_arr = array();
-        if ($this->isAdmin) {
-            $menu_arr[] = array(
-                'url' => $this->url . '/index.php?edit=x&item=campaign',
-                'text' => $LANG_BANNER['new_camp']);
-        }
-        $menu_arr[] = array(
-                'url' => $this->url . '/index.php?view=banners',
-                'text' => $LANG_BANNER['banners']);
-        if ($this->isAdmin) {
-            $menu_arr[] = array(
-                'url' => $this->url . '/index.php?view=categories',
-                'text' => 'Categories');
-            $menu_arr[] = array('url' => $admin_url,
-                  'text' => $LANG_ADMIN['admin_home']);
-        }
-        $retval .= ADMIN_createMenu($menu_arr, 
-                $LANG_BANNER['camp_mgr_instr'], 
-                plugin_geticon_banner());
-
         $text_arr = array(
             'has_extras' => true,
             'form_url' => "$admin_url?view=campaigns$validate"
@@ -138,13 +114,11 @@ class CampaignList
         if ($uid > 0) {
             $query_arr['sql'] .= ' AND c.owner_id = ' . (int)$uid;
         }
-        //echo $query_arr['sql'];die;
 
         $retval .= ADMIN_list('bannercampaigns', 
                 'BANNER_getField_Campaign', $header_arr,
                 $text_arr, $query_arr, $defsort_arr, '', '', '', 
                 $form_arr);
-        $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
         return $retval;
 
@@ -170,35 +144,14 @@ function BANNER_getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr)
 
     $retval = '';
 
-    /*$access = SEC_hasAccess($A['owner_id'], $A['group_id'],
-            $A['perm_owner'], $A['perm_group'],
-            $A['perm_members'], $A['perm_anon']);
-    if ($access <= 0)
-        return '';*/
-
     $base_url = $A['isAdmin'] == 1 ? BANR_ADMIN_URL : BANR_URL;
     switch($fieldname) {
     case 'edit':
-        /*if ($access < 3) {
-            // If they don't have read/write access, no actions are available
-            $retval = '';
-            break;
-        }*/
-
-        /*if ($A['enabled'] == 1) {
-            $ena_icon = 'on.png';
-            $enabled = 0;
-        } else {
-            $ena_icon = 'off.png';
-            $enabled = 1;
-        }*/
-
         // Create action icons.  Some actions are currently only supported
         // for administrators, regardless of access level
         if ($A['isAdmin'] != 1) {
             break;
         }
-
         $retval .= COM_createLink(
                 $icon_arr['edit'],
                 "$base_url/index.php?edit=x&item=campaign&amp;camp_id=" . 
@@ -207,11 +160,6 @@ function BANNER_getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr)
 
     case 'enabled':
         $switch = $fieldvalue == 1 ? 'checked="checked"' : '';
-        /*$retval .= "<span id=togena{$A['camp_id']}>\n" .
-            "<img style=\"display:inline; width:16px; height:16px;\" src=\"" . 
-            BANR_URL . "/images/{$ena_icon}\" ".
-            "onclick='BANR_toggleEnabled({$enabled}, \"{$A['camp_id']}\", \"campaign\", \"{$_CONF['site_url']}\");'>\n" .
-            "</span>\n";*/
         $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"camp_ena_check\"
                 id=\"togena{$A['camp_id']}\"
                 onclick='BANR_toggleEnabled(this, \"{$A['camp_id']}\",\"campaign\", \"{$_CONF['site_url']}\");' />\n";

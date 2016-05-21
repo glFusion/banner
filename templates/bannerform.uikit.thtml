@@ -1,0 +1,515 @@
+{# begin {templatelocation} #}
+<script type="text/javascript">
+{!if mootools}
+window.addEvent('load',
+{!else}
+$(document).ready(
+{!endif}
+  function() {
+    var element = document.getElementById("f_adtype");
+    BANR_changeType(element.options[element.selectedIndex].value);
+});
+
+function toggleDateField(val, id)
+{
+    if (val) {
+        // A date limit is in effect
+        document.getElementById(id+"date").style.display = '';
+        document.getElementById(id+"date_nolimit").style.display = 'none';
+    } else {
+        // Unchecked, no date limit
+        document.getElementById(id+"date").style.display = 'none';
+        document.getElementById(id+"date_nolimit").style.display = '';
+    }
+}
+
+function BANR_changeType(value)
+{
+    // Defaults, override in the switch
+    document.getElementById('alttag').style.display = '';
+    document.getElementById('maxhits').style.display = '';
+    document.getElementById('currentimage').style.display = '';
+    document.getElementById('hits').style.display = '';
+    document.getElementById('targeturl').style.display = '';
+    document.getElementById('dimensions').style.display = '';
+    document.getElementById('upload').style.display = 'none';
+    document.getElementById('imageurl').style.display = 'none';
+    document.getElementById('adcode').style.display = 'none';
+    document.getElementById('impr').style.display = '';
+    document.getElementById('maximpr').style.display = '';
+
+    switch(value) {
+    case '0':   // Locally-uploaded image
+        document.getElementById('upload').style.display = '';
+        break;
+
+    case '1':   // Remotely-hosted image
+        document.getElementById('upload').style.display = 'none';
+        document.getElementById('imageurl').style.display = '';
+        break;
+
+    case '2':
+        document.getElementById('adcode').style.display = '';
+        document.getElementById('dimensions').style.display = 'none';
+        document.getElementById('upload').style.display = 'none';
+        document.getElementById('imageurl').style.display = 'none';
+        document.getElementById('targeturl').style.display = 'none';
+        document.getElementById('alttag').style.display = 'none';
+        //document.getElementById('maxhits').style.display = 'none';
+        //document.getElementById('hits').style.display = 'none';
+        document.getElementById('currentimage').style.display = 'none';
+        //document.getElementById('impr').style.display = 'none';
+        //document.getElementById('maximpr').style.display = 'none';
+        break;
+
+   }
+}
+        
+</script>
+
+<p>{$LANG_BANNER['edit_details']}</p>
+
+<form id="submit" action="{action_url}"
+    enctype="multipart/form-data"
+    method="post" class="uk-form-horizontal">
+<fieldset>
+  <legend>{$LANG_BANNER['banner_info']}</legend>
+  <div class="uk-form-row">
+    <label for="f_bid" class="uk-form-label required">{$LANG_BANNER['bid']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_bid', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input required name="bid" id="f_bid" type="text" 
+        size="40" maxlength="40" value="{banner_id}" />
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label for="f_title" class="uk-form-label required">{$LANG_BANNER['title']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_title', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input required name="title" id="f_title" type="text" 
+        size="48" maxlength="96" value="{banner_title}" />
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_cid">{$LANG_BANNER['category']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_cid', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <select name="cid" id="f_cid">
+        {category_options}
+      </select>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="camp_id">{$LANG_BANNER['campaign']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_campaigndd', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <select id="camp_id" name="camp_id">
+        {campaign_options}
+      </select>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="tid">{$LANG_BANNER['topic']}
+     <a href="#" onclick="popupWindow('{help_url}#desc_topic', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <select id="tid" name="tid">
+        {topic_selection}
+      </select>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="publishstart">{$LANG_BANNER['pubstart']}
+      <input type="checkbox" name="start_dt_limit" id="start_dt_limit" value="1"
+        {start_dt_limit_chk} onclick="toggleDateField(this.checked, 'start_');"/>
+      <a href="#" onclick="popupWindow('{help_url}#desc_pubstart', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <span id="start_date_nolimit" style="display:{startdt_txt_show};">
+        {$LANG_BANNER['no_dt_limit']}
+      </span>
+      <span id="start_date" dir="ltr" style="display:{startdt_sel_show};">
+        <select id="start_month" name="start_month" onchange="setDate('start');">
+          {start_month_options}
+        </select>
+        /
+        <select id="start_day" name="start_day" onchange="setDate('start');">
+          {start_day_options}
+        </select>
+        /
+        <select id="start_year" name="start_year" onchange="setDate('start');">
+          {start_year_options}
+        </select>
+                                
+        <img src="{site_url}/images/datepicker.jpg" 
+            id="start_trigger"
+            style="cursor: pointer;"
+            title="Select Date" />
+
+        &nbsp;&nbsp;
+        <select name="start_hour">
+          {start_hour_options}
+        </select>
+        <b>:</b>
+        <select name="start_minute">
+          {start_minute_options}
+        </select>
+        {start_ampm_selection}
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="end_date">{$LANG_BANNER['pubend']}
+      <input type="checkbox" name="end_dt_limit" id="end_dt_limit" value="1"
+        {end_dt_limit_chk} onclick="toggleDateField(this.checked, 'end_');"/>
+      <a href="#" onclick="popupWindow('{help_url}#desc_pubend', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <span id="end_date_nolimit" style="display:{enddt_txt_show};">
+        {$LANG_BANNER['no_dt_limit']}
+      </span>
+      <span id="end_date" dir="ltr" style="display:{enddt_sel_show};">
+        <select id="end_month" name="end_month" onchange="setDate('end');">
+          {end_month_options}
+        </select>
+        /
+        <select id="end_day" name="end_day" onchange="setDate('end');">
+          {end_day_options}
+        </select>
+        /
+        <select id="end_year" name="end_year" onchange="setDate('end');">
+          {end_year_options}
+        </select>
+                                
+        <img src="{site_url}/images/datepicker.jpg" 
+            id="end_trigger"
+            style="cursor: pointer;"
+            title="Select Date" />
+
+        &nbsp;&nbsp;
+        <select name="end_hour">
+          {end_hour_options}
+        </select>
+        <b>:</b>
+        <select name="end_minute">
+          {end_minute_options}
+        </select>
+        {end_ampm_selection}
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_adtype">{$LANG_BANNER['ad_type']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_ad_type', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <select id="f_adtype" name="ad_type" 
+        onchange="BANR_changeType(this.value)" />
+        {adtype_select}
+      </select>
+    </div>
+  </div>
+
+  {!if isAdmin}
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_enabled">{$LANG_BANNER['enabled']}?
+      <a href="#" onclick="popupWindow('{help_url}#desc_enabled', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input name="enabled" id="f_enabled" type="checkbox" 
+        value="1" {ena_chk} /> 
+    </div>
+  </div>
+
+  <div class="uk-form-row" id="hits">
+    <label class="uk-form-label" for="f_hits">{$LANG_BANNER['hits']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_hits', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input name="hits" id="f_hits" type="text" size="11" 
+        value="{banner_hits}" />
+      &nbsp;{$LANG_BANNER['warn_update_hits']}
+    </div>
+  </div>
+
+  <div class="uk-form-row" id="maxhits">
+    <label class="uk-form-label" for="f_max_hits">{$LANG_BANNER['max_hits']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_max_hits', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input name="max_hits" id="f_max_hits" type="text" size="11" 
+        value="{banner_maxhits}" />&nbsp;{$LANG_BANNER['zero_eq_unlimited']}
+    </div>
+  </div>
+
+  <div class="uk-form-row" id="impr">
+    <label class="uk-form-label" for="f_impressions">{$LANG_BANNER['impressions']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_impressions', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input name="impressions" id="f_impressions" type="text" size="11" 
+        value="{impressions}" />
+      &nbsp;{$LANG_BANNER['warn_update_hits']}
+    </div>
+  </div>
+
+
+  <div class="uk-form-row" id="maximpr">
+    <label class="uk-form-label" for="f_max_impressions">{$LANG_BANNER['max_impressions']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_max_impressions', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input name="max_impressions" id="f_max_impressions" type="text" 
+        size="11" value="{max_impressions}" />&nbsp;{$LANG_BANNER['zero_eq_unlimited']}
+    </div>
+  </div>
+  {!else}
+    <span id="maxhits"></span><span id="hits"></span>
+    <span id="maximpr"></span><span id="impr"></span>
+    <input type="hidden" name="enabled" value="1">
+  {!endif}
+
+  <div class="uk-form-row" id="targeturl">
+    <label for="f_targeturl" class="uk-form-label required">{$LANG_BANNER['target_url']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_target_url', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input name="url" id="f_targeturl"
+        type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
+        value="{target_url}" /> {$LANG_BANNER['includehttp']}
+    </div>
+  </div>
+
+  <div class="uk-form-row" id="target">
+    <label class="uk-form-label" for="f_target">{$LANG_BANNER['target']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_target', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <select id="f_target name="target">
+        <option value="_blank" {sel_blank}>{$LANG_BANNER['new_window']}</option>
+        <option value="_self" {sel_self}>{$LANG_BANNER['same_window']}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="uk-form-row" id="upload">
+    <label for="f_upload" class="uk-form-label required">{$LANG_BANNER['upload_img']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_upload', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input id="f_upload" type="file" name="bannerimage">
+    </div>
+  </div>
+
+  <div class="uk-form-row" id="imageurl">
+    <label for="f_imageurl" class="uk-form-label required">{$LANG_BANNER['remote_img']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_image_url', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input name="image_url" id="f_imageurl" 
+        type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
+        value="{image_url}" /> {$LANG_BANNER['includehttp']}
+    </div>
+  </div>
+
+  <div class="uk-form-row" id="dimensions">
+    <label class="uk-form-label" for="f_width">{$LANG_BANNER['dimensions']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_dimensions', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input name="width" id="f_width" 
+        type="text" dir="ltr" size="4" maxlength="4" 
+        value="{width}" /> {$LANG_BANNER['wide']} x
+      <input name="height" id="f_height"
+        type="text" dir="ltr" size="4" maxlength="4" 
+        value="{height}" /> {$LANG_BANNER['high']}
+    </div>
+  </div>
+
+  <div class="uk-form-row" id="alttag">
+    <label class="uk-form-label" for="f_alt">{$LANG_BANNER['alt']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_alt', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <input name="alt" id="f_alt" 
+        type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
+        value="{alt}" />
+    </div>
+  </div>
+
+  {!if weight_select}
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_weight">{$LANG_BANNER['weight']}
+      <a href="#" onclick="popupWindow('{help_url}#desc_weight', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
+    </label>
+    <div class="uk-form-controls">
+      <select id="f_weight" name="weight">
+        {weight_select}
+      </select>
+    </div>
+  </div>
+  {!endif}
+
+  <div class="uk-form-row" id="currentimage">
+  {!if disp_img}
+    <label class="uk-form-label" for="f_alt">{$LANG_BANNER['current_image']}</label>
+    <div class="uk-form-controls">
+      {disp_img}
+    </div>
+  {!endif}
+  </div>
+
+  <div class="uk-form-row" id="adcode">
+    <label for="f_adcode" class="uk-form-label required">{$LANG_BANNER['ad_code']}:
+        <img src="{layout_url}/images/button_help.png" alt="" />
+    </label>
+    <div class="uk-form-controls">
+      <textarea name="ad_code" id="f_imageurl" cols="60" rows="6" />{ad_code}</textarea>
+    </div>
+  </div>
+
+  {req_item_msg}
+  </fieldset>
+
+  <fieldset>
+  <legend>{$LANG_BANNER['access_control']}</legend>
+
+  {!if isAdmin} 
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_owner_id">{$LANG_ACCESS['owner']}</label>
+    <div class="uk-form-controls">
+      <select id="f_owner_id" name="owner_id">
+        {owner_dropdown}
+      </select>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_owner_id">{$LANG_ACCESS['group']}</label>
+    <div class="uk-form-controls">
+      {group_dropdown}
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_owner_id">{$LANG_ACCESS['permissions']}:</label>
+    <div class="uk-form-controls">
+      {$LANG_ACCESS['permissionskey']}<br />
+      {permissions_editor}
+      {perm_msg}
+    </div>
+  </div>
+
+  {!else}
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_members_chk">{$LANG_BANNER['visible_members']}</label>
+    <div class="uk-form-controls">
+      <input id="f_members_chk" name="perm_members" type="checkbox" 
+        value="2" {vis_members_chk} />
+    </div>
+  </div>
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_anon_chk">{$LANG_BANNER['visible_anon']}</label>
+    <div class="uk-form-controls">
+      <input id="f_anon_chk" name="perm_anon" type="checkbox" 
+        value="2" {vis_anon_chk} />
+    </div>
+  </div>
+
+  <input type="hidden" name="owner_id" value="{owner_id}">
+  <input type="hidden" name="group_id" value="{group_id}">
+  <input type="hidden" name="simpleperms" value="true">
+  {!endif}
+
+  <div class="uk-form-row">
+    <div class="uk-form-controls">
+      <button type="submit" class="uk-button uk-button-success" value="{lang_save}" name="save">{lang_save}</button>
+      <button type="reset" class="uk-button uk-button-primary" value="{$LANG_BANNER['reset']}" name="reset">{$LANG_BANNER['reset']}</button>
+      <button type="reset" class="uk-button" value="{$LANG_ADMIN['cancel']}" name="cancel" 
+        onclick="javascript: document.location.href='{cancel_url}'">{$LANG_ADMIN['cancel']}</button>
+  {!if can_delete}
+      <button type="submit" class="uk-button uk-button-danger" name="delete" value="{$LANG_ADMIN['delete']}" 
+        onclick="return confirm('{$LANG_BANNER['confirm_delitem']}');">"{$LANG_ADMIN['delete']}</button>
+  {!endif}
+  {submission_option}
+  <input type="hidden" value="{old_banner_id}" name="oldbid"/>
+  <input type="hidden" name="{gltoken_name}" value="{gltoken}"/>
+  <input type="hidden" name="filename" value="{filename}" />
+  <input type="hidden" id="f_start" name="f_start" value="{publishstart}" />
+  <input type="hidden" id="f_end" name="f_end" value="{publishend}" />
+</fieldset>
+</form>
+
+<script type="text/javascript">
+function updateDate(d, fld)
+{
+    document.getElementById(fld + "_month").selectedIndex = d.getMonth();
+    document.getElementById(fld + "_day").selectedIndex = d.getDate() - 1;
+    document.getElementById(fld + "_year").value = d.getFullYear();
+}
+
+function start_onUpdate(cal)
+{
+    var d = cal.date;
+
+    if (cal.dateClicked && d) {
+        updateDate(d, "start");
+    }
+    return true;
+}
+
+function end_onUpdate(cal)
+{
+    var d = cal.date;
+
+    if (cal.dateClicked && d) {
+        updateDate(d, "end");
+    }
+    return true;
+}
+
+// set the hidden date field based on the visible component fields
+// to keep the popup calendar updated
+function setDate(fld)
+{
+    var hidden = document.getElementById("f_" + fld);
+    var fm = document.getElementById(fld + "_month");
+    var fd = document.getElementById(fld + "_day");
+    var year = document.getElementById(fld + "_year").value;
+    month = fm.options[fm.selectedIndex].value;
+    if (month < 10) month = "0" + month;
+    day = fd.options[fd.selectedIndex].text;
+    hidden.value = year + "-" + month + "-" + day;
+}
+    
+Calendar.setup({
+        inputField     :    "f_start",
+        ifFormat       :    "%Y-%m-%d",
+        showsTime      :    false,
+        timeFormat     :    "24",
+        button          :   "start_trigger",
+        onUpdate        :   start_onUpdate
+    });
+
+Calendar.setup({
+        inputField     :    "f_end",
+        ifFormat       :    "%Y-%m-%d",
+        showsTime      :    false,
+        timeFormat     :    "24",
+        button          :   "end_trigger",
+        onUpdate        :   end_onUpdate
+    });
+
+</script>
+{# end {templatelocation} #}
+

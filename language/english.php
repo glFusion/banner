@@ -92,6 +92,7 @@ $LANG_BANNER = array(
 'cat_name'      => 'Category Name',
 'topic'         => 'Topic',
 'cat_mgmt'      => 'Category Management',
+'banner_mgmt'   => 'Banner Ad Management',
 'category'      => 'Category',
 'description'   => 'Description',
 'edit_details'  => 'Enter or edit the details below.',
