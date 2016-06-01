@@ -868,7 +868,7 @@ class Banner
             $attr = array(
                     'title' => $title == '' ? $this->title : $title,
                     'class' => $class,
-                    //'alt' => $this->options['alt'],
+                    'alt' => $this->options['alt'] == '' ? $this->title : $this->options['alt'],
                     'target' => $target,
                     //'border' => '0',
             );
