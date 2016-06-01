@@ -870,11 +870,9 @@ class Banner
                     'class' => $class,
                     'alt' => $this->options['alt'] == '' ? $this->title : $this->options['alt'],
                     'target' => $target,
+                    'data-uk-tooltip' => '',
                     //'border' => '0',
             );
-            //if ($_CONF_BANR['target_blank'] == 1 ) {
-            //    $attr['target'] = '_blank';
-            //}
 
             if ($this->ad_type == BANR_TYPE_LOCAL &&
                 !empty($this->options['filename']) && 
