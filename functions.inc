@@ -966,22 +966,17 @@ function plugin_getuseroption_banner()
 */
 function plugin_getconfigelementhelp_banner($option, $doclang='english')
 {
-    $url = BANNER_docURL('config.html', $doclang);
-
-    /*global $_CONF, $_CONF_BANR;
-
-    $doc_path = $_CONF['path_html'] . '/' . $_CONF_BANR['pi_name'] . '/docs/';
-    if (file_exists("{$doc_path}config_{$doclang}.thtml")) {
-        $file  = "config_{$doclang}.thtml";
+    if (version_compare(GVERSION, '1.6.0', '<')) {
+        $file = 'config.legacy.html';
     } else {
-        $file = 'config_english.html';
-    }*/
+        $file = 'config.html';
+    }
+    $url = BANNER_docURL($file, $doclang);
 
     if (!empty($option)) {
         $url .= '#desc_' . $option;
     }
 
-    //return array(BANR_URL . '/docs/' . $file, 0);
     return array($url, 0);
 }
 

@@ -1,173 +1,161 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" class="uk-height-1-1">
 <head>
-  <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
-  <link href="../../../docs/docstyle.css" type="text/css" rel="stylesheet" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="apple-touch-icon-precomposed" href="../../layout/cms/images/apple-touch-icon.png">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.3/css/uikit.almost-flat.min.css">
   <meta name="robots" content="noindex,nofollow" />
-  <title>Banner Plugin - glFusion CMS</title>
+  <title>glFusion Banner Plugin Configuration</title>
+  <style>
+    html{background:#f9f9f9}.tm-dropdown,.tm-navbar{background:#325482!important}.uk-form label{font-weight:700}.tm-navbar{border-radius:0!important;padding:1px 0 6px!important;border:none!important}.tm-navbar-brand{color:#eee!important}.tm-navbar-brand a{text-shadow:none;color:#fff}.tm-navbar-brand a:hover{color:#ababab;text-decoration:none}.tm-navbar-brand-oc a{text-shadow:none;color:#fff}.tm-navbar-brand-oc a:hover{color:#ababab;text-decoration:none}.tm-navbar-nav>li>a{border:none;border-radius:3px!important;font-size:15px!important;height:40px!important;margin:0!important}.tm-dropdown{color:#000;border-radius:0!important;border:0!important}.tm-nav-navbar>li>a{color:#fff!important}.tm-navbar::after,.tm-navbar::before{margin-top:7px!important}.tm-navbar-nav>li.uk-open>a,.tm-navbar-nav>li:hover>a,.tm-navbar-nav>li>a:focus{color:#fff;outline:0;background:#35B3EE!important}.tm-navbar-nav>li>a{color:#fff!important;text-shadow:none!important}.tm-navbar-toggle{color:#ccc!important;text-shadow:none!important}.tm-navbar-toggle:focus,.tm-navbar-toggle:hover{color:#fff!important}.tm-footer{background:#252525;border-top:1px solid #232425;margin-bottom:0;bottom:0;padding:10px;color:#fff}.tm-wrapper{min-height:100%;margin:0 auto -51px!important}.tm-push,footer{height:51px}.uk-navbar-content > a {color:#fff !important;}
+  </style>
 </head>
 
-<body style="direction: ltr;">
-<div id="gl_container_fluid">
-  <div id="gl_header"><span style="color: rgb(255, 255, 255); float: left; padding-left: 10px; padding-top: 5px; vertical-align: middle;">glFusion Documentation Project
-  </span><a style="float: right; padding-right: 10px; padding-top: 5px; vertical-align: middle;" href="http://www.glfusion.org/wiki/doku.php">glFusion Wiki</a>
-</div>
-<div id="gl_wrapper">
-<div class="body-container">
-<h1><a name="advt_plugin" id="advt_plugin">Banner Plugin</a></h1>
+<body class="uk-height-1-1">
+  <div class="tm-wrapper">
+    <nav class="uk-navbar uk-navbar-attached tm-navbar uk-margin-bottom">
+      <div class="uk-navbar-brand tm-navbar-brand">
+        glFusion Banner Plugin Configuration
+      </div>
+      <div class="uk-navbar-flip uk-hidden-small">
+        <div class="uk-navbar-content tm-navbar-content" style="text-shadow:none;">
+          <a href="https://www.glfusion.org/wiki/">glFusion Wiki</a>
+        </div>
+      </div>
+    </nav>
 
-<div class="level1">
-<p>The Banner Plugin allows you to create and display banner ads.  Banners may be displayed within the header and footer templates, as well
-as in blocks, stories, and static pages.</p>
-<p>This version requires GLFusion 1.1.0 or higher.</p>
-<h1><a name="banner_plugin_configuration_options" id="baner_plugin_configuration_options">Banner Plugin Configuration Options</a></h1>
+    <div class="uk-container uk-container-center uk-margin-bottom">
+      <h1>glFusion Banner Plugin Configuration</h1>
+      <p>The Banner Plugin allows you to create and display banner ads.  Banners may be displayed within the header and footer templates, as well as in blocks, stories, and static pages.</p>
 
-<table class="inline">
-  <tbody>
-    <tr>
-      <th class="col0 leftalign" colspan="2">Main Banner Settings</th>
-    </tr>
+      <h2>Main Banner Options</h2>
 
-    <tr class="row0">
-      <th class="col0 leftalign">Option </th>
-      <th class="col1 leftalign">Description </th>
-    </tr>
-
-    <tr class="row0" valign="top">
-      <td class="col0 leftalign"><a name="desc_templatevariables"></a>Display banners in templates?</td>
-      <td class="col1 leftalign">Select whether to display banners in templates.  If "No", then no banners will appear in the header or footer templates.<p />
+      <dl id="desc_admin_email_addr">
+        <dt>Administrator&apos;s Email Address</dt>
+        <dd>Enter the email addresses to which confirmation email messages should be sent. If this is empty, the site email address will be used.</dd>
+      </dl>
+      <dl id="desc_templatevariables">
+        <dt>Display banners in templates?</dt>
+        <dd>Select whether to display banners in templates.  If "No", then no banners will appear in the header or footer templates.<p />
 <span style="color:red;">IMPORTANT:</span>  If you enable this function, and you have categories enabled which use any of the standard template names (header, footer, article, etc.), then you MUST make sure that the template variables are defined properly in order to keep your impression count accurate.<p />
-The plugin has no way of knowing whether template variables are actually defined, so it counts each attempt to display an ad whether it is actually displayed or not.</td>
-    </tr>
+The plugin has no way of knowing whether template variables are actually defined, so it counts each attempt to display an ad whether it is actually displayed or not.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_submissionqueue"></a>Enable Submission Queue?</td>
-      <td class="col1 leftalign">Setting this to "Yes" enables the submission queue.  If this is "No", the submission queue is not used.</td>
-    </tr>
+      <dl id="desc_submissionqueue">
+        <dt>Enable Submission Queue?</dt>
+        <dd>Setting this to "Yes" enables the submission queue.  If this is "No", the submission queue is not used.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_usersubmit"></a>Allow submissions from site members?</td>
-      <td class="col1 leftalign">Setting this to "Yes" allows site members to submit ads, subject to the "Enable Submission Queue" setting.</td>
-    </tr>
+      <dl id="desc_usersubmit">
+        <dt>Allow submissions from site members?</dt>
+        <dd>Setting this to "Yes" allows site members to submit ads, subject to the "Enable Submission Queue" setting.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_notification"></a>Notification Email?</td>
-      <td class="col1 leftalign">Set this to "Yes" to have an email message sent to the site admin when a new banner is submitted.</td>
-    </tr>
+      <dl id="desc_notification">
+        <dt>Notification Email?</dt>
+        <dd>Set this to "Yes" to have an email message sent to the site admin when a new banner is submitted.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_delete_banner"></a>Delete Banner with Owner?</td>
-      <td class="col1 leftalign">Set this to "Yes" to have banners deleted when the owner's user account is deleted.  If this is "No", banners will persist after the owner has been removed, and the ownership will change to a member with the "banner.admin" privilege.</td>
-    </tr>
+      <dl id="desc_delete_banner">
+        <dt>Delete Banner with Owner?</dt>
+        <dd>Set this to "Yes" to have banners deleted when the owner's user account is deleted.  If this is "No", banners will persist after the owner has been removed, and the ownership will change to a member with the "banner.admin" privilege.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_show_in_admin"></a>Show baners on admin pages?</td>
-      <td class="col1 leftalign">Select whether to display banners on pages under the site admin URL.  If impressions are counted, this should probably be set to "No".</td>
-    </tr>
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_target_blank"></a>Show target links in a new window?</td>
-      <td class="col1 leftalign">If this is "Yes", then clicking on a banner will open the target in a new browser window or tab.  If this is "No", then the target will be opened in the current window, effectively leaving your site.</td>
-    </tr>
+      <dl id="desc_show_in_admin">
+        <dt>Show baners on admin pages?</dt>
+        <dd>Select whether to display banners on pages under the site admin URL.  If impressions are counted, this should probably be set to "No".</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_img_max_height"></a>Image Max Height</td>
-      <td class="col1 leftalign">Enter the maximum image height for an uploaded banner image, in pixels.</td>
-    </tr>
+      <dl id="desc_target_blank">
+        <dt>Show target links in a new window?</dt>
+        <dd>If this is "Yes", then clicking on a banner will open the target in a new browser window or tab.  If this is "No", then the target will be opened in the current window, effectively leaving your site.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_img_max_width"></a>Image Max Width</td>
-      <td class="col1 leftalign">Enter the maximum image width for an uploaded banner image, in pixels.</td>
-    </tr>
+      <dl id="desc_img_max_height">
+        <dt>Image Max Height</dt>
+        <dd>Enter the maximum image height for an uploaded banner image, in pixels.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_def_weight"></a>Default Weight</td>
-      <td class="col1 leftalign">Select the default weight to be applied to new ads. The weight indicates the liklihood that a banner will be displayed relative to other banners.</td>
-    </tr>
+      <dl id="desc_img_max_width">
+        <dt>Image Max Width</dt>
+        <dd>Enter the maximum image width for an uploaded banner image, in pixels.</dd>
+      </dl>
 
-    <tr>
-      <th class="col0 leftalign" colspan="2">Banner Display Settings</th>
-    </tr>
+      <dl id="desc_def_weight">
+        <dt>Default Weight</dt>
+        <dd>Select the default weight to be applied to new ads. The weight indicates the liklihood that a banner will be displayed relative to other banners.</dd>
+      </dl>
 
-    <tr><td colspan="2">These settings allow you to block ads from being displayed to various classes of visitor.  Some ad providers, such as Google Adsense, have clauses in their TOS regarding invalid or webmaster-generated impressions.  Setting one or more of the following items can help mitigate this problem.</td>
-    </tr>
+      <h2>Banner Display Settings</h2>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_show_in_admin"></a>Show Banners on Admin Pages?</td>
-      <td class="col1 leftalign">If this is "Yes", then banners will be displayed on pages under the site admin URL.  If "No", then admin pages will not be shown banners.  This is one method to reduce false impressions due to admin activity.</td>
-    </tr>
+      <p>These settings allow you to block ads from being displayed to various classes of visitor.  Some ad providers, such as Google Adsense, have clauses in their TOS regarding invalid or webmaster-generated impressions.  Setting one or more of the following items can help mitigate this problem.</p>
 
-    <!--<tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_users_dontshow"></a>Users who will not be shown ads</td>
-      <td class="col1 leftalign">Enter one or more user ID's for users who will not be shown ads.  These must be the numeric user ID's, not the user names.</td>
-    </tr>-->
+      <dl id="desc_show_in_admin">
+        <dt>Show Banners on Admin Pages?</dt>
+        <dd>If this is "Yes", then banners will be displayed on pages under the site admin URL.  If "No", then admin pages will not be shown banners.  This is one method to reduce false impressions due to admin activity.</dd>
+      </dd>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_ipaddr_dontshow"></a>IP addresses that will not be shown ads</td>
-      <td class="col1 leftalign">Enter one or more IP addresses that will not be shown ads.</td>
-    </tr>
+      <dl id="desc_ipaddr_dontshow">
+        <dt>IP addresses that will not be shown ads</dt>
+        <dd>Enter one or more IP addresses that will not be shown ads.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_uagent_dontshow"></a>User Agents that will not be shown ads</td>
-      <td class="col1 leftalign">Enter one or more User Agent strings that will not be shown ads. You can enter a substring, e.g. &quot;Mozilla&quote; to catch all versions of Mozilla browsers. The user-agent string is not case-sensitive. This is typically used to prevent monitoring systems (Nagios, Xymon, etc.) from increasing the ad hit counts.</td>
-    </tr>
+      <dl id="desc_uagent_dontshow">
+        <dt>User Agents that will not be shown ads</dt>
+        <dd>Enter one or more User Agent strings that will not be shown ads. You can enter a substring, e.g. &quot;Mozilla&quote; to catch all versions of Mozilla browsers. The user-agent string is not case-sensitive. This is typically used to prevent monitoring systems (Nagios, Xymon, etc.) from increasing the ad hit counts.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_adshow_owner"></a>Show ads to the ad owner?</td>
-      <td class="col1 leftalign">Set this to "No" to hide ads from their owner.  If this is "Yes", then the ad owners will see their own ads.  Since the impression and click counters can be controlled by other settings, this is most useful if your site uses Adsense or similar ads to prevent false impression counts.</td>
-    </tr>
+      <dl id="desc_adshow_owner">
+        <dt>Show ads to the ad owner?</dt>
+        <dd>Set this to "No" to hide ads from their owner.  If this is "Yes", then the ad owners will see their own ads.  Since the impression and click counters can be controlled by other settings, this is most useful if your site uses Adsense or similar ads to prevent false impression counts.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_adshow_admins"></a>Show ads to ad administrators?</td>
-      <td class="col1 leftalign">Set this to "No" to hide all ads from the banner ad administrators (members with the 'banner.admin' privilege.  For these users, this "No" setting will override a "Yes" setting for "Show ads to the ad owner".  If this is "Yes", then the administrators will see ads.  Set "Show ads to the ad owner" to "No" to prevent administrators from seeing their own ads.  Since the impression and click counters can be controlled by other settings, this is most useful if your site uses Adsense or similar ads to prevent false impression counts.</td>
-    </tr>
+      <dl id="desc_adshow_admins">
+        <dt>Show ads to ad administrators?</dt>
+        <dd>Set this to "No" to hide all ads from the banner ad administrators (members with the 'banner.admin' privilege.  For these users, this "No" setting will override a "Yes" setting for "Show ads to the ad owner".  If this is "Yes", then the administrators will see ads.  Set "Show ads to the ad owner" to "No" to prevent administrators from seeing their own ads.  Since the impression and click counters can be controlled by other settings, this is most useful if your site uses Adsense or similar ads to prevent false impression counts.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_cntclicks_owner"></a>Count ad clicks made by the ad owner?</td>
-      <td class="col1 leftalign">If this is set to "No", then clicks made by the ad owners will not count towards their hit counts.  If this is "Yes", then clicks made by ad owners will be added to the ad's hit count.  This almost certainly should be set to "No".</td>
-    </tr>
+      <dl id="desc_cntclicks_owner">
+        <dt>Count ad clicks made by the ad owner?</dt>
+        <dd>If this is set to "No", then clicks made by the ad owners will not count towards their hit counts.  If this is "Yes", then clicks made by ad owners will be added to the ad's hit count.  This almost certainly should be set to "No".</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_cntclicks_admins"></a>Count ad clicks made by ad administrators?</td>
-      <td class="col1 leftalign">If this is set to "No", then clicks made by the ad administrators will not count towards their hit counts.  If this is "Yes", then clicks made by administrators will be added to the ad's hit count.  This probably should be set to "No".</td>
-    </tr>
+      <dl id="desc_cntclicks_admins">
+        <dt>Count ad clicks made by ad administrators?</dt>
+        <dd>If this is set to "No", then clicks made by the ad administrators will not count towards their hit counts.  If this is "Yes", then clicks made by administrators will be added to the ad's hit count.  This probably should be set to "No".</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_cntimpr_owner"></a>Count ad impressions for the ad owner?</td>
-      <td class="col1 leftalign">If this is set to "No", then the ad impression count is not incremented when the ad is displayed to its owner.  If this is "Yes", then the display will be added to the ad's impression count.  This almost certainly should be set to "No".</td>
-    </tr>
+      <dl id="desc_cntimpr_owner">
+        <dt>Count ad impressions for the ad owner?</dt>
+        <dd>If this is set to "No", then the ad impression count is not incremented when the ad is displayed to its owner.  If this is "Yes", then the display will be added to the ad's impression count.  This almost certainly should be set to "No".</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_cntimpr_admins"></a>Count ad impressions for ad administrators?</td>
-      <td class="col1 leftalign">If this is set to "No", then the ad impression count is not incremented when the ad is displayed to an ad administrator. If this is "Yes", then the display will be added to the ad's impression count.  This probably should be set to "No".</td>
-    </tr>
+      <dl id="desc_cntimpr_admins">
+        <dt>Count ad impressions for ad administrators?</dt>
+        <dd>If this is set to "No", then the ad impression count is not incremented when the ad is displayed to an ad administrator. If this is "Yes", then the display will be added to the ad's impression count.  This probably should be set to "No".</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_cb_enable"></a>Centerblock Enabled?</td>
-      <td class="col1 leftalign">If this is set to "Yes", then ads which belong to categories that have "Show in Centerblock" set to "true" will be displayed in a center block according to the "Centerblock Position" setting.  Setting this to "No" suppresses the banner ad centerbock.</td>
-    </tr>
+      <dl id="desc_cb_enable">
+        <dt>Centerblock Enabled?</dt>
+        <dd>If this is set to "Yes", then ads which belong to categories that have "Show in Centerblock" set to "true" will be displayed in a center block according to the "Centerblock Position" setting.  Setting this to "No" suppresses the banner ad centerbock.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_cb_pos"></a>Centerblock Position?</td>
-      <td class="col1 leftalign">Select the position where the center block should appear.  This has no effect unless the centerblock is enabled.</td>
-    </tr>
+      <dl id="desc_cb_pos">
+        <dt>Centerblock Position?</dt>
+        <dd>Select the position where the center block should appear.  This has no effect unless the centerblock is enabled.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_cb_home"></a>Centerblock Replaces Home Page?</td>
-      <td class="col1 leftalign">If this is set to "Yes", then the site home page will be replaced by a single banner ad.  Note that this may conflict with other plugins, so all other plugins should have their centerblock turned off if this is to be used.</td>
-    </tr>
+      <dl id="desc_cb_home">
+        <dt>Centerblock Replaces Home Page?</dt>
+        <dd>If this is set to "Yes", then the site home page will be replaced by a single banner ad.  Note that this may conflict with other plugins, so all other plugins should have their centerblock turned off if this is to be used.</dd>
+      </dl>
 
-    <tr class="row3" valign="top">
-      <td class="col0 leftalign"><a name="desc_block_limit"></a>Max. ads to show in blocks</td>
-      <td class="col1 leftalign">This is the maximum number of ads to show in blocks.  Enter "0" for no limit.  The default random ad block is limited to a single ad, but other blocks may display one or more ads.</td>
-    </tr>
-
-
-  </tbody>
-</table>
-<p></p>
-</div>
-</div>
-</div>
-</div>
+      <dl id="desc_block_limit">
+        <dt>Max. ads to show in blocks</dt>
+        <dd>This is the maximum number of ads to show in blocks.  Enter "0" for no limit.  The default random ad block is limited to a single ad, but other blocks may display one or more ads.</dd>
+      </dl>
+    </div>
+  </div>
 </body>
 </html>
