@@ -2,7 +2,7 @@
 <p>{instructions}</p>
 <form class="uk-form-horizontal" method="post"
     action="{site_admin_url}/plugins/banner/index.php">
-  <input type="hidden" name="old_cid" value="{cid}">
+  <input type="hidden" name="oldcid" value="{cid}">
   <input type="hidden" name="{gltoken_name}" value="{gltoken}" />
   <input type="hidden" name="view" value="categories" />
   <input type="hidden" name="item" value="category" />
