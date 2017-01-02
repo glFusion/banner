@@ -1,13 +1,12 @@
 <?php
-//  $Id: banner.class.php 16 2009-10-19 04:21:05Z root $
 /**
 *   Class to handle banner lists for administrators and regular users
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.7
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @version    0.2.0
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -100,30 +99,30 @@ class BannerList
         $form_arr = array();
 
         $header_arr = array(
-            array(  'text' => $LANG_BANNER['edit'], 
+            array(  'text' => $LANG_BANNER['edit'],
                     'field' => 'edit',
                     'sort' => false),
-            array(  'text' => $LANG_BANNER['enabled'], 
+            array(  'text' => $LANG_BANNER['enabled'],
                     'field' => 'enabled',
                     'align' => 'center',
                     'sort' => false),
-            array(  'text' => $LANG_BANNER['banner_id'], 
-                    'field' => 'bid', 
+            array(  'text' => $LANG_BANNER['banner_id'],
+                    'field' => 'bid',
                     'sort' => true),
-            array(  'text' => $LANG_BANNER['banner_title'], 
-                    'field' => 'title', 
+            array(  'text' => $LANG_BANNER['banner_title'],
+                    'field' => 'title',
                     'sort' => true),
-            array(  'text' => $LANG_BANNER['banner_cat'], 
-                    'field' => 'category', 
+            array(  'text' => $LANG_BANNER['banner_cat'],
+                    'field' => 'category',
                     'sort' => true),
-            array(  'text' => $LANG_BANNER['pubstart'], 
-                    'field' => 'publishstart', 
+            array(  'text' => $LANG_BANNER['pubstart'],
+                    'field' => 'publishstart',
                     'sort' => true),
-            array(  'text' => $LANG_BANNER['pubend'], 
-                    'field' => 'publishend', 
+            array(  'text' => $LANG_BANNER['pubend'],
+                    'field' => 'publishend',
                     'sort' => true),
             array(  'text' => $LANG_BANNER['hits'],
-                    'field' => 'hits', 
+                    'field' => 'hits',
                     'sort' => true),
             array(  'text' => $LANG_BANNER['impressions'],
                     'field' => 'impressions',
@@ -138,31 +137,35 @@ class BannerList
             $sql_value = 1;
 
             $validate = '';
-            if (isset($_GET['validate'])) {
-                $token = SEC_createToken();
-                $dovalidate_url = BANR_ADMIN_URL . 
+            USES_banner_class_banner();
+            $token = SEC_createToken();
+  
+            if (isset($_GET['validate']) && $_GET['validate'] == 'validate') {
+                $header_arr[] = array(
+                    'text' => $LANG_BANNER['html_status'],
+                    'field' => 'dovalidate', 'sort' => false);
+                $validate = '&validate=validate&amp;'.CSRF_TOKEN.'='.$token;
+                 $validate_help = $LANG_BANNER['validate_instr'];
+            } else {
+                $dovalidate_url = BANR_ADMIN_URL .
                     '/index.php?validate=validate&amp;'. CSRF_TOKEN.'='.$token;
                 $dovalidate_text = '<button class="lgButton green">' .
                     $LANG_BANNER['validate_now'] . '</button>';
                 $form_arr['top'] = COM_createLink($dovalidate_text, $dovalidate_url);
-    
-                if ($_GET['validate'] == 'enabled') {
                     $header_arr[] = array(
-                        'text' => $LANG_BANNER['html_status'], 
+                        'text' => $LANG_BANNER['html_status'],
                         'field' => 'beforevalidate', 'sort' => false);
-                    $validate = '?validate=enabled';
-                } else if ($_GET['validate'] == 'validate') {
-                    $header_arr[] = array(
-                        'text' => $LANG_BANNER['html_status'], 
-                        'field' => 'dovalidate', 'sort' => false);
-                    $validate = '&validate=validate&amp;'.CSRF_TOKEN.'='.$token;
-                }
-                $validate_help = $LANG_BANNER['validate_instr'];
+                    $validate = '&validate=validate';
+                $text_arr = array(
+                    'has_extras' => true,
+                    'form_url' => BANR_ADMIN_URL . '/index.php?item=banner' .
+                                $validate,
+                );
+                $validate_help = '';
             }
-            $validate_help = '';
             $text_arr = array(
                 'has_extras' => true,
-                'form_url' => BANR_ADMIN_URL . '/index.php?item=banner' . 
+                'form_url' => BANR_ADMIN_URL . '/index.php?item=banner' .
                                 $validate,
             );
         } else {
@@ -176,10 +179,10 @@ class BannerList
         $query_arr = array('table' => 'banner',
             'sql' => "SELECT
                     b.bid AS bid, b.cid as cid, b.title AS title,
-                    c.category AS category, 
+                    c.category AS category,
                     b.enabled AS enabled,
                     b.hits AS hits, b.impressions as impressions,
-                    b.max_hits AS max_hits, 
+                    b.max_hits AS max_hits,
                     b.max_impressions as max_impressions,
                     b.publishstart AS publishstart,
                     b.publishend AS publishend, b.owner_id, b.group_id,
@@ -191,7 +194,7 @@ class BannerList
                     {$_TABLES['bannercategories']} AS c
                 ON b.cid=c.cid WHERE ($sql_value = 1 OR b.owner_id = $uid) ",
 
-            'query_fields' => array('title', 'category', 
+            'query_fields' => array('title', 'category',
                 'b.publishstart', 'b.publishend', 'b.hits'),
 
             'default_filter' => COM_getPermSql('AND', 0, 3, 'b')
@@ -279,7 +282,7 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'camp_id':
-        $retval = COM_createLink($A['camp_id'], 
+        $retval = COM_createLink($A['camp_id'],
                 "{$base_url}/index.php?campaigns=x&camp_id="
                 . urlencode($A['camp_id']));
         break;
@@ -310,6 +313,5 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
     }
     return $retval;
 }
-
 
 ?>
