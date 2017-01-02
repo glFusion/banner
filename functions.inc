@@ -3,10 +3,10 @@
 *   glFusion API functions for the Banner plugin
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2012 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.7
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @version    0.2.0
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -21,7 +21,7 @@ if (!defined ('GVERSION')) {
 global $_CONF_BANR;
 
 // Define banner types.  This is done very early because they're used
-// in the language files 
+// in the language files
 define ('BANR_TYPE_LOCAL',  0);    // Locally-uploaded image
 define ('BANR_TYPE_REMOTE', 1);    // Remote image url
 define ('BANR_TYPE_SCRIPT', 2);    // Script, e.g. Google Adsense
@@ -47,12 +47,19 @@ if (!isset($_CONF_BANR['templatevars'])) {
 require_once BANR_PI_PATH . '/banner.php';
 if (file_exists(BANR_PI_PATH . '/config.php')) {
     /** Import local configuration overrides, if any */
-    include_once BANR_PI_PATH . '/config.php'; 
+    include_once BANR_PI_PATH . '/config.php';
 }
 
-define ('BANR_ADMIN_URL', 
+// This is temporary, and will be included in glFusion 1.6.0
+isset($_SYSTEM['framework']) || $_SYSTEM['framework'] = 'legacy';
+
+// Mark whether this is a uikit theme. Save to global conf var
+// so it's available where needed.
+$_CONF_BANR['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
+
+define ('BANR_ADMIN_URL',
         $_CONF['site_admin_url'] . '/plugins/'.$_CONF_BANR['pi_name']);
-define ('BANR_URL', 
+define ('BANR_URL',
         $_CONF['site_url'] . '/'.$_CONF_BANR['pi_name']);
 define ('BANR_CLASSPATH', BANR_PI_PATH . '/classes');
 
@@ -178,19 +185,19 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             $cid = COM_applyFilter($autotag['parm1']);
             if (!empty($cid)) {
                 // if there's a cid, join that table
-                $cid_sql = "LEFT JOIN {$_TABLES['bannercategories']} AS c 
-                    ON b.cid=c.cid 
+                $cid_sql = "LEFT JOIN {$_TABLES['bannercategories']} AS c
+                    ON b.cid=c.cid
                     WHERE c.cid='{$cid}' " .
                         COM_getPermSQL('AND', 0, 2, 'c') .
                          ' AND ';
             } else {
-                $cid_sql = " WHERE ";   
+                $cid_sql = ' WHERE ';
             }
             $result = DB_query("SELECT b.bid
-                    FROM {$_TABLES['banner']} AS b 
+                    FROM {$_TABLES['banner']} AS b
                     $cid_sql
-                    (b.publishstart IS NULL OR b.publishstart < NOW()) 
-                    AND (b.publishend IS NULL OR b.publishend > NOW()) 
+                    (b.publishstart IS NULL OR b.publishstart < NOW())
+                    AND (b.publishend IS NULL OR b.publishend > NOW())
                     ORDER BY RAND()");
             $T = new Template(BANR_PI_PATH . '/templates');
             $T->set_file('block', 'bannercategory.thtml');
@@ -206,7 +213,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             break;
 
         }
-        
+
         $content = str_replace($autotag['tagstr'], $banner, $content);
         return $content;
     }
@@ -245,11 +252,11 @@ function plugin_chkVersion_banner ()
     $retval = '';
 
     $result = DB_query ("SELECT bid
-        FROM {$_TABLES['banner']} 
-        WHERE (hits > 0) 
-        AND (publishstart IS NULL OR publishstart < NOW()) 
-        AND (publishend IS NULL OR publishend > NOW())" . 
-        COM_getPermSQL ('AND') . 
+        FROM {$_TABLES['banner']}
+        WHERE (hits > 0)
+        AND (publishstart IS NULL OR publishstart < NOW())
+        AND (publishend IS NULL OR publishend > NOW())" .
+        COM_getPermSQL ('AND') .
         " ORDER BY hits DESC LIMIT 10");
     $nrows  = DB_numRows ($result);
     if ($nrows > 0) {
@@ -301,10 +308,10 @@ function plugin_statssummary_banner ()
 {
     global $LANG_BANNER_STATS, $_TABLES;
 
-    $result = DB_query("SELECT COUNT(*) AS count, SUM(hits) AS clicks 
-        FROM {$_TABLES['banner']} 
-        WHERE (publishstart IS NULL OR publishstart < NOW()) 
-        AND (publishend IS NULL OR publishend > NOW())" . 
+    $result = DB_query("SELECT COUNT(*) AS count, SUM(hits) AS clicks
+        FROM {$_TABLES['banner']}
+        WHERE (publishstart IS NULL OR publishstart < NOW())
+        AND (publishend IS NULL OR publishend > NOW())" .
         COM_getPermSQL ('AND'));
     $A = DB_fetchArray ($result);
 
@@ -330,7 +337,6 @@ function plugin_cclabel_banner()
                       BANR_ADMIN_URL . '/index.php',
                       plugin_geticon_banner ());
     }
-
     return false;
 }
 
@@ -352,6 +358,7 @@ function plugin_getadminoption_banner()
                       BANR_ADMIN_URL . '/index.php',
                       $total_banner);
     }
+    return false;
 }
 
 
@@ -372,15 +379,15 @@ function plugin_user_delete_banner ($uid)
         // assign ownership to a user from the Banner Admin group
         $rootgroup = DB_getItem($_TABLES['groups'], 'grp_id',
                                  "grp_name = 'Root'");
-        $result = DB_query("SELECT DISTINCT ug_uid 
-                FROM {$_TABLES['group_assignments']} 
-                WHERE ug_main_grp_id = $rootgroup 
-                ORDER BY ug_uid 
+        $result = DB_query("SELECT DISTINCT ug_uid
+                FROM {$_TABLES['group_assignments']}
+                WHERE ug_main_grp_id = $rootgroup
+                ORDER BY ug_uid
                 LIMIT 1");
         $A = DB_fetchArray ($result);
         $rootuser = (int)$A['ug_uid'];
         if ($rootuser > 0) {
-            DB_query("UPDATE {$_TABLES['banner']} 
+            DB_query("UPDATE {$_TABLES['banner']}
                 SET owner_id = '$rootuser'
                 WHERE owner_id = $uid");
         }
@@ -413,7 +420,7 @@ function plugin_user_move_banner($origUID, $destUID)
     }
 }
 
- 
+
 /**
 *   Update the Banner plugin
 *
@@ -537,10 +544,10 @@ function plugin_itemlist_banner()
         $plugin = new Plugin();
         $plugin->submissionlabel = $LANG_BANNER['banner_submissions'];
         //$plugin->submissionhelpfile = 'ccbannersubmission.html';
-        $plugin->getsubmissionssql = 
-            "SELECT 
-                b.bid AS id, b.title, b.owner_id AS uid, 
-                c.category, 
+        $plugin->getsubmissionssql =
+            "SELECT
+                b.bid AS id, b.title, b.owner_id AS uid,
+                c.category,
                 camp.description
             FROM {$_TABLES['bannersubmission']} AS b
             LEFT JOIN {$_TABLES['bannercategories']} AS c
@@ -569,7 +576,7 @@ function plugin_moderationvalues_banner()
 
     return array ('bid',
                   $_TABLES['banner'],
-                  'bid, cid, camp_id, ad_type, notes, title, 
+                  'bid, cid, camp_id, ad_type, notes, title,
                     publishstart, publishend, date, enabled,
                     owner_id, group_id, options, weight',
                   $_TABLES['bannersubmission']);
@@ -601,14 +608,14 @@ function plugin_moderationapprove_banner($id)
     $A = array();
     SEC_setDefaultPermissions($A, $_CONF_BANR['default_permissions']);
 
-    DB_query("UPDATE {$_TABLES['banner']} 
-        SET 
-            group_id = '$group_id', 
-            perm_owner = '{$A['perm_owner']}', 
-            perm_group = '{$A['perm_group']}', 
-            perm_members = '{$A['perm_members']}', 
-            perm_anon = '{$A['perm_anon']}' 
-        WHERE 
+    DB_query("UPDATE {$_TABLES['banner']}
+        SET
+            group_id = '$group_id',
+            perm_owner = '{$A['perm_owner']}',
+            perm_group = '{$A['perm_group']}',
+            perm_members = '{$A['perm_members']}',
+            perm_anon = '{$A['perm_anon']}'
+        WHERE
             bid = '$id'");
 
     return '';
@@ -655,7 +662,7 @@ function plugin_savesubmission_banner($A)
     $B = new Banner();
     $retval = '';
 
-    if ($_CONF_BANR['submissionqueue'] == 1 && 
+    if ($_CONF_BANR['submissionqueue'] == 1 &&
             !SEC_hasRights('banner.submit')) {
         $B->setTable('bannersubmission');
     }
@@ -698,7 +705,7 @@ function plugin_submit_banner($A=array())
     global $_CONF_BANR, $LANG_BANNER, $_USER;
 
     // Make sure members can submit banners.  Anonymous users can never submit.
-    if ( COM_isAnonUser() || 
+    if ( COM_isAnonUser() ||
         ($_CONF_BANR['usersubmit'] == 0 && !SEC_hasRights('banner.submit')) ) {
         COM_accessLog("User {$_USER['username']} tried to illegally access the banner submission screen.");
         return BANNER_errorMessage($LANG_BANNER['access_denied_msg']);
@@ -711,7 +718,7 @@ function plugin_submit_banner($A=array())
     if (is_array($A)) {
         $B->setVars($A);
     }
-    $retval = COM_startBlock($LANG_BANNER['submit_banner'], 
+    $retval = COM_startBlock($LANG_BANNER['submit_banner'],
                     'submitbanner.html');
     $retval .= $B->Edit('submit');
     $retval .= COM_endBlock();
@@ -755,7 +762,7 @@ function plugin_templateSetVars_banner($templatename, &$template)
     $templatenames = array();
     $options = array('limit' => '1');
 
-    // We only operate on the 'footer' templatename since 'header' is 
+    // We only operate on the 'footer' templatename since 'header' is
     // called twice (from COM_siteHeader() and COM_siteFooter()).
     // We'll just replace both {banner_header} and {banner_footer} at once.
     if (isset($_CONF_BANR['templatevars']) && $_CONF_BANR['templatevars'] > 0) {
@@ -803,9 +810,9 @@ function plugin_autouninstall_banner ()
 
     $out = array (
         // give the name of the tables, without $_TABLES
-        'tables' => array('banner', 
+        'tables' => array('banner',
                     'bannersubmission',
-                    'bannercategories', 
+                    'bannercategories',
                     'bannercampaigns'),
 
         // give the full name of the group, as in the db
@@ -814,8 +821,8 @@ function plugin_autouninstall_banner ()
         // give the full name of the feature, as in the db
         'features' => array(
                 'banner.admin',
-                'banner.edit', 
-                'banner.moderate', 
+                'banner.edit',
+                'banner.moderate',
                 'banner.submit',
         ),
 
@@ -874,7 +881,7 @@ function phpblock_banner_topic($A=array(), $param='')
 function phpblock_banner_topic_random($A= array(), $param='')
 {
     $extra = array('limit' => '1');
- 
+
     if (!empty($param)) {
         $extra['type'] = $param;
     } else {
@@ -898,7 +905,7 @@ function plugin_getheaderjs_banner()
         $path . '/toggleEnabled.js',
     );
 
-	return $files;
+    return $files;
 }
 
 
@@ -907,27 +914,27 @@ function plugin_getheaderjs_banner()
  *
  *  @return array List of paths to Javascript files
  */
-function plugin_getheadercss_banner() {
-    global $_CONF, $_CONF_BANR; 
+function plugin_getheadercss_banner()
+{
+    global $_CONF, $_CONF_BANR;
 
     $styles = array();
     $files = array(
-        'style.css', 
+        'style.css',
     );
 
     $path = "{$_CONF['path']}/plugins/{$_CONF_BANR['pi_name']}/css";
     foreach ($files as $file) {
-    	$styles[] = $path . '/' . $file;
+        $styles[] = $path . '/' . $file;
     }
 
     $path .= '/custom';
     foreach ($files as $file) {
         if (file_exists($path . '/' . $file)) {
-        	$styles[] = $path . '/' . $file;
+            $styles[] = $path . '/' . $file;
         }
     }
-
-	return $styles;
+    return $styles;
 }
 
 
@@ -946,15 +953,14 @@ function plugin_getuseroption_banner()
     $banner_cnt = (int)DB_getItem($_TABLES['banner'], 'COUNT(*)',
                     '1=1' . COM_getPermSQL('AND', 0, 3));
     if ($banner_cnt < 1) return '';
-    /*$camp_cnt = (int)DB_getItem($_TABLES['bannercampaigns'], 
+    /*$camp_cnt = (int)DB_getItem($_TABLES['bannercampaigns'],
                 "COUNT(*)", "owner_id=$uid");
     if ($camp_cnt < 1) return '';*/
 
     $menu = array($LANG_BANNER['banners'],
-            BANR_URL . '/index.php?banners=x', 
+            BANR_URL . '/index.php?banners=x',
             $camp_cnt);
     return $menu;
-
 }
 
 
@@ -966,12 +972,9 @@ function plugin_getuseroption_banner()
 */
 function plugin_getconfigelementhelp_banner($option, $doclang='english')
 {
-    if (version_compare(GVERSION, '1.6.0', '<')) {
-        $file = 'config.legacy.html';
-    } else {
-        $file = 'config.html';
-    }
-    $url = BANNER_docURL($file, $doclang);
+    global $_CONF_BANR;
+
+    $url = LGLIB_getDocUrl('config', $_CONF_BANR['pi_name'], $doclang);
 
     if (!empty($option)) {
         $url .= '#desc_' . $option;
@@ -990,7 +993,7 @@ function plugin_getconfigelementhelp_banner($option, $doclang='english')
 
 /**
 *   Create a user dropdown list, optionally including or excluding
-*   a specific comma-separated list of user ids.  Returns the <option> 
+*   a specific comma-separated list of user ids.  Returns the <option>
 *   clauses only.
 *
 *   @param  integer $sel    ID of selected user, 0 for none.
@@ -1005,11 +1008,11 @@ function BANNER_UserDropdown($sel=0, $users='', $not='')
     $sel = (int)$sel;
 
     $sql = "SELECT uid,username
-            FROM {$_TABLES['users']} 
+            FROM {$_TABLES['users']}
             WHERE uid <> 1 ";
     if ($users != '') {
         $not = $not == '' ? '' : 'NOT ';
-        $sql .= "AND uid $not IN (" . 
+        $sql .= "AND uid $not IN (" .
                 DB_escapeString($users). ") ";
     }
     $sql .= " ORDER BY username ASC";
@@ -1023,7 +1026,6 @@ function BANNER_UserDropdown($sel=0, $users='', $not='')
         $retval .= "<option value=\"{$row['uid']}\" $selected>{$row['username']}</option>\n";
     }
     return $retval;
-
 }
 
 
@@ -1064,7 +1066,6 @@ function BANNER_errorMessage($msg, $type = '', $header = '')
             . $msg
             . COM_endBlock()
             . '</span>';
-
 }
 
 
@@ -1112,7 +1113,6 @@ function BANNER_block_banner($extra='')
     }
 
     return $retval;
-
 }
 
 
@@ -1131,13 +1131,7 @@ function BANNER_docURL($file, $lang='')
     global $_CONF, $_CONF_BANR;
 
     if ($lang == '') $lang = $_CONF['language'];
-
-    if (@file_exists($_CONF['path_html'] . '/' . $_CONF_BANR['pi_name'] .
-            '/docs/' . $lang . '/' . $file)) {
-        return BANR_URL . '/docs/' . $lang . '/' . $file;
-    } else {
-        return BANR_URL . '/docs/english/' . $file;
-    }
+    return LGLIB_getDocUrl($file, $_CONF_BANR['pi_name'], $lang);
 }
 
 
@@ -1155,7 +1149,7 @@ function BANNER_auditLog($logentry = '')
 
     // A little sanitizing
     $logentry = str_replace(
-            array('<?', '?>'), 
+            array('<?', '?>'),
             array('(@', '@)'),
             $logentry);
 
@@ -1169,8 +1163,8 @@ function BANNER_auditLog($logentry = '')
 
     // Get the user name if it's not anonymous
     if (!COM_isAnonUser()) {
-        $byuser = $_USER['uid'] . '-'. 
-                COM_getDisplayName($_USER['uid'], 
+        $byuser = $_USER['uid'] . '-'.
+                COM_getDisplayName($_USER['uid'],
                     $_USER['username'], $_USER['fullname']);
     } else {
         $byuser = 'anon';
@@ -1179,10 +1173,6 @@ function BANNER_auditLog($logentry = '')
 
     // Write the log entry to the file
     fputs($file, "$timestamp ($byuser) - $logentry\n");
-
 }
-
-// This is temporary, and will be included in glFusion 1.6.0
-isset($_SYSTEM['framework']) || $_SYSTEM['framework'] = 'legacy';
 
 ?>
