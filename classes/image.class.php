@@ -1,16 +1,15 @@
 <?php
-//  $Id: image.class.php 4886 2009-09-06 19:18:34Z lgarner $
 /**
- *  Class to handle images
- *
- *  @author     Lee Garner <lee@leegarner.com>
- *  @copyright  Copyright (c) 2009-2011 Lee Garner <lee@leegarner.com>
- *  @package    banner
- *  @version    0.0.1
- *  @license    http://opensource.org/licenses/gpl-2.0.php 
- *              GNU Public License v2 or later
- *  @filesource
- */
+*  Class to handle images
+*
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+*   @package    banner
+*   @version    0.2.0
+*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*               GNU Public License v2 or later
+*   @filesource
+*/
 
 USES_class_upload();
 
@@ -47,7 +46,7 @@ class Image extends upload
         $this->setContinueOnError(true);
         //$this->setLogFile($_CONF['path_log'] 'error.log');
         //$this->setDebug(true);
-        parent::upload();       // call the parent constructor
+        parent::__construct();       // call the parent constructor
 
         // Before anything else, check the upload directory
         if (!$this->setPath($_CONF_BANR['img_dir'])) {
