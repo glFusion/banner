@@ -1,142 +1,143 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" class="uk-height-1-1">
 <head>
-  <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
-  <link href="../../../docs/docstyle.css" type="text/css" rel="stylesheet" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="apple-touch-icon-precomposed" href="../../layout/cms/images/apple-touch-icon.png">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.3/css/uikit.almost-flat.min.css">
   <meta name="robots" content="noindex,nofollow" />
-  <title>Banner Form</title>
+  <title>glFusion Banner Plugin Configuration</title>
+  <style>
+    html{background:#f9f9f9}.tm-dropdown,.tm-navbar{background:#325482!important}.uk-form label{font-weight:700}.tm-navbar{border-radius:0!important;padding:1px 0 6px!important;border:none!important}.tm-navbar-brand{color:#eee!important}.tm-navbar-brand a{text-shadow:none;color:#fff}.tm-navbar-brand a:hover{color:#ababab;text-decoration:none}.tm-navbar-brand-oc a{text-shadow:none;color:#fff}.tm-navbar-brand-oc a:hover{color:#ababab;text-decoration:none}.tm-navbar-nav>li>a{border:none;border-radius:3px!important;font-size:15px!important;height:40px!important;margin:0!important}.tm-dropdown{color:#000;border-radius:0!important;border:0!important}.tm-nav-navbar>li>a{color:#fff!important}.tm-navbar::after,.tm-navbar::before{margin-top:7px!important}.tm-navbar-nav>li.uk-open>a,.tm-navbar-nav>li:hover>a,.tm-navbar-nav>li>a:focus{color:#fff;outline:0;background:#35B3EE!important}.tm-navbar-nav>li>a{color:#fff!important;text-shadow:none!important}.tm-navbar-toggle{color:#ccc!important;text-shadow:none!important}.tm-navbar-toggle:focus,.tm-navbar-toggle:hover{color:#fff!important}.tm-footer{background:#252525;border-top:1px solid #232425;margin-bottom:0;bottom:0;padding:10px;color:#fff}.tm-wrapper{min-height:100%;margin:0 auto -51px!important}.tm-push,footer{height:51px}.uk-navbar-content > a {color:#fff !important;}
+  </style>
 </head>
 
-<body style="direction: ltr;">
-<div id="gl_container_fluid">
-  <div id="gl_header"><span style="color: rgb(255, 255, 255); float: left; padding-left: 10px; padding-top: 5px; vertical-align: middle;">glFusion Documentation Project
-  </span><a style="float: right; padding-right: 10px; padding-top: 5px; vertical-align: middle;" href="http://www.glfusion.org/wiki/doku.php">glFusion Wiki</a>
-</div>
-<div id="gl_wrapper">
-<div class="body-container">
-<h1><a name="advt_plugin" id="advt_plugin">Banner Plugin</a></h1>
+<body class="uk-height-1-1">
+  <div class="tm-wrapper">
+    <nav class="uk-navbar uk-navbar-attached tm-navbar uk-margin-bottom">
+      <div class="uk-navbar-brand tm-navbar-brand">
+        glFusion Banner Plugin Configuration
+      </div>
+      <div class="uk-navbar-flip uk-hidden-small">
+        <div class="uk-navbar-content tm-navbar-content" style="text-shadow:none;">
+          <a href="https://www.glfusion.org/wiki/">glFusion Wiki</a>
+        </div>
+      </div>
+    </nav>
 
-<div class="level1">
-<h1><a name="banner_form_options" id="banner_form_options">Banner Form Options</a></h1>
+    <div class="uk-container uk-container-center uk-margin-bottom">
 
-<table class="inline">
-  <tbody>
-    <tr>
-      <th class="col0 leftalign" colspan="2">Banner Form Options</th>
-    </tr>
+      <dl id="desc_bid">
+        <dt>Banner ID</dt>
+        <dd>Each banner must have a unique ID. If one is not entered here, an ID will be automatically generated when the banner is saved.</dd>
+      </dl>
+      <dl id="desc_title">
+        <dt>Title</dt>
+        <dd>Each banner requires a title. This will be displayed in the administrative lists to help identify the banner.</dd>
+      </dl>
 
-    <tr class="row0">
-      <th class="col0 leftalign">Option </th>
-      <th class="col1 leftalign">Description </th>
-    </tr>
+      <dl id="desc_cid">
+        <dt>Category</dt>
+        <dd>Each banner belongs to exactly one category.  The category identifies the placement of the banner.</dd>
+      </dl>
 
-    <tr class="row0">
-      <td class="col0 leftalign" valign="top"><a name="desc_bid"></a>Banner ID</td>
-      <td class="col1 leftalign">Each banner must have a unique ID.  If one is not entered here, an ID will be automatically generated when the banner is saved.</td>
-    </tr>
+      <dl id="desc_campaigndd">
+        <dt>Campaign</dt>
+        <dd>Each banner belongs to exactly one advertising campaign.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_title"></a>Title</td>
-      <td class="col1 leftalign">Each banner requires a title.  This will be displayed in the administrative lists to help identify the banner.</td>
-    </tr>
+      <dl id="desc_topic">
+        <dt>Topic</dt>
+        <dd>Select which topic pages should show this banner, or All</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_cid"></a>Category</td>
-      <td class="col1 leftalign">Each banner belongs to exactly one category.  The category identifies the placement of the banner.</td>
-    </tr>
+      <dl id="desc_pubstart">
+        <dt>Publish Start</dt>
+        <dd>If this banner should be published only after a certain date, check this checkbox and set the starting date and time.  You can either select the date from the selections or use the datepicker by clicking on the calendar icon.<p />
+This value will be overridden by a later value associated with the campaign, if any.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_campaigndd"></a>Campaign</td>
-      <td class="col1 leftalign">Each banner belongs to exactly one advertising campaign.</td>
-    </tr>
+      <dl id="desc_pubend">
+        <dt>Publish End</dt>
+        <dd>If this banners should stop being displayed after a certain date, check this checkbox and set the ending date and time.  You can either select the date from the selections or use the datepicker by clicking on the calendar icon.<p />
+This value will be overridden by an earlier value associated with the campaign, if any.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_pubstart"></a>Publish Start</td>
-      <td class="col1 leftalign">If this banner should be published only after a certain date, check this checkbox and set the starting date and time.  You can either select the date from the selections or use the datepicker by clicking on the calendar icon.<p />
-This value will be overridden by a later value associated with the campaign, if any.</td>
-    </tr>
-
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_pubend"></a>Publish End</td>
-      <td class="col1 leftalign">If this banners should stop being displayed after a certain date, check this checkbox and set the ending date and time.  You can either select the date from the selections or use the datepicker by clicking on the calendar icon.<p />
-This value will be overridden by an earlier value associated with the campaign, if any.</td>
-    </tr>
-
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_ad_type"></a>Type of Ad</td>
-      <td class="col1 leftalign">Select the type of ad for this banner.  The options are:
+      <dl id="desc_ad_type">
+        <dt>Type of Ad</dt>
+        <dd>Select the type of ad for this banner. The options are:
 <ul><li>Uploaded Image: An image is uploaded to this server and served from there.</li>
 <li>Remotely-Hosted Image: The ad image will be served from a remote server.  You simply specify the URL to the remote image.</li>
 <li>HTML or Javascript: Enter the actual HTML or Javascript code needed to create the ad.  This would be used for ad services such as Google Adsense.</li>
-</ul>
-  </td>
-    </tr>
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_enabled"></a>Enabled?</td>
-      <td class="col1 leftalign">If this is unchecked, then this banner will not be shown.</td>
-    </tr>
+</ul></dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_hits"></a>Hits</td>
-      <td class="col1 leftalign">This field allows you to pre-populate or adjust the number of hits, or "click-throughs", that this banner has received.</td>
-    </tr>
+      <dl id="desc_enabled">
+        <dt>Enabled?</dt>
+        <dd>If this is unchecked, then this banner will not be shown.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_max_hits"></a>Max. Hits</td>
-      <td class="col1 leftalign">Enter the maximum number of hits that this banner may receive.  After this number is reached, the banner will no longer be displayed.  Enter Zero to allow unlimited hits.</td>
-    </tr>
+      <dl id="desc_hits">
+        <dt>Hits</dt>
+        <dd>This field allows you to pre-populate or adjust the number of hits, or "click-throughs", that this banner has received.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_impressions"></a>Impressions</td>
-      <td class="col1 leftalign">This field allows you to pre-populate or adjust the number of impressions for this banner.  An "Impression" is recorded dach time the banner is displayed.</td>
-    </tr>
+      <dl id="desc_max_hits">
+        <dt>Max. Hits</dt>
+        <dd>Enter the maximum number of hits that this banner may receive.  After this number is reached, the banner will no longer be displayed.  Enter Zero to allow unlimited hits.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_max_impressions"></a>Max. Impressions</td>
-      <td class="col1 leftalign">Enter the maximum number of times that this banner will be displayed.  After this number is reached, the banner will no longer be shown.  Enter Zero to allow unlimited impressions.</td>
-    </tr>
+      <dl id="desc_impressions">
+        <dt>Impressions</dt>
+        <dd>This field allows you to pre-populate or adjust the number of impressions for this banner.  An "Impression" is recorded dach time the banner is displayed.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_url"></a>Target URL</td>
-      <td class="col1 leftalign">Enter the URL where visitors will be redirected after clicking on an ad.  This is required for images that are hosted locally or remotely, but not for HTML or Javascript-based ads since those will contain the url themselves.</td>
-    </tr>
+      <dl id="desc_max_impressions">
+        <dt>Max. Impressions</dt>
+        <dd>Enter the maximum number of times that this banner will be displayed.  After this number is reached, the banner will no longer be shown.  Enter Zero to allow unlimited impressions.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_upload"></a>Upload a Banner</td>
-      <td class="col1 leftalign">Select an image to upload for a locally-hosted banner.  Does not apply to other banner types.</td>
-    </tr>
+      <dl id="desc_url">
+        <dt>Target URL</dt>
+        <dd>Enter the URL where visitors will be redirected after clicking on an ad.  This is required for images that are hosted locally or remotely, but not for HTML or Javascript-based ads since those will contain the url themselves.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_image_url"></a>URL to a remote image</td>
-      <td class="col1 leftalign">Enter the full url to a remotely-hosted banner image.  Does not apply to other banner types.</td>
-    </tr>
+      <dl id="desc_target">
+        <dt>Target</dt>
+        <dd>Select the target browser window for the redirection.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_ad_code"></a>Complete Ad Code</td>
-      <td class="col1 leftalign">Enter the complete code needed for HTML or Javascript ads.  Does not apply to other banner types.</td>
-    </tr>
+      <dl id="desc_upload">
+        <dt>Upload a Banner</dt>
+        <dd>Select an image to upload for a locally-hosted banner.  Does not apply to other banner types.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_dimensions"></a>Dimensions</td>
-      <td class="col1 leftalign">Enter the width and height for the image (does not apply to HTML/Javascript banners).  These values are not required, but are recommended, especially for remotely-hosted banners.  For locally-hosted images, these values are calculated automatically if left blank.</td>
-    </tr>
+      <dl id="desc_image_url">
+        <dt>URL to a remote image</dt>
+        <dd>Enter the full url to a remotely-hosted banner image.  Does not apply to other banner types.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_alt"></a>Alt Tag</td>
-      <td class="col1 leftalign">Enter the HTML "alt" tag for this banner.  This is useful for visitors using screenreaders and other non-graphical browsers.</td>
-    </tr>
+      <dl id="desc_ad_code">
+        <dt>Complete Ad Code</dt>
+        <dd>Enter the complete code needed for HTML or Javascript ads.  Does not apply to other banner types.</dd>
+      </dl>
 
-    <tr class="row3">
-      <td class="col0 leftalign" valign="top"><a name="desc_weight"></a>Weighting</td>
-      <td class="col1 leftalign">This value indicates a relative priority for this banner.  Banners with a higher value will be displayed more often, on average, than those with a lower value.</td>
-    </tr>
+      <dl id="desc_dimensions">
+        <dt>Dimensions</dt>
+        <dd>Enter the width and height for the image (does not apply to HTML/Javascript banners).  These values are not required, but are recommended, especially for remotely-hosted banners.  For locally-hosted images, these values are calculated automatically if left blank.</dd>
+      </dl>
 
-  </tbody>
-</table>
-<p></p>
-</div>
-</div>
-</div>
+      <dl id="desc_alt">
+        <dt>Alt Tag</dt>
+        <dd>Enter the HTML "alt" tag for this banner.  This is useful for visitors using screenreaders and other non-graphical browsers.</dd>
+      </dl>
+
+      <dl id="desc_weight">
+        <dt>Weighting</dt>
+        <dd>This value indicates a relative priority for this banner.  Banners with a higher value will be displayed more often, on average, than those with a lower value.</dd>
+      </dl>
+    </div>
+  </div>
 </div>
 </body>
 </html>
