@@ -1,5 +1,4 @@
 <?php
-//  $Id: functions.inc 12 2009-07-09 18:53:04Z root $
 /**
 *   Default English Language file for the Banner plugin.
 *
@@ -54,6 +53,7 @@ $LANG_BANNER = array(
 'action'        => 'Action',
 'edit'          => 'Edit',
 'banners'       => 'Banners',
+'visible_to'    => 'Visible to',
 'visible_members' => 'Visible to Members?',
 'visible_anon' => 'Visible to Anonymous?',
 'access_denied' => 'Access Denied',

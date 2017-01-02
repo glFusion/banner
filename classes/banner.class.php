@@ -17,56 +17,13 @@
 */
 class Banner
 {
-    /** Banner ID
-     *  @var string */
-    var $bid;
-
+    /** Holder for the original ID, used when saving edits
+    *   @var string */
     var $oldID;
-
-    /** Category ID
-     *  @var string */
-    var $cid;
-
-    /** Campaign ID
-     *  @var string */
-    var $camp_id;
-
-    /** Type of ad (local/remote image, script)
-     *  @var integer */
-    var $ad_type;
-
-    /** General notes
-     *  @var string */
-    var $notes;
-
-    /** Banner title
-     *  @var title */
-    var $title;
-
-    /** Impression count, hit count, max hits allowed
-     *  @var integer */
-    var $impressions, $hits, $max_hits, $max_impressions;
 
     /** Publication dates
      *  @var string */
-    var $publishstart, $publishend;
     var $uxdt_start, $uxdt_end;
-
-    /** Date added
-     *  @var string */
-    var $date;
-
-    /** Banner enabled?
-     *  @var boolean */
-    var $enabled;
-
-    /** Permission settings */
-    var $owner_id, $group_id;
-    var $perm_owner, $perm_group, $perm_members, $perm_anon;
-
-    /** Topic ID
-        @var string */
-    var $tid;
 
     /** Indicate whether this is a new banner or not
      *  @var boolean */
@@ -76,8 +33,12 @@ class Banner
      *  @var boolean */
     var $isAdmin;
 
-    var $options = array();
+    /** Holder for the banner record properties
+    *   @var array */
+    var $properties = array();
 
+    /** Database table name currently in use
+    *   @var string */
     var $table;
 
 
@@ -91,6 +52,7 @@ class Banner
 
         $bid = COM_sanitizeID($bid, false);
         $this->setTable($table);
+
         if ($bid != '') {
             $this->Read($bid);
             $this->isNew = false;
@@ -110,13 +72,82 @@ class Banner
             $this->max_impressions = 0;
             $this->tid          = 'all';
 
-            if (isset($_GROUPS['Banner Admin'])) {
+            /*if (isset($_GROUPS['Banner Admin'])) {
                 $this->group_id = $_GROUPS['Banner Admin'];
             } else {
                 $this->group_id = SEC_getFeatureGroup('banner.edit');
-            }
+            }*/
         }
 
+    }
+
+
+    /** Setter function. Set values in the properties array.
+    *
+    *   @param  string  $key    Name of property to set
+    *   @param  mixed   $value  Value to set
+    */
+    public function __set($key, $value)
+    {
+        switch ($key) {
+        case 'owner_id':
+        case 'grp_access':
+        case 'hits':
+        case 'max_hits':
+        case 'impressions':
+        case 'max_impressions':
+        case 'weight':
+        case 'ad_type':
+            $this->properties[$key] = (int)$value;
+            break;
+
+        case 'bid':
+        case 'camp_id':
+            $this->properties[$key] = COM_sanitizeID($value, false);
+            break;
+
+        case 'cid':
+        case 'tid':
+            $this->properties[$key] = trim($value);
+            break;
+
+        case 'date':
+            $this->properties[$key] = $value;
+            break;
+
+        case 'enabled':
+            $this->properties[$key] = $value == 1 ? 1 : 0;
+            break;
+
+        case 'options':
+            if (!is_array($value)) {
+                $value = @unserialize($value);
+                if (!$value) $value = array();
+            }
+            $this->properties[$key] = $value;
+            break;
+
+        case 'title':
+        case 'notes':
+            $this->properties[$key] = COM_checkHTML(COM_checkWords($value));
+            break;
+        }
+    }
+
+
+    /**
+    *   Getter function. Returns a property value
+    *
+    *   @param  string  $key    Name of property to retrieve
+       @return mixec           Value of property
+    */
+    public function __get($key)
+    {
+        if (isset($this->properties[$key])) {
+            return $this->properties[$key];
+        } else {
+            return NULL;
+        }
     }
 
 
@@ -157,13 +188,11 @@ class Banner
 
         if (!empty($A)) {
             $this->isNew = false;
-            $A['options'] = unserialize($A['options']);
             $this->setVars($A, true);
 
             // Save the old ID for use in Update()
             $this->oldID = $this->bid;
         }
-
     }
 
 
@@ -258,54 +287,25 @@ class Banner
             if ($this->ad_type == BANR_TYPE_SCRIPT) {
                 $this->_CreateHTMLTemplate();
             }
-
         }
 
-        $this->bid = COM_sanitizeID($A['bid'], false);
-        $this->cid = DB_escapeString($A['cid']);
-        $this->camp_id = COM_sanitizeID($A['camp_id']);
-        $this->ad_type = (int)$A['ad_type'];
+        $this->bid = $A['bid'];
+        $this->cid = $A['cid'];
+        $this->camp_id = $A['camp_id'];
+        $this->ad_type = $A['ad_type'];
 
-        $this->notes = COM_checkHTML(COM_checkWords($A['notes']));
-        $this->title = COM_checkHTML(COM_checkWords($A['title']));
+        $this->notes = $A['notes'];
+        $this->title = $A['title'];
         //$this->publishstart = substr($A['publishstart'], 0, 16);
         //$this->publishend = substr($A['publishend'], 0, 16);
         $this->enabled = $A['enabled'] == 1 ? 1 : 0;
-        $this->impressions = (int)$A['impressions'];
-        $this->max_impressions = (int)$A['max_impressions'];
-        $this->hits = (int)$A['hits'];
-        $this->max_hits = (int)$A['max_hits'];
+        $this->impressions = $A['impressions'];
+        $this->max_impressions = $A['max_impressions'];
+        $this->hits = $A['hits'];
+        $this->max_hits = $A['max_hits'];
         $this->tid = $A['tid'];
-
-        $this->owner_id = (int)$A['owner_id'];
-        $this->group_id = (int)$A['group_id'];
-
-        // Convert array values to numeric permission values
-        // if values are coming from a form
-        if (isset($A['simpleperms'])) {
-            $this->perm_members = isset($A['perm_members']) ? 2 : 0;
-            $this->perm_anon = isset($A['perm_anon']) ? 2 : 0;
-            $this->perm_group = $_CONF_BANR['default_permissions'][0];
-            $this->perm_owner = $_CONF_BANR['default_permissions'][1];
-        } else {
-            if (is_array($A['perm_owner']) ||
-                is_array($A['perm_group']) ||
-                is_array($A['perm_members']) ||
-                is_array($A['perm_anon']) ) {
-            // This is coming from a form
-                list($this->perm_owner, $this->perm_group,
-                    $this->perm_members,$this->perm_anon) =
-                    SEC_getPermissionValues($A['perm_owner'],$A['perm_group'],
-                    $A['perm_members'], $A['perm_anon']);
-            } else {
-                // Coming from the database
-                $this->perm_owner = (int)$A['perm_owner'];
-                $this->perm_group = (int)$A['perm_group'];
-                $this->perm_members = (int)$A['perm_members'];
-                $this->perm_anon = (int)$A['perm_anon'];
-            }
-        }
-
+        $this->owner_id = $A['owner_id'];
+        $this->grp_access= $A['grp_access'];
     }
 
 
@@ -450,7 +450,7 @@ class Banner
     *   @param  array   $A  Array of values from $_POST or database
     *   @return string      Error message, empty if successful
     */
-    public function Save($A)
+    public function Save($A = array())
     {
         global $_CONF, $_GROUPS, $_TABLES, $_USER, $MESSAGE,
                 $_CONF_BANR, $LANG12, $LANG_BANNER;
@@ -462,21 +462,38 @@ class Banner
                 ) {
                 return $LANG_BANNER['access_denied'];
             }
-
         } else {
-
             if (!SEC_hasRights('banner.admin') &&
                 !$this->hasAccess(3)) {
                 return $LANG_BANNER['access_denied'];
             }
-
         }
 
-        $this->setVars($A);
+        if (!empty($A)) {
+            $this->setVars($A);
+        }
 
         // Banner ID may be left blank, so generate one
         if ($this->bid == '') {
             $this->bid = COM_makesid();
+        }
+
+        // Make sure this isn't a duplicate ID.  If this is a user submission,
+        // we also have to make sure this ID isn't in the main table
+        // If updating a banner, check if the ID is in use, if it's changing
+        $allowed = ($this->isNew || $this->bid != $this->oldID) ? 0 : 1;
+        $num1 = DB_numRows(DB_query("SELECT bid
+                    FROM {$_TABLES['banner']}
+                    WHERE bid='{$this->bid}'"));
+        if ($this->_isSubmission()) {
+            $num2 = DB_numRows(DB_query("SELECT bid
+                    FROM {$_TABLES['bannersubmission']}
+                    WHERE bid='{$this->bid}'"));
+        } else {
+            $num2 = 0;
+        }
+        if ($num1 > $allowed || $num2 > 0) {
+            return $LANG_BANNER['duplicate_bid'];
         }
 
         // Check required fields and return an error message if any
@@ -558,35 +575,64 @@ class Banner
             return COM_showMessageText($MESSAGE[31], $MESSAGE[30]);
         }
 
+        $publishstart = $this->uxdt_start == 0 ? 'NULL' :
+                        "FROM_UNIXTIME({$this->uxdt_start})";
+        $publishend = $this->uxdt_end == 0 ? 'NULL' :
+                        "FROM_UNIXTIME({$this->uxdt_end})";
+        $options = serialize($this->options);
+
         // Determine if this is an INSERT or UPDATE
         if ($this->isNew) {
-            $error = $this->Insert();
-            if ($error == '') {
+            $sql1 = "INSERT INTO {$_TABLES[$this->table]} SET ";
+            $sql3 = '';
+            //$error = $this->Insert();
+            /*if ($error == '') {
                 if ($_CONF_BANR['notification'] == 1) {
                     $this->Notify();
                 }
-            }
+            }*/
         } else {
-            $error = $this->Update();
+        //    $error = $this->Update();
+            $sql1 = "UPDATE {$_TABLES[$this->table]} SET ";
+            $sql3 = "WHERE bid='" . DB_escapeString($this->oldID) . "'";
         }
-
-        if ($error == '') {
+        $sql2 = "bid='" . DB_escapeString($this->bid) . "',
+                cid='" . DB_escapeString($this->cid) . "',
+                camp_id='" . DB_escapeString($this->camp_id) . "',
+                ad_type='" . (int)$this->ad_type . "',
+                options='" . DB_escapeString($options) . "',
+                title='" . DB_escapeString($this->title). "',
+                notes='" . DB_escapeString($this->notes). "',
+                publishstart=$publishstart,
+                publishend=$publishend,
+                enabled='" . (int)$this->enabled . "',
+                hits='" . (int)$this->hits . "',
+                max_hits='" . (int)$this->max_hits . "',
+                impressions='" . (int)$this->impressions . "',
+                max_impressions='" . (int)$this->max_impressions . "',
+                owner_id='" . (int)$this->owner_id . "',
+                grp_access ='" . (int)$this->group_id . "',
+                weight='" . (int)$this->weight . "',
+                tid='" . DB_escapeString($this->tid) . "'";
+        DB_query($sql1 . $sql2 . $sql3);
+        if (!DB_error()) {
             $category = DB_getItem($_TABLES['bannercategories'], "category",
                     "cid='{$cid}'");
-
             COM_rdfUpToDateCheck('banner', $category, $bid);
-
+            if ($this->isNew && $_CONF_BANR['notification'] == 1) {
+                    $this->Notify();
+            }
+            return '';
+        } else {
+            return 'Database error saving banner';
         }
-
-        return $error;
-
     }
 
 
     /**
     *   Insert a new record.
     */
-    public function Insert($checksubmission = true)
+    public function XInsert($checksubmission = true)
     {
         global $_TABLES, $LANG_BANNER;
 
@@ -613,7 +659,7 @@ class Banner
         if ($num1 > 0 || $num2 > 0) {
             return $LANG_BANNER['duplicate_bid'];
         }
-           
+
         /*$publishstart = empty($this->publishstart) ? 'NULL' :
                         "'".$this->publishstart."'";
         $publishend = empty($this->publishend) ? 'NULL' :
@@ -663,7 +709,7 @@ class Banner
     /**
     *   Update the current banner's database record
     */
-    public function Update()
+    public function XUpdate()
     {
         global $_TABLES;
 
@@ -721,7 +767,7 @@ class Banner
         global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
 
         // Determine if any ads at all should be displayed to this user
-        if (!Banner::CanShow()) {
+        if (!self::canShow()) {
             return '';
         }
 
@@ -768,7 +814,7 @@ class Banner
         if ($_CONF_BANR['adshow_owner'] == 0) {
             $sql_cond .= " AND b.owner_id <> '" . (int)$_USER['uid'] . "'";
         }
-   
+
         $sql = "SELECT b.bid, weight*RAND() as score
                 FROM
                     {$_TABLES['banner']} AS b,
@@ -783,13 +829,13 @@ class Banner
                 AND (b.publishend IS NULL OR b.publishend > NOW())
                 AND (b.max_hits = 0 OR b.hits < b.max_hits)
                 AND (b.max_impressions = 0 OR b.impressions < b.max_impressions)
-                " . COM_getPermSQL('AND', 0, 2, 'b') . "
+                " . SEC_buildAccessSql('AND', 'b.grp_access') . "
                 AND (camp.start IS NULL OR camp.start < NOW())
                 AND (camp.finish IS NULL OR camp.finish > NOW())
                 AND (camp.hits < camp.max_hits OR camp.max_hits = 0)
                 AND (camp.max_impressions = 0
                     OR camp.impressions < camp.max_impressions)
-                " . COM_getPermSQL('AND', 0, 2, 'camp')
+                " . SEC_buildAccessSql('AND', 'c.grp_access') . ' '
                 . $sql_cond .
                 ' ORDER BY score DESC '
                 . $limit_clause;
@@ -806,7 +852,6 @@ class Banner
         } else {
             return '';
         }
-
     }
 
 
@@ -815,9 +860,12 @@ class Banner
     *
     *   @return array   Array of banner records
     */
-    public function GetNewest()
+    public static function GetNewest()
     {
         global $_TABLES, $_CONF_BANR;
+
+        $A = array();
+        if (!self::CanShow()) return $A;
 
         $sql = "SELECT bid
                 FROM {$_TABLES['banner']}
@@ -829,12 +877,10 @@ class Banner
                 ' ORDER BY date DESC LIMIT 15';
 
         $result = DB_query($sql);
-        $A = array();
         while ($row = DB_fetchArray($result)) {
             $A[] = $row['bid'];
         }
         return $A;
-
     }
 
 
@@ -918,9 +964,7 @@ class Banner
             break;
 
         }
-
         return $retval;
-
     }
 
 
@@ -1139,20 +1183,14 @@ class Banner
                 'isAdmin'        => 'true',
                 'owner_dropdown' => BANNER_UserDropdown($this->owner_id),
                 'banner_ownerid' => $this->owner_id,
-                'group_dropdown' => SEC_getGroupDropdown ($this->group_id, $access),
-                'permissions_editor' => SEC_getPermissionsHTML(
-                            $this->perm_owner, $this->perm_group,
-                            $this->perm_members, $this->perm_anon),
+                'ownername'     => COM_getDisplayName($this->owner_id),
+                'group_dropdown' => SEC_getGroupDropdown($this->grp_access, 3, 'grp_access'),
             ) );
         } else {
             $T->set_var(array(
                 'isAdmin'       => '',
                 'owner_id'      => $this->owner_id,
-                'group_id'      => $this->group_id,
-                'vis_members_chk' => $this->perm_members > 1 ?
-                                    'checked="checked"' : '',
-                'vis_anon_chk'  => $this->perm_anon > 1 ?
-                                    'checked="checked"' : '',
+                'grp_access'    => $this->grp_access,
             ) );
         }
 
@@ -1191,54 +1229,34 @@ class Banner
             $enddt = $this->uxdt_end;
         }
 
-        $st_hour =  date('H', $startdt);
-        $end_hour =  date('H', $enddt);
-        if ($_CONF['hour_mode'] == 12) {
-            // Set up the Starting time
-            if ($st_hour >= 12) {
-                if ($st_hour > 12) {
-                    $st_hour -= 12;
-                }
-                $st_ampm = 'pm';
-            } else {
-                $st_ampm = 'am';
-            }
-
-            // Set up the Ending time
-            if ($end_hour >= 12) {
-                if ($end_hour > 12) {
-                    $end_hour -= 12;
-                }
-                $end_ampm = 'pm';
-            } else {
-                $end_ampm = 'am';
-            }
-        }
+        $startdt = new Date($startdt, $_USER['tzid']);
+        $enddt = new Date($enddt, $_USER['tzid']);
+        $h_fmt = $_CONF['hour_mode'] == 12 ? 'h' : 'H';
+        $st_hour = $startdt->format($h_fmt, true);
+        $end_hour = $enddt->format($h_fmt, true);
 
         $T->set_var(array(
             'start_hour_options' =>
                         COM_getHourFormOptions($st_hour, $_CONF['hour_mode']),
             'start_ampm_selection' =>
                         COM_getAmPmFormSelection('publish_ampm', $st_ampm),
-            'start_month_options' => COM_getMonthFormOptions(date('m', $startdt)),
-            'start_day_options' => COM_getDayFormOptions(date('d', $startdt)),
-            'start_year_options' => COM_getYearFormOptions(date('Y', $startdt)),
+            'start_month_options' => COM_getMonthFormOptions($startdt->format('m', true)),
+            'start_day_options' => COM_getDayFormOptions($startdt->format('d', true)),
+            'start_year_options' => COM_getYearFormOptions($startdt->format('Y', true)),
             'start_minute_options' =>
-                        COM_getMinuteFormOptions(date('i', $startdt)),
+                        COM_getMinuteFormOptions($startdt->format('i', true)),
             'end_hour_options' =>
                         COM_getHourFormOptions($end_hour, $_CONF['hour_mode']),
             'end_ampm_selection' => COM_getAmPmFormSelection('end_ampm', $end_ampm),
-            'end_month_options' => COM_getMonthFormOptions(date('m', $enddt)),
-            'end_day_options' => COM_getDayFormOptions(date('d', $enddt)),
-            'end_year_options' => COM_getYearFormOptions(date('Y', $enddt)),
-            'end_minute_options' => COM_getMinuteFormOptions(date('i', $enddt)),
+            'end_month_options' => COM_getMonthFormOptions($enddt->format('m', true)),
+            'end_day_options' => COM_getDayFormOptions($enddt->format('d', true)),
+            'end_year_options' => COM_getYearFormOptions($enddt->format('Y', true)),
+            'end_minute_options' => COM_getMinuteFormOptions($enddt->format('i', $true)),
         ) );
         $T->parse('output', 'editor');
         $retval .= $T->finish($T->get_var('output'));
         $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
-
         return $retval;
-
     }   // function Edit()
 
 
@@ -1304,7 +1322,7 @@ class Banner
     *
     *   @return boolean     True to show banners, False to not.
     */
-    public static function CanShow()
+    public static function canShow()
     {
         global $_CONF_BANR, $_CONF, $_USER;
 
@@ -1416,6 +1434,17 @@ class Banner
             $this->options['url'] = $urlDest;
             $this->options['htmlTemplate'] = $buffer;
         }
+    }
+
+
+    /**
+    *   See if this is a banner submission or using the prod table
+    *
+    *   @return boolean     True if submission, False if prod
+    */
+    private function _isSubmission()
+    {
+        return $this->table == 'bannersubmission' ? true : false;
     }
 
 }   // class Banner

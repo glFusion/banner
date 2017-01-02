@@ -5,7 +5,7 @@
 *   @copyright  Copyright (c) 2009-2011 Lee Garner <lee@leegarner.com>
 *   @package    banner
 *   @version    0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -31,7 +31,7 @@ CREATE TABLE {$_TABLES['bannercategories']} (
 )";
 
 // Common table structure for both banners and submissions
-$banner_def = 
+$banner_def =
 " `bid` varchar(40) NOT NULL default '',
   `cid` varchar(32) default NULL,
   `camp_id` varchar(40) default NULL,
@@ -47,11 +47,7 @@ $banner_def =
   `date` datetime default NULL,
   `enabled` tinyint(1) default '1',
   `owner_id` mediumint(8) unsigned NOT NULL default '1',
-  `group_id` mediumint(8) unsigned NOT NULL default '1',
-  `perm_owner` tinyint(1) unsigned NOT NULL default '3',
-  `perm_group` tinyint(1) unsigned NOT NULL default '2',
-  `perm_members` tinyint(1) unsigned NOT NULL default '2',
-  `perm_anon` tinyint(1) unsigned NOT NULL default '2',
+  `grp_access` mediumint(8) unsigned NOT NULL default '1',
   `options` text,
   `weight` int(2) unsigned default '5',
   `tid` varchar(20) default 'all'
@@ -95,7 +91,7 @@ CREATE TABLE {$_TABLES['bannercampaigns']} (
 )";
 
 $DEFVALUES['bannercategories'] = "INSERT INTO `{$_TABLES['bannercategories']}`
-    VALUES 
+    VALUES
         ('20090010100000000','header','Header','Header Banners','all',1,0,2,13,3,2,2,2,468,60),
         ('20090010100000001','footer','Footer','Footer Banners','all',1,0,2,13,3,2,2,2,468,60),
         ('20090010100000002','block','Block','Block Banners','all',1,0,2,13,3,2,2,2,140,400)
@@ -108,8 +104,8 @@ $DEFVALUES['bannercampaigns'] = "INSERT INTO `{$_TABLES['bannercampaigns']}` (
     perm_members, perm_anon, tid
   ) VALUES (
     '20090010100000000', 'Default System Campaign', NULL, NULL, 1,
-    0, 0, 0, 0, 0, 
-    0, 2, 13, 3, 3, 
+    0, 0, 0, 0, 0,
+    0, 2, 13, 3, 3,
     2, 2, 'all'
   );";
 
@@ -128,6 +124,23 @@ $UPGRADE['0.1.1'] = array(
         ADD `tid` varchar(20) default 'all'",
     "ALTER TABLE {$_TABLES['bannercampaigns']}
         ADD `tid` varchar(20) default 'all'",
+);
+
+$UPGRADE['0.2.0'] = array(
+    "UPDATE {$_TABLES['banner']} SET group_id = 1",
+    "UPDATE {$_TABLES['bannersubmission']} SET group_id = 1",
+    "ALTER TABLE {$_TABLES['banner']}
+        DROP perm_owner,
+        DROP perm_group,
+        DROP perm_members,
+        DROP perm_anon,
+        CHANGE group_id grp_access mediumint(8) unsigned default 1",
+    "ALTER TABLE {$_TABLES['bannersubmission']}
+        DROP perm_owner,
+        DROP perm_group,
+        DROP perm_members,
+        DROP perm_anon,
+        CHANGE group_id grp_access mediumint(8) unsigned default 1",
 );
 
 ?>

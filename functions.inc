@@ -428,49 +428,8 @@ function plugin_user_move_banner($origUID, $destUID)
 */
 function plugin_upgrade_banner()
 {
-    global $_TABLES, $_CONF_BANR;
-
-    $pi_name = $_CONF_BANR['pi_name'];
-
-    // Get the current version, compare to the version in the plugin code
-    $current_ver = DB_getItem($_TABLES['plugins'], 'pi_version',
-        "pi_name = '$pi_name'");
-    if (!$current_ver) {
-        COM_errorLog("Error getting the $pi_name Plugin version",1);
-        return '03';
-    }
-
-    // if we're at the current version, what are we doing here?
-    if ($current_ver >= $_CONF_BANR['pi_version']) {
-        COM_errorLog("Current version $current_ver is already up to date");
-        return '06';
-    }
-
-    // If we're still here, import the upgrade functions.
-    USES_banner_upgrade();
-    $error = banner_do_upgrade($current_ver);
-    if ($error) {
-        COM_errorLog("Error updating the $pi_name Plugin version",1);
-        return '04';
-    }
-
-    // now update the current version number.
-    DB_query("UPDATE {$_TABLES['plugins']} SET
-            pi_version = '{$_CONF_BANR['pi_version']}',
-            pi_gl_version = '{$_CONF_BANR['gl_version']}',
-            pi_homepage = '{$_CONF_BANR['pi_url']}'
-        WHERE pi_name = '" . DB_escapeString($pi_name) . "'");
-
-    if (DB_error()) {
-        COM_errorLog("Error updating the $pi_name Plugin version",1);
-        return '05';
-    }
-
-    COM_errorLog("Succesfully updated the $pi_name Plugin!",1);
-    return true;
-    // No upgrade function available yet
-    COM_errorLog("Plugin upgrade function not implemented");
-    return 3001;
+    require_once dirname(__FILE__) . '/upgrade.inc.php';
+    return banner_do_upgrade();
 }
 
 
@@ -732,7 +691,7 @@ function plugin_submit_banner($A=array())
 *
 * @return   string      URL of the icon
 */
-function plugin_geticon_banner ()
+function plugin_geticon_banner()
 {
     return BANR_URL . '/images/banner.png';
 }

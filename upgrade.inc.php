@@ -1,14 +1,13 @@
 <?php
-//  $Id: upgrade.inc.php 97 2014-05-23 17:19:12Z root $
 /**
 *   Upgrade routines for the Banner plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.7
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
+*   @version    0.2.0
+*   @license    http://opensource.org/licenses/gpl-2.0.php
+*               GNU Public License v2 or later
 *   @filesource
 */
 
@@ -19,24 +18,28 @@
 *   @param  string  $current_ver    Current installed version to be upgraded
 *   @return integer                 Error code, 0 for success
 */
-function banner_do_upgrade($current_ver)
+function banner_do_upgrade()
 {
-    global $_TABLES;
+    global $_TABLES, $_CONF_BANR, $_PLUGIN_INFO;
 
-    $error = 0;
+    $pi_name = $_CONF_BANR['pi_name'];
+
+    if (isset($_PLUGIN_INFO[$_CONF_BANR['pi_name']])) {
+        $current_ver = $_PLUGIN_INFO[$_CONF_BANR['pi_name']];
+    } else {
+        return false;
+    }
 
     if ($current_ver < '0.1.0') {
         // upgrade from 0.0.x to 0.1.0
-        $error = banner_upgrade_0_1_0();
-        if ($error)
-            return $error;
+        $status = banner_upgrade_0_1_0();
+        if (!$status) return false;
     }
 
     if ($current_ver < '0.1.1') {
         // upgrade from 0.1.0 to 0.1.1
-        $error = banner_do_upgrade_sql('0.1.1');
-        if ($error)
-            return $error;
+        $status = banner_do_upgrade_sql('0.1.1');
+        if ($status) return false;
     }
 
     if ($current_ver < '0.1.4') {
@@ -53,18 +56,48 @@ function banner_do_upgrade($current_ver)
             ADD `tid` varchar(20) default 'all'
             AFTER `weight`", 1);
 
-        if ($error)
-            return $error;
+        if (!banner_do_update_version('0.1.4')) return false;
     }
 
     if ($current_ver < '0.1.7') {
-        $error = banner_upgrade_0_1_7();
-        if ($error)
-            return $error;
+        $status = banner_upgrade_0_1_7();
+        if (!$status) return false;
     }
 
-    return $error;
+    if ($current_ver < '0.2.0') {
+        $status = banner_upgrade_0_2_0();
+        if (!$status) return false;
+    }
 
+    return true;
+}
+
+
+/**
+*   Update the plugin version.
+*   Done at each update step to keep the version up to date
+*
+*   @param  string  $version    Version to set
+*   @return boolean     True on success, False on failure
+*/
+function banner_do_update_version($version)
+{
+    global $_TABLES, $_CONF_BANR;
+
+    // now update the current version number.
+    DB_query("UPDATE {$_TABLES['plugins']} SET
+            pi_version = '{$version}',
+            pi_gl_version = '{$_CONF_BANR['gl_version']}',
+            pi_homepage = '{$_CONF_BANR['pi_url']}'
+        WHERE pi_name = 'banner'");
+
+    if (DB_error()) {
+        COM_errorLog("Error updating the banner Plugin version to $version",1);
+        return false;
+    } else {
+        COM_errorLog("Succesfully updated the banner Plugin version to $version!",1);
+        return true;
+    }
 }
 
 
@@ -82,7 +115,7 @@ function banner_do_upgrade_sql($version)
 
     // If no sql statements passed in, return success
     if (!is_array($UPGRADE[$version]))
-        return 0;
+        return true;
 
     // Execute SQL now to perform the upgrade
     COM_errorLOG("--Updating Banner to version $version");
@@ -91,13 +124,11 @@ function banner_do_upgrade_sql($version)
         DB_query($sql, '1');
         if (DB_error()) {
             COM_errorLog("SQL Error during Banner Plugin update",1);
-            return 1;
+            return false;
             break;
         }
     }
-
-    return 0;
-
+    return true;
 }
 
 
@@ -114,13 +145,14 @@ function banner_upgrade_0_1_0()
     // Add new configuration items
     $c = config::get_instance();
     if ($c->group_exists($_CONF_BANR['pi_name'])) {
-        $c->add('cb_replhome', $_BANR_DEFAULT['cb_replhome'], 
+        $c->add('cb_replhome', $_BANR_DEFAULT['cb_replhome'],
                 'select',0, 1, 3, 120, true, $_CONF_BANR['pi_name']);
-        $c->add('block_limit', $_BANR_DEFAULT['block_limit'], 
+        $c->add('block_limit', $_BANR_DEFAULT['block_limit'],
                 'text',0, 0, 3, 130, true, $me);
     }
 
-    return banner_do_upgrade_sql('0.1.0');
+    if (!banner_do_upgrade_sql('0.1.0')) return false;
+    return banner_do_update_version('0.1.0');
 }
 
 
@@ -130,19 +162,41 @@ function banner_upgrade_0_1_0()
 */
 function banner_upgrade_0_1_7()
 {
-    global $_CONF_BANR, $BANR_DEFAULT;
+    global $_CONF_BANR, $BANR_DEFAULT, $UPGRADE;
 
     USES_banner_install_defaults();
 
     // Add new configuration items
     $c = config::get_instance();
     if ($c->group_exists($_CONF_BANR['pi_name'])) {
-        $c->add('uagent_dontshow', $_BANR_DEFAULT['uagent_dontshow'], 
+        $c->add('uagent_dontshow', $_BANR_DEFAULT['uagent_dontshow'],
                 '%text', 0, 1, 0, 25, true, $_CONF_BANR['pi_name']);
     }
 
-    return banner_do_upgrade_sql('0.1.7');
+    if (!banner_do_upgrade_sql('0.1.7')) return false;
+    return banner_do_update_version('0.1.0');
 }
 
+
+/**
+*   Update to version 0.2.0
+*   Removes add permission matrix
+*
+*   @return boolean     True on success, false on failure
+*/
+function banner_upgrade_0_2_0()
+{
+    global $_CONF_BANR;
+
+    // Add new configuration items
+    $c = config::get_instance();
+    if ($c->group_exists($_CONF_BANR['pi_name'])) {
+        $c->del('fs_permissions', $_CONF_BANR['pi_name']);
+        $c->del('default_permissions', $_CONF_BANR['pi_name']);
+    }
+
+    if (!banner_do_upgrade_sql('0.2.0')) return false;
+    return banner_do_update_version('0.2.0');
+}
 
 ?>

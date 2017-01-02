@@ -139,7 +139,7 @@ class BannerList
             $validate = '';
             USES_banner_class_banner();
             $token = SEC_createToken();
-  
+
             if (isset($_GET['validate']) && $_GET['validate'] == 'validate') {
                 $header_arr[] = array(
                     'text' => $LANG_BANNER['html_status'],
@@ -185,8 +185,7 @@ class BannerList
                     b.max_hits AS max_hits,
                     b.max_impressions as max_impressions,
                     b.publishstart AS publishstart,
-                    b.publishend AS publishend, b.owner_id, b.group_id,
-                    b.perm_owner, b.perm_group, b.perm_members, b.perm_anon,
+                    b.publishend AS publishend, b.owner_id, b.grp_access,
                     $sql_value as isAdmin
                 FROM
                     {$_TABLES['banner']} AS b
