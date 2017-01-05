@@ -334,6 +334,7 @@ $LANG_confignames['banner'] = array(
     'cb_pos'        => 'Centerblock Position?',
     'cb_replhome'   => 'Centerblock Replaces Home Page?',
     'block_limit'   => 'Max. ads to show in blocks',
+    'defgrpsubmit'  => 'Default Category/Campaign Group',
 );
 
 $LANG_configsubgroups['banner'] = array(

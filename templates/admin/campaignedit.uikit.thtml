@@ -77,15 +77,6 @@
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="usercanadd">{$LANG_BANNER['user_can_add']}?
-        <a href="#" onclick="popupWindow('{help_url}#desc_user_can_add', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-    </label>
-    <div class="uk-form-controls">
-      <input id="usercanadd" name="usercanadd" type="checkbox" value="1" {usercanadd}>
-    </div>
-  </div>
-
-  <div class="uk-form-row">
     <label class="uk-form-label" for="f_hits">{$LANG_BANNER['hits']}
         <a href="#" onclick="popupWindow('{help_url}#desc_hits', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
     </label>
@@ -178,12 +169,12 @@
   <div>
 </form>
 
-<fieldset>
+<fieldset style="clear:both;">
 <legend>{$LANG_BANNER['ads_in_campaign']}</legend>
 <table border="0">
 <th>ID<th>{$LANG_BANNER['banner_content']}<th>{$LANG_BANNER['hits']}
 <!-- BEGIN AdRow -->
-<tr><td>{ad_id}</td><td>{image}</td><td>{url}</td><td align="right">{hits}</td></tr>
+<tr><td>{ad_id}</td><td align="center">{image}</td><td>{url}</td><td align="right">{hits}</td></tr>
 <!-- END AdRow -->
 </table>
 </fieldset>

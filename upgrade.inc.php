@@ -186,13 +186,21 @@ function banner_upgrade_0_1_7()
 */
 function banner_upgrade_0_2_0()
 {
-    global $_CONF_BANR;
+    global $_CONF_BANR, $_TABLES;
+
+    USES_banner_install_defaults();
 
     // Add new configuration items
     $c = config::get_instance();
     if ($c->group_exists($_CONF_BANR['pi_name'])) {
-        $c->del('fs_permissions', $_CONF_BANR['pi_name']);
-        $c->del('default_permissions', $_CONF_BANR['pi_name']);
+        // Get the admin group ID that was saved previously and put it in the
+        // default "submitter group" config item
+        $group_id = (int)DB_getItem($_TABLES['groups'], 'grp_id',
+            "grp_name='{$_CONF_BANR['pi_name']} Admin'");
+        if ($group_id < 1) $group_id = $_BANR_DEFAULT['defgrpsubmit'];
+
+        $c->add('defgrpsubmit', $group_id,
+                'select', 0, 2, 0, 5, true, $me);
     }
 
     if (!banner_do_upgrade_sql('0.2.0')) return false;

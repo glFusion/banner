@@ -127,6 +127,11 @@ $_BANR_DEFAULT['uagent_dontshow'] = array();
 */
 $_BANR_DEFAULT['block_limit'] = 0;      // 0 = unlimited
 
+/**
+*   Default groups
+*/
+$_BANR_DEFAULT['defgrpsubmit'] = 1;     // submitter group, default to root
+
 
 /**
 * Initialize Banner plugin configuration
@@ -138,13 +143,14 @@ $_BANR_DEFAULT['block_limit'] = 0;      // 0 = unlimited
 * @return   boolean     true: success; false: an error occurred
 *
 */
-function plugin_initconfig_banner()
+function plugin_initconfig_banner($admin_group)
 {
     global $_CONF_BANR, $_BANR_DEFAULT;
 
     if (is_array($_CONF_BANR) && (count($_CONF_BANR) > 1)) {
         $_BANR_DEFAULT = array_merge($_BANR_DEFAULT, $_CONF_BANR);
     }
+    if ($admin_group < 1) $admin_group = $_BANR_DEFAULT['defgrpsubmit'];
 
     $me = $_CONF_BANR['pi_name'];
     $c = config::get_instance();
@@ -203,9 +209,10 @@ function plugin_initconfig_banner()
                 'text',0, 0, 3, 130, true, $me);
 
         $c->add('fs_permissions', NULL, 'fieldset', 0, 2, NULL, 0, true, $me);
+        $c->add('defgrpsubmit', $admin_group,
+                'select', 0, 2, 0, 5, true, $me);
         $c->add('default_permissions', $_BANR_DEFAULT['default_permissions'], 
                 '@select', 0, 2, 12, 10, true, $me);
-
     }
 
     return true;

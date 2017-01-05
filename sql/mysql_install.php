@@ -19,12 +19,7 @@ CREATE TABLE {$_TABLES['bannercategories']} (
   `tid` varchar(20) default NULL,
   `enabled` tinyint(1) unsigned default '1',
   `centerblock` tinyint(1) unsigned default '0',
-  `owner_id` mediumint(8) unsigned NOT NULL default '1',
-  `group_id` mediumint(8) unsigned NOT NULL default '1',
-  `perm_owner` tinyint(1) unsigned NOT NULL default '3',
-  `perm_group` tinyint(1) unsigned NOT NULL default '2',
-  `perm_members` tinyint(1) unsigned NOT NULL default '2',
-  `perm_anon` tinyint(1) unsigned NOT NULL default '2',
+  `grp_view` mediumint(8) unsigned NOT NULL default '2',
   `max_img_width` int(4) unsigned default 0,
   `max_img_height` int(4) unsigned default 0,
   PRIMARY KEY  (`cid`)
@@ -47,7 +42,6 @@ $banner_def =
   `date` datetime default NULL,
   `enabled` tinyint(1) default '1',
   `owner_id` mediumint(8) unsigned NOT NULL default '1',
-  `grp_access` mediumint(8) unsigned NOT NULL default '1',
   `options` text,
   `weight` int(2) unsigned default '5',
   `tid` varchar(20) default 'all'
@@ -79,7 +73,6 @@ CREATE TABLE {$_TABLES['bannercampaigns']} (
   `impressions` int(11) NOT NULL default '0',
   `max_impressions` int(11) NOT NULL default '0',
   `max_banners` int(11) default NULL,
-  `usercanadd` tinyint(1) NOT NULL default '0',
   `owner_id` mediumint(11) unsigned NOT NULL default '1',
   `group_id` mediumint(11) unsigned NOT NULL default '1',
   `perm_owner` tinyint(1) unsigned NOT NULL default '3',
@@ -100,13 +93,15 @@ $DEFVALUES['bannercategories'] = "INSERT INTO `{$_TABLES['bannercategories']}`
 $DEFVALUES['bannercampaigns'] = "INSERT INTO `{$_TABLES['bannercampaigns']}` (
     camp_id, description, start, finish, enabled,
     hits, max_hits, impressions, max_impressions, max_banners,
-    usercanadd, owner_id, group_id, perm_owner, perm_group,
-    perm_members, perm_anon, tid
+    owner_id, group_id,
+    perm_owner, perm_group, perm_members, perm_anon,
+    tid
   ) VALUES (
     '20090010100000000', 'Default System Campaign', NULL, NULL, 1,
     0, 0, 0, 0, 0,
-    0, 2, 13, 3, 3,
-    2, 2, 'all'
+    2, 1,
+    3, 3, 2, 2,
+    'all'
   );";
 
 
@@ -127,20 +122,27 @@ $UPGRADE['0.1.1'] = array(
 );
 
 $UPGRADE['0.2.0'] = array(
-    "UPDATE {$_TABLES['banner']} SET group_id = 1",
-    "UPDATE {$_TABLES['bannersubmission']} SET group_id = 1",
+    "UPDATE {$_TABLES['bannercategories']} SET group_id = 2",
     "ALTER TABLE {$_TABLES['banner']}
         DROP perm_owner,
         DROP perm_group,
         DROP perm_members,
         DROP perm_anon,
-        CHANGE group_id grp_access mediumint(8) unsigned default 1",
+        DROP group_id",
     "ALTER TABLE {$_TABLES['bannersubmission']}
         DROP perm_owner,
         DROP perm_group,
         DROP perm_members,
         DROP perm_anon,
-        CHANGE group_id grp_access mediumint(8) unsigned default 1",
+        DROP group_id",
+    "ALTER TABLE {$_TABLES['bannercategories']}
+        DROP perm_owner,
+        DROP perm_group,
+        DROP perm_members,
+        DROP perm_anon,
+        CHANGE group_id grp_view mediumint(8) unsigned default 2",
+    "ALTER TABLE {$_TABLES['bannercampaigns']}
+        DROP usercanadd",
 );
 
 ?>

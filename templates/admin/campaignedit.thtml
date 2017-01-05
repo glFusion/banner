@@ -87,16 +87,6 @@ window.addEvent('domready',function() {
 
     <tr>
       <td align="right">
-        {$LANG_BANNER['user_can_add']}?
-        <a href="#" onclick="popupWindow('{help_url}#desc_user_can_add', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input name="usercanadd" type="checkbox" value="1" {usercanadd}>
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
         {$LANG_BANNER['hits']}:
         <a href="#" onclick="popupWindow('{help_url}#desc_hits', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
       </td>
@@ -105,6 +95,7 @@ window.addEvent('domready',function() {
             value="{total_hits}" />
       </td>
     </tr>
+
     <tr>
       <td align="right">
         {$LANG_BANNER['max_hits']}:
