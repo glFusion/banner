@@ -486,7 +486,29 @@ function plugin_submissioncount_banner()
 */
 function plugin_ismoderator_banner()
 {
-    return SEC_hasRights('banner.moderate');
+    static $isMod = NULL;
+
+    if ($isMod === NULL) {
+        $isMod = plugin_isadmin_banner() || SEC_hasRights('banner.moderate');
+    }
+    return $isMod;
+}
+
+
+/**
+*   Checks that the current user has plugin admin rights.
+*   Not a glFusion core function, but similar
+*
+*   @return boolean     Returns true if administrator
+*/
+function plugin_isadmin_banner()
+{
+    static $isAdmin = NULL;
+
+    if ($isAdmin === NULL) {
+        $isAdmin = SEC_hasRights('banner.admin');
+    }
+    return $isAdmin;
 }
 
 
@@ -537,7 +559,7 @@ function plugin_moderationvalues_banner()
                   $_TABLES['banner'],
                   'bid, cid, camp_id, ad_type, notes, title,
                     publishstart, publishend, date, enabled,
-                    owner_id, group_id, options, weight',
+                    owner_id, options, weight',
                   $_TABLES['bannersubmission']);
 }
 
@@ -554,29 +576,7 @@ function plugin_moderationvalues_banner()
 */
 function plugin_moderationapprove_banner($id)
 {
-    global $_TABLES, $_USER, $_GROUPS, $_CONF_BANR;
-
-    // The bannersubmission only keeps track of the submitter's uid, but not
-    // of grous and permissions. So set those to sensible defaults.
-    if (isset($_GROUPS['Banner Admin'])) {
-        $group_id = $_GROUPS['Banner Admin'];
-    } else {
-        $group_id = SEC_getFeatureGroup('banner.moderate');
-    }
-
-    $A = array();
-    SEC_setDefaultPermissions($A, $_CONF_BANR['default_permissions']);
-
-    DB_query("UPDATE {$_TABLES['banner']}
-        SET
-            group_id = '$group_id',
-            perm_owner = '{$A['perm_owner']}',
-            perm_group = '{$A['perm_group']}',
-            perm_members = '{$A['perm_members']}',
-            perm_anon = '{$A['perm_anon']}'
-        WHERE
-            bid = '$id'");
-
+    // No changes needed since removing the permission matrix in 0.2.0
     return '';
 }
 
@@ -940,6 +940,30 @@ function plugin_getconfigelementhelp_banner($option, $doclang='english')
     }
 
     return array($url, 0);
+}
+
+
+/**
+*   Gets all the groups in the glFusion groups table to prepare a
+*   selection list.
+*
+*   @param  string  $grplist    Optional list of groups to include or exclude
+*   @param  string  $NOT        Set to "NOT" to exclude $grplist, blank to include it.
+*   @return array       Array of (grp_name=>grp_id)
+*/
+function plugin_configmanager_select_defgrpsubmit_banner()
+{
+    global $_TABLES;
+
+    $A = array();
+    $query = "SELECT grp_id, grp_name FROM {$_TABLES['groups']}";
+    $result = DB_query($query);
+    if ($result && DB_numRows($result) > 0) {
+        while ($row = DB_fetchArray($result)) {
+            $A[$row['grp_name']] = $row['grp_id'];
+        }
+    }
+    return $A;
 }
 
 

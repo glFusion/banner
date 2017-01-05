@@ -91,7 +91,6 @@ class Banner
     {
         switch ($key) {
         case 'owner_id':
-        case 'grp_access':
         case 'hits':
         case 'max_hits':
         case 'impressions':
@@ -305,7 +304,6 @@ class Banner
         $this->max_hits = $A['max_hits'];
         $this->tid = $A['tid'];
         $this->owner_id = $A['owner_id'];
-        $this->grp_access= $A['grp_access'];
     }
 
 
@@ -585,34 +583,26 @@ class Banner
         if ($this->isNew) {
             $sql1 = "INSERT INTO {$_TABLES[$this->table]} SET ";
             $sql3 = '';
-            //$error = $this->Insert();
-            /*if ($error == '') {
-                if ($_CONF_BANR['notification'] == 1) {
-                    $this->Notify();
-                }
-            }*/
         } else {
-        //    $error = $this->Update();
             $sql1 = "UPDATE {$_TABLES[$this->table]} SET ";
             $sql3 = "WHERE bid='" . DB_escapeString($this->oldID) . "'";
         }
-        $sql2 = "bid='" . DB_escapeString($this->bid) . "',
-                cid='" . DB_escapeString($this->cid) . "',
-                camp_id='" . DB_escapeString($this->camp_id) . "',
-                ad_type='" . (int)$this->ad_type . "',
-                options='" . DB_escapeString($options) . "',
-                title='" . DB_escapeString($this->title). "',
-                notes='" . DB_escapeString($this->notes). "',
-                publishstart=$publishstart,
-                publishend=$publishend,
-                enabled='" . (int)$this->enabled . "',
-                hits='" . (int)$this->hits . "',
-                max_hits='" . (int)$this->max_hits . "',
-                impressions='" . (int)$this->impressions . "',
-                max_impressions='" . (int)$this->max_impressions . "',
-                owner_id='" . (int)$this->owner_id . "',
-                grp_access ='" . (int)$this->group_id . "',
-                weight='" . (int)$this->weight . "',
+        $sql2 = "bid = '" . DB_escapeString($this->bid) . "',
+                cid = '" . DB_escapeString($this->cid) . "',
+                camp_id = '" . DB_escapeString($this->camp_id) . "',
+                ad_type = {$this->ad_type},
+                options = '" . DB_escapeString($options) . "',
+                title = '" . DB_escapeString($this->title). "',
+                notes = '" . DB_escapeString($this->notes). "',
+                publishstart = $publishstart,
+                publishend = $publishend,
+                enabled = {$this->enabled},
+                hits = {$this->hits},
+                max_hits = {$this->max_hits},
+                impressions = {$this->impressions},
+                max_impressions = {$this->max_impressions},
+                owner_id = {$this->owner_id},
+                weight = {$this->weight},
                 tid='" . DB_escapeString($this->tid) . "'";
         DB_query($sql1 . $sql2 . $sql3);
         if (!DB_error()) {
@@ -630,145 +620,21 @@ class Banner
 
 
     /**
-    *   Insert a new record.
-    */
-    public function XInsert($checksubmission = true)
-    {
-        global $_TABLES, $LANG_BANNER;
-
-        // Prepare the options for the database
-        $options = serialize($this->options);
-
-        // This gets used several times, so sanitize it once here.
-        $s_bid = DB_escapeString($this->bid);
-
-        $this->group_id = SEC_getFeatureGroup('banner.edit', 2);
-
-        // Make sure this isn't a duplicate ID.  If this is a user submission,
-        // we also have to make sure this ID isn't in the main table
-        $num1 = DB_numRows(DB_query("SELECT bid
-                    FROM {$_TABLES['banner']}
-                    WHERE bid='$s_bid'"));
-        if ($checksubmission) {
-            $num2 = DB_numRows(DB_query("SELECT bid
-                    FROM {$_TABLES['bannersubmission']}
-                    WHERE bid='$s_bid'"));
-        } else {
-            $num2 = 0;
-        }
-        if ($num1 > 0 || $num2 > 0) {
-            return $LANG_BANNER['duplicate_bid'];
-        }
-
-        /*$publishstart = empty($this->publishstart) ? 'NULL' :
-                        "'".$this->publishstart."'";
-        $publishend = empty($this->publishend) ? 'NULL' :
-                        "'".$this->publishend."'";
-        */
-        $publishstart = $this->uxdt_start == 0 ? 'NULL' :
-                        "FROM_UNIXTIME({$this->uxdt_start})";
-        $publishend = $this->uxdt_end == 0 ? 'NULL' :
-                        "FROM_UNIXTIME({$this->uxdt_end})";
-
-        $sql = "INSERT INTO {$_TABLES[$this->table]} (
-                    bid, cid, camp_id, ad_type, title, notes, date,
-                    options, weight,
-                    publishstart, publishend,
-                    impressions, max_impressions, hits, max_hits,
-                    enabled, owner_id, group_id,
-                    perm_owner, perm_group, perm_members, perm_anon, tid
-                ) VALUES (
-                    '$s_bid',
-                    '" . DB_escapeString($this->cid) . "',
-                    '" . DB_escapeString($this->camp_id) . "',
-                    '" . (int)$this->ad_type . "',
-                    '" . DB_escapeString($this->title) . "',
-                    '" . DB_escapeString($this->notes) . "',
-                    NOW(),
-                    '" . DB_escapeString($options) . "',
-                    '" . (int)$this->weight . "',
-                    " . $publishstart . ",
-                    " . $publishend . ",
-                    '" . (int)$this->impressions . "',
-                    '" . (int)$this->max_impressions . "',
-                    '" . (int)$this->hits . "',
-                    '" . (int)$this->max_hits . "',
-                    '" . (int)$this->enabled . "',
-                    '" . (int)$this->owner_id . "',
-                    '" . (int)$this->group_id . "',
-                    '" . (int)$this->perm_owner . "',
-                    '" . (int)$this->perm_group . "',
-                    '" . (int)$this->perm_members . "',
-                    '" . (int)$this->perm_anon . "',
-                    '" . DB_escapeString($this->tid) . "'
-        )";
-        DB_query($sql, 1);
-    }
-
-
-    /**
-    *   Update the current banner's database record
-    */
-    public function XUpdate()
-    {
-        global $_TABLES;
-
-        // Prepare the options for the database
-        $options = serialize($this->options);
-
-        /*$publishstart = empty($this->publishstart) ? 'NULL' :
-                        "'".$this->publishstart."'";
-        $publishend = empty($this->publishend) ? 'NULL' :
-                        "'".$this->publishend."'";
-        */
-        $publishstart = $this->uxdt_start == 0 ? 'NULL' :
-                        "FROM_UNIXTIME({$this->uxdt_start})";
-        $publishend = $this->uxdt_end == 0 ? 'NULL' :
-                        "FROM_UNIXTIME({$this->uxdt_end})";
-
-        $sql = "UPDATE {$_TABLES['banner']} SET
-                bid='" . DB_escapeString($this->bid) . "',
-                cid='" . DB_escapeString($this->cid) . "',
-                camp_id='" . DB_escapeString($this->camp_id) . "',
-                ad_type='" . (int)$this->ad_type . "',
-                options='" . DB_escapeString($options) . "',
-                title='" . DB_escapeString($this->title). "',
-                notes='" . DB_escapeString($this->notes). "',
-                publishstart=$publishstart,
-                publishend=$publishend,
-                enabled='" . (int)$this->enabled . "',
-                hits='" . (int)$this->hits . "',
-                max_hits='" . (int)$this->max_hits . "',
-                impressions='" . (int)$this->impressions . "',
-                max_impressions='" . (int)$this->max_impressions . "',
-                owner_id='" . (int)$this->owner_id . "',
-                group_id='" . (int)$this->group_id . "',
-                perm_owner='" . (int)$this->perm_owner . "',
-                perm_group='" . (int)$this->perm_group . "',
-                perm_members='" . (int)$this->perm_members . "',
-                perm_anon='" . (int)$this->perm_anon . "',
-                weight='" . (int)$this->weight . "',
-                tid='" . DB_escapeString($this->tid) . "'
-            WHERE
-                bid='" . DB_escapeString($this->oldID) . "'";
-        DB_query($sql, 1);
-    }
-
-
-    /**
     *   Returns the banner id for a banner or group of banners
     *   Called as a standalone function: Banner::GetBanner($options)
     *
     *   @param  array   $fields Fields to use in where clause
-    *   @return string          Banner id, empty for none available
+    *   @return array           Array of Banner ids, empty for none available
     */
     public static function GetBanner($fields='')
     {
         global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
 
+        $banners = array();
+
         // Determine if any ads at all should be displayed to this user
         if (!self::canShow()) {
-            return '';
+            return $banners;
         }
 
         $sql_cond = '';
@@ -816,42 +682,38 @@ class Banner
         }
 
         $sql = "SELECT b.bid, weight*RAND() as score
-                FROM
-                    {$_TABLES['banner']} AS b,
-                    {$_TABLES['bannercategories']} AS c,
-                    {$_TABLES['bannercampaigns']} AS camp
-                WHERE b.cid=c.cid
-                AND b.camp_id = camp.camp_id
-                AND b.enabled = 1
+                FROM {$_TABLES['banner']} b
+                LEFT JOIN {$_TABLES['bannercategories']} c
+                    ON c.cid = b.cid
+                LEFT JOIN {$_TABLES['bannercampaigns']} camp
+                    ON camp.camp_id = b.camp_id
+                WHERE b.enabled = 1
                 AND c.enabled = 1
                 AND camp.enabled = 1
                 AND (b.publishstart IS NULL OR b.publishstart < NOW())
                 AND (b.publishend IS NULL OR b.publishend > NOW())
                 AND (b.max_hits = 0 OR b.hits < b.max_hits)
                 AND (b.max_impressions = 0 OR b.impressions < b.max_impressions)
-                " . SEC_buildAccessSql('AND', 'b.grp_access') . "
                 AND (camp.start IS NULL OR camp.start < NOW())
                 AND (camp.finish IS NULL OR camp.finish > NOW())
                 AND (camp.hits < camp.max_hits OR camp.max_hits = 0)
                 AND (camp.max_impressions = 0
-                    OR camp.impressions < camp.max_impressions)
-                " . SEC_buildAccessSql('AND', 'c.grp_access') . ' '
-                . $sql_cond .
-                ' ORDER BY score DESC '
+                    OR camp.impressions < camp.max_impressions) "
+                . COM_getPermSQL('AND', 0, 2, 'camp')
+                . SEC_buildAccessSql('AND', 'c.grp_view')
+                . $sql_cond
+                . ' ORDER BY score DESC '
                 . $limit_clause;
 
         //echo $sql;die;
         //COM_errorLog($sql);
-        $banners = array();
         $result = DB_query($sql, 1);
         if ($result) {
             while ($A = DB_fetchArray($result, false)) {
                 $banners[] = $A['bid'];
             }
-            return $banners;
-        } else {
-            return '';
         }
+        return $banners;
     }
 
 
@@ -902,11 +764,6 @@ class Banner
         $url = COM_buildUrl(BANR_URL . '/portal.php?id=' . $this->bid);
         $target = isset($this->options['target']) ?
                     $this->options['target'] : '_blank';
-
-        switch ($this->ad_type) {
-        case BANR_TYPE_LOCAL:
-        case BANR_TYPE_REMOTE:
-
             $class = 'ext-banner';
             if ((!empty($LANG_DIRECTION)) && ($LANG_DIRECTION == 'rtl')) {
                 $class .= '-rtl';
@@ -919,6 +776,10 @@ class Banner
                     'data-uk-tooltip' => '',
                     //'border' => '0',
             );
+
+        switch ($this->ad_type) {
+        case BANR_TYPE_LOCAL:
+        case BANR_TYPE_REMOTE:
 
             if ($this->ad_type == BANR_TYPE_LOCAL &&
                 !empty($this->options['filename']) &&
@@ -1184,13 +1045,11 @@ class Banner
                 'owner_dropdown' => BANNER_UserDropdown($this->owner_id),
                 'banner_ownerid' => $this->owner_id,
                 'ownername'     => COM_getDisplayName($this->owner_id),
-                'group_dropdown' => SEC_getGroupDropdown($this->grp_access, 3, 'grp_access'),
             ) );
         } else {
             $T->set_var(array(
                 'isAdmin'       => '',
                 'owner_id'      => $this->owner_id,
-                'grp_access'    => $this->grp_access,
             ) );
         }
 

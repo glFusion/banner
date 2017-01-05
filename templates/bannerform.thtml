@@ -445,18 +445,6 @@ function BANR_changeType(value)
       </select>
     </td>
   </tr>
-  <tr>
-    <td>{$LANG_ACCESS['group']}:</td>
-    <td>{group_dropdown}</td>
-  </tr>
-  <tr>
-    <td>{$LANG_ACCESS['permissions']}:</td>
-    <td>
-      {$LANG_ACCESS['permissionskey']}<br />
-      {permissions_editor}
-      {perm_msg}
-    </td>
-  </tr>
   </table>
 
   {!else}
@@ -486,8 +474,6 @@ function BANR_changeType(value)
 
   </table>
   <input type="hidden" name="owner_id" value="{owner_id}">
-  <input type="hidden" name="group_id" value="{group_id}">
-  <input type="hidden" name="simpleperms" value="true">
   {!endif}
 
   </p>

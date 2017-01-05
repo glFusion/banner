@@ -88,7 +88,7 @@ case 'delete':
             $B = new Banner($_REQUEST['bid']);
             $view = 'banners';
         }
-        if ($B->hasAccess(3))
+        if ($B->canEdit())
             $B->Delete();
         break;
     case 'category':
@@ -110,7 +110,7 @@ case 'delMultiBanner':
     USES_banner_class_banner();
     foreach ($_POST['delitem'] as $item) {
         $B = new Banner($item);
-        if ($B->hasAccess(3))
+        if ($B->canEdit())
             $B->Delete();
     }
     $view = 'banners';
@@ -355,9 +355,9 @@ function BANR_adminMenu($view='')
                     'url'  => BANR_ADMIN_URL . '/index.php?edit=x',
                     'text' => '<span class="banrNewAdminItem">' .
                             $LANG_BANNER['new_banner'], '</span>');
-        $menu_arr[] = array(
-                    'url' => BANR_ADMIN_URL . '/index.php?validate=enabled',
-                    'text' => $LANG_BANNER['validate_banner']);
+//        $menu_arr[] = array(
+//                    'url' => BANR_ADMIN_URL . '/index.php?validate=enabled',
+//                    'text' => $LANG_BANNER['validate_banner']);
     } else {
         $menu_arr[] = array(
                     'url'  => BANR_ADMIN_URL . '/index.php',
