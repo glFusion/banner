@@ -50,13 +50,7 @@ class Category
             $this->category = '';
             $this->description = '';
             $this->enabled = 1;
-            $this->owner_id = empty($_USER['uid']) ? 0 : (int)$_USER['uid'];
-            $this->group_id = (int)DB_getItem($_TABLES['groups'], 
-                    'grp_id', "grp_name='banner Admin'");
-            $this->perm_owner = 3;
-            $this->perm_group = 2;
-            $this->perm_members = 2;
-            $this->perm_anon = 2;
+            $this->grp_view = 2;
             $this->max_img_height = 0;
             $this->max_img_width = 0;
         }
@@ -111,12 +105,7 @@ class Category
             $this->properties[$key] = $value ? 1 : 0;
             break;
 
-        case 'owner_id':
-        case 'group_id':
-        case 'perm_owner':
-        case 'perm_group':
-        case 'perm_members':
-        case 'perm_anon':
+        case 'grp_view':
         case 'max_img_width':
         case 'max_img_height':
             $this->properties[$key] = (int)$value;
@@ -161,50 +150,40 @@ class Category
         $this->description = trim($A['description']);
         $this->enabled = $A['enabled'] == 1 ? 1 : 0;
         $this->centerblock = $A['centerblock'] == 1 ? 1 : 0;
-        $this->owner_id = (int)$A['owner_id'];
-        $this->group_id = (int)$A['group_id'];
+        $this->grp_view = (int)$A['grp_view'];
         $this->max_img_height = (int)$A['max_img_height'];
         $this->max_img_width = (int)$A['max_img_width'];
 
-        // If permissions come in via form variables, they'll be in arrays.
-        // From the database, they're integers.
-        if (is_array($A['perm_owner']) || is_array($A['perm_group']) ||
-            is_array($A['perm_members']) || is_array($A['perm_anon'])) {
-            list($this->perm_owner, $this->perm_group,
-                $this->perm_members, $this->perm_anon) =
-                SEC_getPermissionValues($A['perm_owner'],$A['perm_group'],
-                    $A['perm_members'], $A['perm_anon']);
-        } else {
-            $this->perm_owner = (int)$A['perm_owner'];
-            $this->perm_group = (int)$A['perm_group'];
-            $this->perm_members = (int)$A['perm_members'];
-            $this->perm_anon = (int)$A['perm_anon'];
-        }
     }
 
 
     /**
-    *   Update the "cenberblock" flag for a category
+    *   Toggle boolean database fields
     *
-    *   @param  integer $newval     New value to set (1 or 0)
-    *   @param  string  $bid        Optional category ID.  Current object if blank
+    *   @param  string  $field  Databsae field to update
+    *   @param  integer $value  New value to set (1 or 0)
+    *   @param  string  $id     Category ID
     */
-    public function toggleCenterblock($newval, $id='')
+    private static function _toggle($field, $value, $id)
     {
         global $_TABLES;
 
-        if ($id == '') {
-            if (is_object($this)) {
-                $id = $this->cid;
-            } else {
-                return;
-            }
-        }
-
         $newval = $newval == 0 ? 0 : 1;
         DB_query("UPDATE {$_TABLES['bannercategories']}
-                SET centerblock = $newval
-                WHERE cid='" . DB_escapeString($id)."'");
+                SET `$field` = $newval
+                WHERE cid = '" . DB_escapeString($id) . "'");
+    }
+
+ 
+    /**
+    *   Update the "cenberblock" flag for a category
+    *
+    *   @param  integer $newval     New value to set (1 or 0)
+    *   @param  string  $id         Category ID.
+    */
+    public static function toggleCenterblock($newval, $id)
+    {
+        self::_toggle('centerblock', $newval, $id);
     }
 
 
@@ -212,47 +191,23 @@ class Category
     *   Update the 'enabled' value for a category
     *
     *   @param  integer $newval     New value to set (1 or 0)
-    *   @param  string  $bid        Optional ad ID.  Current object if blank
+    *   @param  string  $id         Category ID
     */
-    public function toggleEnabled($newval, $id='')
+    public function toggleEnabled($newval, $id)
     {
-        global $_TABLES;
+        self::_toggle('enabled', $newval, $id);
 
-        if ($id == '') {
-            if (is_object($this)) {
-                $id = $this->cid;
-            } else {
-                return;
-            }
-        }
-
-        $newval = $newval == 0 ? 0 : 1;
-        DB_query("UPDATE {$_TABLES['bannercategories']}
-                SET enabled = $newval
-                WHERE cid = '" . DB_escapeString($id) . "'");
     }
 
 
     /**
     *   Delete a single category.
-    *   This may be called as a standalone function with a supplied
-    *   category ID, or as "$object->Delete()"
-    *
-    *   @param  string  $id     Optional category ID to delete
     */
-    public function Delete($id='')
+    public function Delete()
     {
         global $_TABLES;
 
-        if ($id == '') {
-            if (is_object($this)) {
-                $id = $this->cid;
-            } else {
-                return;
-            }
-        }
-
-        if (self::isRequired($id))
+        if (self::isRequired($this->type))
             return;
 
         if (!$this->isUsed($id)) {
@@ -266,20 +221,12 @@ class Category
     *   Determine if the current category, or supplied category ID, is used
     *   by any banners
     *
-    *   @param  string  $id     Optional ID to check
+    *   @param  string  $id     Category ID to check
     *   @return boolean         True if the category is in use, fales otherwise.
     */
-    public function isUsed($id='')
+    public static function isUsed($id)
     {
         global $_TABLES;
-
-        if ($id == '') {
-            if (is_object($this)) {
-                $id = $this->cid;
-            } else {
-                return;
-            }
-        }
 
         if (DB_count($_TABLES['banner'], 'cid', $id) > 0) {
             return true;
@@ -294,13 +241,13 @@ class Category
     *
     *   @return string  HTML for the edit form
     */
-    public function Edit($cid='')
+    public function Edit()
     {
         global $_CONF, $_CONF_BANR, $MESSAGE, $LANG_BANNER,
                 $LANG_ADMIN, $LANG_ACCESS, $LANG_BANNER_ADMIN,
                 $_SYSTEM;
 
-        if (!$this->hasAccess()) {
+        if (!$this->canEdit()) {
             return COM_showMessage(6, 'banner');
         }
 
@@ -314,7 +261,7 @@ class Category
         ));
 
         if (!empty($this->cid) &&
-            !$this->isUsed() && !$this->isRequired()) {
+            !$this->isUsed() && !$self::isRequired($this->type)) {
             $T->set_var('delete_option', 'true');
         } else {
             $T->set_var('delete_option', '');
@@ -345,12 +292,7 @@ class Category
         $T->set_var('topic_selection',  $alltopics . $topics);
 
         // user access info
-        $T->set_var('owner_name', COM_getDisplayName($this->owner_id));
-        $T->set_var('cat_ownerid', $A['owner_id']);
-        $T->set_var('group_dropdown', SEC_getGroupDropdown($this->group_id, 3));
-        $T->set_var('permissions_editor', 
-            SEC_getPermissionsHTML($this->perm_owner, $this->perm_group, 
-                $this->perm_members, $this->perm_anon));
+        $T->set_var('group_dropdown', SEC_getGroupDropdown($this->grp_view, 3, 'grp_view'));
         $T->set_var('gltoken_name', CSRF_TOKEN);
         $T->set_var('gltoken', SEC_createToken());
 
@@ -405,12 +347,7 @@ class Category
                 tid='".DB_escapeString($this->tid)."',
                 enabled={$this->enabled},
                 centerblock={$this->centerblock},
-                owner_id={$this->owner_id},
-                group_id={$this->group_id},
-                perm_owner={$this->perm_owner},
-                perm_group={$this->perm_group},
-                perm_members={$this->perm_members},
-                perm_anon={$this->perm_anon},
+                grp_view = {$this->grp_view},
                 max_img_height={$this->max_img_height},
                 max_img_width={$this->max_img_width}";
         DB_query($sql1 . $sql2 . $sql3);
@@ -418,16 +355,45 @@ class Category
 
 
     /**
+    *   Determine if the current user can edit categories.
+    *   Currently plugin admin rights required.
+    *
+    *   @return boolean     True if user can edit, False if not.
+    */
+    public function canEdit()
+    {
+        return plugin_isadmin_banner();
+    }
+
+
+    /**
+    *   Determine if the current user can view ads under this category.
+    *
+    *   @return boolean     True for view access, False if denied
+    */
+    public function canView()
+    {
+        return SEC_inGroup($this->grp_view);
+    }
+
+        
+    /**
     *   Get the access level that the current user has to this category
     *
     *   @return integer Access level
     */
-    public function hasAccess()
+    public function XhasAccess($requred = 3)
     {
-        $access = SEC_hasAccess($this->owner_id, $this->group_id,
-                    $this->perm_owner, $this->perm_group, 
-                    $this->perm_members, $this->perm_anon);
-        return $access;
+        static $access = NULL;
+
+        if ($access == NULL) {
+            if (SEC_hasRights('banner.admin')) {
+                $access = 3;
+            } elseif (SEC_inGroup($this->grp_view)) {
+                $access = 2;
+            }
+        }
+        return $access >= $required ? true : false;
     }
  
 
@@ -463,7 +429,6 @@ class Category
                         htmlspecialchars($row['description']) .
                         "</option>\n";
         }
-
         return $retval;
     }
 
@@ -474,18 +439,11 @@ class Category
     *   @param  string  $id     Optional category ID.  Current id if empty.
     *   @return boolean         True if category is required, False otherwise.
     */
-    public function isRequired($id='')
+    public static function isRequired($type)
     {
         global $_TABLES;
 
         $req_blocks = array('header', 'footer', 'block');
-
-        if ($id == '' && is_object($this)) {
-            $type = $this->type;
-        } else {
-            $type = DB_getItem($_TABLES['bannercategories'], 'type',
-                    "cid='" . DB_escapeString($id) . "'");
-        }
 
         if (!empty($type) && in_array($type, $req_blocks)) {
             return true;
@@ -588,7 +546,7 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
 
 
     case 'delete':
-        if (!Category::isRequired($A['cid']) && !Category::isUsed($A['cid'])) {
+        if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
             $retval .= COM_createLink('<img src='. $_CONF['layout_url']
                             . '/images/admin/delete.png>',
                         "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
@@ -653,8 +611,8 @@ function BANNER_list_categories($data_arr, $cid)
 
     // get all children of present category
     $sql = "SELECT 
-                cid, category, tid, type, owner_id, group_id, centerblock,
-                perm_owner, perm_group, perm_members, perm_anon, enabled
+                cid, category, tid, type, grp_view, centerblock,
+                enabled
             FROM {$_TABLES['bannercategories']} 
             WHERE (1=1) " 
             . COM_getPermSQL('AND', 0, 3)
@@ -670,6 +628,5 @@ function BANNER_list_categories($data_arr, $cid)
 
     return $data_arr;
 }
-
 
 ?>

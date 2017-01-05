@@ -87,27 +87,17 @@
       <td colspan="2"><hr /></td>
     </tr>
     <tr>
-      <td colspan="2"><b>{$LANG_ACCESS['accessrights']}</b></td>
+      <td colspan="2"><b>{$LANG_BANNER['access_control']}</b></td>
     </tr>
     <tr>
       <td align="right">
-        {$LANG_ACCESS['owner']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_owner', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>{owner_name}<input type="hidden" name="owner_id" value="{cat_ownerid}" /></td>
-    </tr>
-    <tr>
-      <td align="right">
-        {$LANG_ACCESS['group']}:
+        {$LANG_BANNER['visible_to']}:
         <a href="#" onclick="popupWindow('{help_url}#desc_group', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
       </td>
       <td>
         {group_dropdown}
       </td>
     <tr>
-    <tr>
-      <td colspan="2"><b>{$LANG_ACCESS['permissions']}</b>:</td>
-    </tr>
     <tr>
       <td colspan="2"></td>
     </tr>

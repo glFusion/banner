@@ -95,36 +95,13 @@
   <fieldset>
   <legend>{$LANG_BANNER['access_control']}</legend>
   <div class="uk-form-row">
-    <label class="uk-form-label" for="owner">{$LANG_ACCESS['owner']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_owner', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-    </label>
-    <div class="uk-form-controls">
-      {owner_name}<input type="hidden" name="owner_id" value="{cat_ownerid}" />
-    </div>
-  </div>
-
-  <div class="uk-form-row">
-    <label class="uk-form-label" for="group">{$LANG_ACCESS['group']}:
+    <label class="uk-form-label" for="f_grp_view">{$LANG_BANNER['visible_to']}:
         <a href="#" onclick="popupWindow('{help_url}#desc_group', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
       </label>
     <div class="uk-form-controls">
       {group_dropdown}
     </div>
   </div>
-
-  <div class="uk-form-row">
-    <label class="uk-form-label" for="group">{$LANG_ACCESS['permissions']}</label>
-    <div class="uk-form-controls">
-      {permissions_editor}
-    </div>
-  </div>
-
-  <div class="uk-form-row">
-    <div class="uk-form-controls">
-     {$LANG_ACCESS['permmsg']}
-    </div>
-  </div>
-  </fieldset>
 
   <div class="uk-form-row">
     <div class="uk-form-controls">
