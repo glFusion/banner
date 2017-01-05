@@ -91,10 +91,6 @@ function USES_banner_class_image()
 function USES_banner_userfunctions()
 {   require_once BANR_PI_PATH . '/userfunctions.php';    }
 
-/** Import plugin-specific functions */
-function USES_banner_functions()
-{   require_once BANR_PI_PATH . '/banner_functions.php';    }
-
 /** Import installation defaults, typically for upgrades */
 function USES_banner_install_defaults()
 {   require_once BANR_PI_PATH . '/install_defaults.php';    }
@@ -125,8 +121,58 @@ function plugin_centerblock_banner($where=1,$page=1,$topic ='')
         return '';
     }
 
-    USES_banner_functions();
-    $banner = BANNER_centerblock($where, $page, $topic);
+    // Set basic options for banner search
+    $options = array('limit' => 1, 'centerblock' => 1);
+
+    // Get the centerblock position.  May be overridden later
+    $cntrblkpos = $_CONF_BANR['cb_pos'];
+
+    // If we're not supposed to replace the homepage, then return.
+    // Otherwise, do so.
+    if ($where == 0 && $topic == '') {
+        if (!$_CONF_BANR['cb_replhome']) {
+            return '';
+        } else {
+            $cntrblkpos = 0;
+        }
+    }
+
+    // Check if there are no featured articles in this topic 
+    // and if so then place it at the top of the page
+    if ($topic != "") {
+        $wherenames = array('tid', 'featured', 'draft_flag');
+        $wherevalues = array($topic, 1, 0);
+        $options['tid'] = $topic;    
+    } else {
+        $wherenames = array('featured', 'draft_flag');
+        $wherevalues = array(1, 0);
+    }
+
+    $story_count = DB_count($_TABLES['stories'], $wherenames, $wherevalues);
+    if ($story_count == 0 && $cntrblkpos == 2) {
+        // If the centerblock comes after the featured story, and there
+        // are no stories, put the centerblock at the top.
+        $cntrblkpos = 1;
+    }
+
+    if ($cntrblkpos != $where) {
+        return '';
+    }
+
+    USES_banner_class_banner();
+    $bids = Banner::GetBanner($options);
+    if (!empty($bids)) {
+        $B = new Banner($bids[0]);
+        $B->updateImpressions();
+
+        $T = new Template(BANR_PI_PATH . '/templates');
+        $T->set_file('page', 'centerblock.thtml');
+        $T->set_var('banner', $B->BuildBanner());
+        $T->parse('output','page');
+
+        $banner = $T->finish($T->get_var('output'));
+    }
+
     if ($_CONF_BANR['cb_replhome'] == 1 && $on_homepage) {
         // Replacing the homepage, and we're currently on the homepage
         echo COM_siteHeader() . $banner . COM_siteFooter(true);
@@ -136,7 +182,6 @@ function plugin_centerblock_banner($where=1,$page=1,$topic ='')
         return $banner;
     }
 }
-
 
 
 /**
