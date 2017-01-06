@@ -37,10 +37,15 @@ class Banner
     *   @var array */
     var $properties = array();
 
+    var $options = array();
+
     /** Database table name currently in use
     *   @var string */
     var $table;
 
+    /** Hoder for error messages to be returned to callers
+    *   @var array */
+    var $errors = array();
 
     /**
      *  Constructor
@@ -71,14 +76,7 @@ class Banner
             $this->impressions  = 0;
             $this->max_impressions = 0;
             $this->tid          = 'all';
-
-            /*if (isset($_GROUPS['Banner Admin'])) {
-                $this->group_id = $_GROUPS['Banner Admin'];
-            } else {
-                $this->group_id = SEC_getFeatureGroup('banner.edit');
-            }*/
         }
-
     }
 
 
@@ -118,13 +116,14 @@ class Banner
             $this->properties[$key] = $value == 1 ? 1 : 0;
             break;
 
-        case 'options':
+        /*case 'options':
             if (!is_array($value)) {
                 $value = @unserialize($value);
                 if (!$value) $value = array();
             }
             $this->properties[$key] = $value;
             break;
+        */
 
         case 'title':
         case 'notes':
@@ -212,12 +211,14 @@ class Banner
 
         if ($fromDB) {
             // Coming from the database
-            $this->options = $A['options'];
+            $this->options = @unserialize($A['options']);
+            if (!$this->options) $this->options = array();
             $this->weight = $A['weight'];
             $this->uxdt_start = $A['uxdt_start'];
             $this->uxdt_end = $A['uxdt_end'];
             $this->date = $A['date'];
         } else {
+            $this->options = array();
             // Coming from a form
             $this->options['url'] = COM_sanitizeUrl($A['url'],
                                     array('http','https'));
@@ -497,7 +498,7 @@ class Banner
         // Check required fields and return an error message if any
         // are missing.
         if (!$this->Validate($A)) {
-            return $LANG12[23];
+            return $this->errors;
         }
 
         switch ($this->ad_type) {
@@ -513,6 +514,10 @@ class Banner
                 USES_banner_class_image();
 
                 $U = new Image($this->bid, 'bannerimage');
+
+                // Get the max allowable image dimensions from the category,
+                // if defined, and make sure they're no larger than the
+                // default values
                 $C = new Category($this->cid);
                 $max_height = (int)$_CONF_BANR['img_max_height'];
                 $max_width = (int)$_CONF_BANR['img_max_width'];
@@ -523,15 +528,17 @@ class Banner
                     $max_width = $C->max_img_width;
                 }
                 $U->setMaxDimensions($max_width, $max_height);
+
                 $U->uploadFiles();
                 if ($U->areErrors() > 0) {
                     $this->options['filename'] = '';
-                    //return BANNER_errorMessage($U->printErrors(false));
                     return $U->printErrors(false);
                 } else {
                     $this->options['filename'] = $U->getFilename();
                 }
 
+                // Set the image dimensions in the banner record if either
+                // is not specified.
                 if (!empty($this->options['filename']) &&
                     ($this->options['width'] == 0 ||
                     $this->options['height'] == 0)) {
@@ -585,7 +592,7 @@ class Banner
             $sql3 = '';
         } else {
             $sql1 = "UPDATE {$_TABLES[$this->table]} SET ";
-            $sql3 = "WHERE bid='" . DB_escapeString($this->oldID) . "'";
+            $sql3 = " WHERE bid='" . DB_escapeString($this->oldID) . "'";
         }
         $sql2 = "bid = '" . DB_escapeString($this->bid) . "',
                 cid = '" . DB_escapeString($this->cid) . "',
@@ -748,12 +755,16 @@ class Banner
 
     /**
     *   Creates the banner image and href link for display.
+    *   The $link parameter is true to create the full banner ad including
+    *   the link. False will show only the image, e.g. for admin listings.
+    *   Local and remotely-hosted images are sized based on the category size
+    *   settings.
     *
     *   @param  string  $title      Banner Title, optional
     *   @param  integer $width      Image width, optional
     *   @param  integer $height     Image height, optional
     *   @param  boolean $link       True to create link, false for only image
-    *   @return string              Banner Link
+    *   @return string              Banner image URL, with or without link
     */
     public function BuildBanner($title = '', $width=0, $height=0, $link = true)
     {
@@ -761,56 +772,69 @@ class Banner
 
         $retval = '';
 
+        if (empty($title)) {
+            $title = empty($this->options['alt']) ? $this->title : $this->options['alt'];
+        }
         $url = COM_buildUrl(BANR_URL . '/portal.php?id=' . $this->bid);
         $target = isset($this->options['target']) ?
                     $this->options['target'] : '_blank';
-            $class = 'ext-banner';
-            if ((!empty($LANG_DIRECTION)) && ($LANG_DIRECTION == 'rtl')) {
-                $class .= '-rtl';
-            }
-            $attr = array(
-                    'title' => $title == '' ? $this->title : $title,
-                    'class' => $class,
-                    'alt' => $this->options['alt'] == '' ? $this->title : $this->options['alt'],
-                    'target' => $target,
-                    'data-uk-tooltip' => '',
-                    //'border' => '0',
-            );
+        $class = 'ext-banner';
+        if ((!empty($LANG_DIRECTION)) && ($LANG_DIRECTION == 'rtl')) {
+            $class .= '-rtl';
+        }
+        $attr = array(
+            'title' => $title == '' ? $this->title : $title,
+            'class' => $class,
+            'alt'   => $title,
+            'target' => $target,
+            'data-uk-tooltip' => '',
+        );
 
         switch ($this->ad_type) {
         case BANR_TYPE_LOCAL:
-        case BANR_TYPE_REMOTE:
-
-            if ($this->ad_type == BANR_TYPE_LOCAL &&
-                !empty($this->options['filename']) &&
-                file_exists($_CONF_BANR['img_dir'] . '/' . $this->options['filename'])) {
-                $img = $_CONF_BANR['img_url'] . '/banners/' . $this->options['filename'];
-            } elseif ($this->ad_type == BANR_TYPE_REMOTE &&
-                !empty($this->options['image_url'])) {
-                $img = $this->options['image_url'];
+            USES_banner_class_category();
+            $C = new Category($this->cid);
+            if ($width == 0)
+                $width = min($this->options['width'], $C->max_img_width);
+            if ($height == 0)
+                $height = min($this->options['height'], $C->max_img_height);
+            $img = LGLIB_ImageUrl(
+                    $_CONF_BANR['img_dir'] . '/' . $this->options['filename'],
+                    $width,
+                    $height
+            );
+            if (!empty($img)) {
+                if ($link) {
+                    $retval = COM_createLink($img, $url, $attr);
+                } else {
+                    $retval = '<img width="' . $C->max_img_width . '" height="' .
+                        $C->max_img_height . '" class="banner_img" src="' . $img .
+                        '" border="0" alt="' .
+                        urlencode($this->options['alt']) . '" />';
+                }
             }
+            break;
 
+        case BANR_TYPE_REMOTE:
+            $img = $this->options['image_url'];
             if ($img != '') {
-                if ($width == 0) $width = $this->options['width'];
-                if ($height == 0) $height = $this->options['height'];
+                USES_banner_class_category();
+                $C = new Category($this->cid);
+                if ($width == 0)
+                    $width = min($this->options['width'], $C->max_img_width);
+                if ($height == 0)
+                    $height = min($this->options['height'], $C->max_img_height);
 
                 $img = '<img width="' . $width . '" height="' . $height .
                         '" class="banner_img" src="' . $img . '" border="0" alt="' .
                         urlencode($this->options['alt']) . '" />';
-                if ($link == true) {
-                    $retval = COM_createLink($img, $url, $attr);
-                } else {
-                    $retval = $img;
-                }
+                $retval = $link ? COM_createLink($img, $url, $attr) : $img;
             }
             break;
 
         case BANR_TYPE_SCRIPT:
             if ($link == true) {
-
-                if (!empty($this->options['htmlTemplate']) &&
-                        !empty($this->options['htmlTemplate'])) {
-
+                if (!empty($this->options['htmlTemplate'])) {
                     $retval = str_replace(
                             array('{clickurl}', '{target}'),
                             array($url, $target),
@@ -818,12 +842,10 @@ class Banner
                 } else {
                     $retval = $this->options['ad_code'];
                 }
-
-            } else
+            } else {
                 $retval = $LANG_BANNER['ad_is_script'];
-
+            }
             break;
-
         }
         return $retval;
     }
@@ -877,6 +899,8 @@ class Banner
         curl_setopt_array($ch, array(
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_URL => $this->options['url'],
+                CURLOPT_HEADER => true,
+                CURLOPT_NOBODY => true,
             )
         );
         curl_exec($ch);
@@ -972,20 +996,20 @@ class Banner
         $retval .= COM_startBlock ($LANG_BANNER['banner_editor'], '',
                                COM_getBlockTemplate ('_admin_block', 'header'));
 
-        $T->set_var('banner_id', $this->bid);
-        $T->set_var('old_banner_id', $this->oldID);
-        if (!empty($this->bid) && SEC_hasRights('banner.edit')) {
-            $T->set_var('can_delete', 'true');
-        }
-
         if (!$this->isNew) {
             // Calculate display dimensions
-            $disp_img = $this->BuildBanner('', $this->options['width'],
-                        $this->options['height'], false);
+            $disp_img = $this->BuildBanner('', 0, 0, false);
             $T->set_var('disp_img', $disp_img);
+            if (SEC_hasRights('banner.edit')) {
+                $T->set_var('can_delete', 'true');
+            }
         } else {
             $T->set_var('disp_img', '');
+            $this->bid = COM_makeSid();
         }
+
+        $T->set_var('banner_id', $this->bid);
+        $T->set_var('old_banner_id', $this->oldID);
 
         // Ad Type Selection
         $adtype_select = '';
@@ -1127,27 +1151,35 @@ class Banner
     */
     public function Validate($A)
     {
+        global $LANG_BANNER;
+
+        $this->errors = array();
+
         // Must have a title
-        if (empty($A['title']))
-            return false;
+        if (empty($A['title'])) {
+            $this->errors[] = $LANG_BANNER['err_missing_title'];
+        }
 
         // Check that appropriate ad content has been added
         switch ($A['ad_type']) {
         case BANR_TYPE_LOCAL:
-            if (empty($A['url']) || empty($_FILES))
-                return false;
+            if (COM_sanitizeUrl($A['url'], array('http','https')) == '')
+                $this->errors[] = $LANG_BANNER['err_invalid_url'];
+            if (empty($_FILES))
+                $this->errors[] = $LANG_BANNER['err_missing_upload'];
             break;
         case BANR_TYPE_REMOTE:
-            if (empty($A['url']) || empty($A['image_url']))
-                return false;
+            if (COM_sanitizeUrl($A['url'], array('http','https')) == '')
+                $this->errors[] = $LANG_BANNER['err_invalid_url'];
+            if (COM_sanitizeUrl($A['image_url'], array('http','https')) == '')
+                $this->errors[] = $LANG_BANNER['err_invalid_image_url'];
             break;
         case BANR_TYPE_SCRIPT:
             if (empty($A['ad_code']))
-                return false;
+                $this->errors[] = $LANG_BANNER['err_missing_adcode'];
             break;
         }
-
-        return true;
+        return empty($this->errors) ? true : false;
     }
 
 

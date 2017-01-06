@@ -120,6 +120,11 @@ $LANG_BANNER = array(
 'user_can_add'  => 'User can submit banners',
 'max_banners'   => 'Max. Banners',
 'version'       => 'Version',
+'err_invalid_url' => 'Invalid target URL given',
+'err_invalid_image_url' => 'Invalid Image URL given for a remotely-hosted banner',
+'err_missing_upload' => 'No image uploaded for a locally-hosted banner',
+'err_missing_adcode' => 'Ad code cannot be empty for script banner',
+'err_missing_title' => 'A banner title is required',
 
     10 => 'Submissions',
     14 => 'Banner',
