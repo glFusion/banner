@@ -107,8 +107,8 @@ $_BANR_DEFAULT['target_blank'] = 1;
 /**
 *   Maximum image dimensions
 */
-$_BANR_DEFAULT['img_max_width'] = 468;
-$_BANR_DEFAULT['img_max_height'] = 60;
+$_BANR_DEFAULT['img_max_width'] = 1024;
+$_BANR_DEFAULT['img_max_height'] = 1024;
 
 /**
 *   Default weight assigned to new banners
