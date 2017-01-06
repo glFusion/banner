@@ -185,7 +185,7 @@ class BannerList
                     b.max_hits AS max_hits,
                     b.max_impressions as max_impressions,
                     b.publishstart AS publishstart,
-                    b.publishend AS publishend, b.owner_id, b.grp_access,
+                    b.publishend AS publishend, b.owner_id,
                     $sql_value as isAdmin
                 FROM
                     {$_TABLES['banner']} AS b
