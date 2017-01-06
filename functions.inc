@@ -1089,9 +1089,18 @@ function BANNER_errorMessage($msg, $type = '', $header = '')
         break;
     }
 
+    if (is_array($msg)) {
+        $text = '<ul>';
+        foreach ($msg as $m) {
+            $text .= "<li>$m</li>\n";
+        }
+        $text .= '</ul>';
+    } else {
+        $text = $msg;
+    }
     return "<span class=\"$class\">"
             . COM_startBlock($header)
-            . $msg
+            . $text
             . COM_endBlock()
             . '</span>';
 }

@@ -200,7 +200,7 @@ function banner_upgrade_0_2_0()
         if ($group_id < 1) $group_id = $_BANR_DEFAULT['defgrpsubmit'];
 
         $c->add('defgrpsubmit', $group_id,
-                'select', 0, 2, 0, 5, true, $me);
+                'select', 0, 2, 0, 5, true, $_CONF_BANR['pi_name']);
     }
 
     if (!banner_do_upgrade_sql('0.2.0')) return false;
