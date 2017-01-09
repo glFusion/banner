@@ -6,6 +6,13 @@ Released TBD
 Compatibile with glFusion 1.6.0 or higher.
 - Remove PEAR dependency in banner validation
 - Add uikit templates when a uikit-based theme is in use
+- Simplify permissions.
+  - Remove banner view permission
+  - Change category to simple group view permission
+  - Use full perms only for campaigns where users may add ads
+- Use LGLIB_ImageUrl() to size images to category settings
+  - Global size limits should now be large sanity checks
+  - Image is scaled to the smaller of the Category or Banner size limit
 
 ## glBanner - 0.1.2
 Released 2010-03-17.
