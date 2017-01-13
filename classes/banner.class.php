@@ -148,10 +148,6 @@ class Banner
         }
     }
 
-
-    public function getID()
-    {   return $this->bid;  }
-
     public function setAdmin($isadmin)
     {   $this->isAdmin = $isadmin ? true : false;   }
 
@@ -510,24 +506,15 @@ class Banner
             // Handle the file upload
             if (isset($_FILES['bannerimage']['name']) &&
                 !empty($_FILES['bannerimage']['name'])) {
-                USES_banner_class_category();
                 USES_banner_class_image();
-
                 $U = new Image($this->bid, 'bannerimage');
 
-                // Get the max allowable image dimensions from the category,
-                // if defined, and make sure they're no larger than the
-                // default values
-                $C = new Category($this->cid);
-                $max_height = (int)$_CONF_BANR['img_max_height'];
-                $max_width = (int)$_CONF_BANR['img_max_width'];
-                if ($C->max_img_height > 0 && $C->max_img_height < $max_height) {
-                    $max_height = $C->max_img_height;
-                }
-                if ($C->max_img_width > 0 && $C->max_img_width < $max_width) {
-                    $max_width = $C->max_img_width;
-                }
-                $U->setMaxDimensions($max_width, $max_height);
+                // Set max image size to the global sanity check.
+                // Images will be resized down to the category size for display
+                $U->setMaxDimensions(
+                    $_CONF_BANR['img_max_height'],
+                    $_CONF_BANR['img_max_width']
+                );
 
                 $U->uploadFiles();
                 if ($U->areErrors() > 0) {
@@ -539,12 +526,17 @@ class Banner
 
                 // Set the image dimensions in the banner record if either
                 // is not specified.
-                if (!empty($this->options['filename']) &&
-                    ($this->options['width'] == 0 ||
-                    $this->options['height'] == 0)) {
-                    list($this->options['width'], $this->options['height']) =
-                    @getimagesize($_CONF_BANR['img_dir'] . '/' .
+                if (!empty($this->options['filename'])) {
+                    $sizes = @getimagesize($_CONF_BANR['img_dir'] . '/' .
                                     $this->options['filename']);
+                    if ($this->options['width'] == 0 ||
+                            $this->options['width'] > $sizes[0]) {
+                        $this->options['width'] = $sizes[0];
+                    }
+                    if ($this->options['height'] == 0 ||
+                            $this->options['height'] > $sizes[1]) {
+                        $this->options['height'] = $sizes[1];
+                    }
                 }
             }
             break;
@@ -775,42 +767,58 @@ class Banner
         if (empty($title)) {
             $title = empty($this->options['alt']) ? $this->title : $this->options['alt'];
         }
+        $alt = htmlspecialchars($this->options['alt']);
         $url = COM_buildUrl(BANR_URL . '/portal.php?id=' . $this->bid);
         $target = isset($this->options['target']) ?
                     $this->options['target'] : '_blank';
-        $class = 'ext-banner';
-        if ((!empty($LANG_DIRECTION)) && ($LANG_DIRECTION == 'rtl')) {
-            $class .= '-rtl';
-        }
+        $class = 'banner_img';
         $attr = array(
-            'title' => $title == '' ? $this->title : $title,
-            'class' => $class,
-            'alt'   => $title,
+            'title' => htmlspecialchars($title),
+            'class' => 'banner_img',
             'target' => $target,
             'data-uk-tooltip' => '',
         );
 
+        USES_banner_class_category();
+        $C = new Category($this->cid);
+        if ($width == 0)
+            $width = min($this->options['width'], $C->max_img_width);
+        if ($height == 0)
+            $height = min($this->options['height'], $C->max_img_height);
+
         switch ($this->ad_type) {
         case BANR_TYPE_LOCAL:
-            USES_banner_class_category();
-            $C = new Category($this->cid);
-            if ($width == 0)
-                $width = min($this->options['width'], $C->max_img_width);
-            if ($height == 0)
-                $height = min($this->options['height'], $C->max_img_height);
-            $img = LGLIB_ImageUrl(
+            // A bit of a kludge until LGLIB is updated for everyone.
+            // The service function returns the image width and height as well
+            // as the url.
+            $status = LGLIB_invokeService('lglib', 'imageurl',
+                array(
+                    'filepath' => $_CONF_BANR['img_dir'] . '/' . $this->options['filename'],
+                    'width'     => $width,
+                    'height'    => $height,
+                ),
+                $output, $svc_msg);
+            if ($status == PLG_RET_OK) {
+                $attr['width'] = $output['width'];
+                $attr['height'] = $output['height'];
+                /*$dim_str = 'width="' . $output['width'] .
+                            '" height="' . $output['height'] . '"';*/
+                $img = $output['url'];
+            } else {
+                // Newer lglib plugin not available, call the legacy function.
+                $img = LGLIB_ImageUrl(
                     $_CONF_BANR['img_dir'] . '/' . $this->options['filename'],
-                    $width,
-                    $height
-            );
+                    $width, $height);
+                $attr['width'] = $width;
+                $attr['height'] = $height;
+                $dim_str = '';
+            }
             if (!empty($img)) {
                 if ($link) {
+                    $attr['alt'] = $alt;
                     $retval = COM_createLink($img, $url, $attr);
                 } else {
-                    $retval = '<img width="' . $C->max_img_width . '" height="' .
-                        $C->max_img_height . '" class="banner_img" src="' . $img .
-                        '" border="0" alt="' .
-                        urlencode($this->options['alt']) . '" />';
+                    $retval = COM_createImage($img, $alt, $attr);
                 }
             }
             break;
@@ -818,17 +826,14 @@ class Banner
         case BANR_TYPE_REMOTE:
             $img = $this->options['image_url'];
             if ($img != '') {
-                USES_banner_class_category();
-                $C = new Category($this->cid);
-                if ($width == 0)
-                    $width = min($this->options['width'], $C->max_img_width);
-                if ($height == 0)
-                    $height = min($this->options['height'], $C->max_img_height);
-
-                $img = '<img width="' . $width . '" height="' . $height .
-                        '" class="banner_img" src="' . $img . '" border="0" alt="' .
-                        urlencode($this->options['alt']) . '" />';
-                $retval = $link ? COM_createLink($img, $url, $attr) : $img;
+                $attr['height'] = $height;
+                $attr['width'] = $width;
+                if ($link) {
+                    $attr['alt'] = $alt;
+                    $retval = COM_createLink($img, $url, $attr);
+                } else {
+                    $retval = COM_createImage($img, $alt, $attr);
+                }
             }
             break;
 

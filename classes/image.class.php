@@ -86,7 +86,6 @@ class Image extends upload
 
         $this->filename = $this->bid . '.' . $this->ext;
         $this->setFileNames($this->filename);
-
     }
 
 
@@ -125,7 +124,6 @@ class Image extends upload
 
         return array($newwidth, $newheight);
     }
-
 
 }   // class Image
 

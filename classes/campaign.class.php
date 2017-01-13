@@ -268,6 +268,10 @@ class Campaign
         $ownername = COM_getDisplayName ($this->owner_id);
         $topics = COM_topicList('tid,topic', $this->tid, 1, true);
 
+        if ($this->isNew && $this->camp_id == '') {
+            $this->camp_id = COM_makeSid();
+        }
+
         $T->set_var(array(
             'pi_url'        => BANR_URL,
             'help_url'      => BANNER_docURL('campaignform.html'),
@@ -312,14 +316,13 @@ class Campaign
             foreach ($this->Banners as $B) {
                 list($width, $height) = Image::reDim($B->width, $B->height, 300);
                 $url = COM_buildUrl(BANR_ADMIN_URL .
-                        '/index.php?edit=banner&bid=' . $B->getID());
+                        '/index.php?edit=banner&bid=' . $B->bid);
                 $T->set_var('image', $B->BuildBanner('', $width, $height, $false));
-                $T->set_var('ad_id', COM_createLink($B->getID(), $url, array()));
+                $T->set_var('ad_id', COM_createLink($B->bid, $url, array()));
                 $T->set_var('hits', $B->hits);
                 $T->parse('ad', 'AdRow', true);
             }
         }
-
         $T->parse ('output', 'editform');
         //$menu = BANNER_menu_adminCampaigns();
         return $T->finish($T->get_var('output'));

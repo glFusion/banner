@@ -53,7 +53,7 @@ class BannerList
     */
     public function setAdmin($isAdmin)
     {
-        $this->isAdmin = $isAdmin == true ? true : false;
+        $this->isAdmin = $isAdmin && plugin_isadmin_banner() ? true : false;
         if ($this->isAdmin) {
             $this->url = BANR_ADMIN_URL;
         } else {
@@ -93,6 +93,9 @@ class BannerList
                  $_TABLES, $_CONF, $_CONF_BANR;
 
         USES_lib_admin();
+        // Banner class is used by the field display function when the
+        // url is validated. Just include it once here.
+        USES_banner_class_banner();
 
         $uid = (int)$_USER['uid'];
         $retval = '';
@@ -134,10 +137,9 @@ class BannerList
         );
 
         if ($this->isAdmin) {
-            $sql_value = 1;
+            $is_admin = 1;
 
             $validate = '';
-            USES_banner_class_banner();
             $token = SEC_createToken();
 
             if (isset($_GET['validate']) && $_GET['validate'] == 'validate') {
@@ -169,7 +171,7 @@ class BannerList
                                 $validate,
             );
         } else {
-            $sql_value = 0;
+            $is_admuin = 0;
         }
 
         $options = array('chkdelete' => 'true', 'chkfield' => 'bid');
@@ -186,17 +188,14 @@ class BannerList
                     b.max_impressions as max_impressions,
                     b.publishstart AS publishstart,
                     b.publishend AS publishend, b.owner_id,
-                    $sql_value as isAdmin
-                FROM
-                    {$_TABLES['banner']} AS b
-                LEFT JOIN
-                    {$_TABLES['bannercategories']} AS c
-                ON b.cid=c.cid WHERE ($sql_value = 1 OR b.owner_id = $uid) ",
+                    $is_admin as isAdmin
+                FROM {$_TABLES['banner']} AS b
+                LEFT JOIN {$_TABLES['bannercategories']} AS c
+                    ON b.cid=c.cid
+                WHERE ($is_admin = 1 OR b.owner_id = $uid) ",
 
             'query_fields' => array('title', 'category',
                 'b.publishstart', 'b.publishend', 'b.hits'),
-
-            'default_filter' => COM_getPermSql('AND', 0, 3, 'b')
         );
 
         // Limit to a specific campaign, if requested

@@ -1,12 +1,11 @@
 <?php
-//  $Id: category.class.php 16 2009-10-19 04:21:05Z root $
 /**
 *   Class to handle banner categories
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.7
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @version    0.2.0
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -33,11 +32,10 @@ class Category
     public function __construct($id='')
     {
         global $_USER, $_TABLES;
-            
+
         $this->isNew = true;
         $this->properties = array();
 
-        //$id = trim($id);
         if ($id != '') {
             $this->cid = $id;
             $this->Read($this->cid);
@@ -54,7 +52,6 @@ class Category
             $this->max_img_height = 0;
             $this->max_img_width = 0;
         }
-
     }
 
 
@@ -110,7 +107,6 @@ class Category
         case 'max_img_height':
             $this->properties[$key] = (int)$value;
             break;
-
         }
     }
 
@@ -153,7 +149,6 @@ class Category
         $this->grp_view = (int)$A['grp_view'];
         $this->max_img_height = (int)$A['max_img_height'];
         $this->max_img_width = (int)$A['max_img_width'];
-
     }
 
 
@@ -174,7 +169,7 @@ class Category
                 WHERE cid = '" . DB_escapeString($id) . "'");
     }
 
- 
+
     /**
     *   Update the "cenberblock" flag for a category
     *
@@ -243,16 +238,14 @@ class Category
     */
     public function Edit()
     {
-        global $_CONF, $_CONF_BANR, $MESSAGE, $LANG_BANNER,
-                $LANG_ADMIN, $LANG_ACCESS, $LANG_BANNER_ADMIN,
-                $_SYSTEM;
+        global $_CONF_BANR, $LANG_BANNER;
 
         if (!$this->canEdit()) {
             return COM_showMessage(6, 'banner');
         }
 
         $T = new Template(BANR_PI_PATH . '/templates/admin');
-        $tpltype = $_SYSTEM['framework'] == 'uikit' ? '.uikit' : '';
+        $tpltype = $_CONF_BANR['_is_uikit'] ? '.uikit' : '';
         $T->set_file(array('page' => "categoryeditor$tpltype.thtml"));
 
         $T->set_var(array(
@@ -260,11 +253,15 @@ class Category
             'cancel_url'    => BANR_ADMIN_URL . '/index.php?view=categories',
         ));
 
-        if (!empty($this->cid) &&
-            !$this->isUsed() && !$self::isRequired($this->type)) {
-            $T->set_var('delete_option', 'true');
+        $delete_option = '';
+        if ($this->isNew) {
+            $this->cid = COM_makeSid();
         } else {
-            $T->set_var('delete_option', '');
+            // Set the delete button if this is an existing category
+            // that is not used or required
+            if (!$this->isUsed() && !$self::isRequired($this->type)) {
+                $delete_option = 'true';
+            }
         }
 
         $T->set_var(array(
@@ -277,7 +274,8 @@ class Category
             'chk_centerblock'   => $this->centerblock == 0 ? '' : 'checked="checked"',
             'max_img_width'     => $this->max_img_width,
             'max_img_height'    => $this->max_img_height,
-        ));
+            'delete_option'     => $delete_option,
+        ) );
 
         if (!isset($this->tid)) {
             $this->tid = 'all';
@@ -376,7 +374,7 @@ class Category
         return SEC_inGroup($this->grp_view);
     }
 
-        
+
     /**
     *   Get the access level that the current user has to this category
     *
@@ -395,7 +393,7 @@ class Category
         }
         return $access >= $required ? true : false;
     }
- 
+
 
     /**
     *   Return the option elements for a category selection dropdown
@@ -423,7 +421,7 @@ class Category
 
         while ($row = DB_fetchArray($result)) {
             $selected = $row['cid'] === $sel ? ' selected="selected"' : '';
-            $retval .= "<option value=\"" . 
+            $retval .= "<option value=\"" .
                         htmlspecialchars($row['cid']) .
                         "\"$selected>" .
                         htmlspecialchars($row['description']) .
@@ -463,17 +461,18 @@ class Category
 */
 function BANNER_adminCategories()
 {
-    global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_BANNER, $LANG_ACCESS,
-           $_IMAGE_TYPE, $_CONF_BANR;
+    global $LANG_ADMIN, $LANG_BANNER;
 
     $retval = '';
-    $header_arr = array(      # display 'text' and use table field 'field'
+    $header_arr = array(
                 array('text' => $LANG_BANNER['edit'],
-                    'field' => 'edit', 
-                    'sort' => false),
+                    'field' => 'edit',
+                    'sort' => false,
+                    'align' => 'center'),
                 array('text' => $LANG_BANNER['enabled'],
                     'field' => 'enabled',
-                    'sort' => false),
+                    'sort' => false,
+                    'align' => 'center'),
                 array('text' => $LANG_BANNER['centerblock'],
                     'field' => 'centerblock',
                     'sort' => true,
@@ -484,26 +483,25 @@ function BANNER_adminCategories()
                 array('text' => $LANG_BANNER['type'],
                     'field' => 'type',
                     'sort' => 'true'),
-                array('text' => $LANG_BANNER['cat_name'], 
-                    'field' => 'bannercategory', 
+                array('text' => $LANG_BANNER['cat_name'],
+                    'field' => 'bannercategory',
                     'sort' => true),
-                array('text' => $LANG_BANNER['topic'], 
-                    'field' => 'tid', 
+                array('text' => $LANG_BANNER['topic'],
+                    'field' => 'tid',
                     'sort' => true),
-                array('text' => $LANG_ADMIN['delete'], 
+                array('text' => $LANG_ADMIN['delete'],
                     'field' => 'delete',
-                    'sort' => false),
+                    'sort' => false,
+                    'align' => 'center'),
     );
 
     $defsort_arr = array('field' => 'category', 'direction' => 'asc');
 
     $text_arr = array();
     $dummy = array();
-    $data_arr = BANNER_list_categories($dummy, $_CONF_BANR['root'], 0);
-
+    $data_arr = BANNER_list_categories();
     $retval .= ADMIN_simpleList('BANNER_getField_Category', $header_arr,
                                 $text_arr, $data_arr);
-
     return $retval;
 }
 
@@ -543,7 +541,6 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
                 id=\"togena{$A['cid']}\"
                 onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"category\", \"{$_CONF['site_url']}\");' />\n";
         break;
-
 
     case 'delete':
         if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
@@ -600,32 +597,22 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
     }
 
     return $retval;
-
 }
 
-function BANNER_list_categories($data_arr, $cid)
+function BANNER_list_categories()
 {
-    global $_CONF, $_TABLES, $_CONF_BANR;
+    global $_TABLES;
 
-    $cid = DB_escapeString($cid);
-
-    // get all children of present category
-    $sql = "SELECT 
-                cid, category, tid, type, grp_view, centerblock,
-                enabled
-            FROM {$_TABLES['bannercategories']} 
-            WHERE (1=1) " 
-            . COM_getPermSQL('AND', 0, 3)
-            . " ORDER BY category";
+    $sql = "SELECT cid, category, tid, type, grp_view, centerblock, enabled
+            FROM {$_TABLES['bannercategories']}
+            ORDER BY category";
     //echo $sql;die;
-
     $result = DB_query($sql);
     while ($A = DB_fetchArray($result)) {
         $topic = DB_getItem($_TABLES['topics'], 'topic', "tid='{$A['tid']}'");
         $A['topic_text'] = $topic;
         $data_arr[] = $A;
     }
-
     return $data_arr;
 }
 

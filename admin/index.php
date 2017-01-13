@@ -6,7 +6,7 @@
  *  @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
  *  @package    banner
  *  @version    0.1.0
- *  @license    http://opensource.org/licenses/gpl-2.0.php 
+ *  @license    http://opensource.org/licenses/gpl-2.0.php
  *  GNU Public License v2 or later
  *  @filesource
  */
@@ -17,12 +17,11 @@ require_once '../../../lib-common.php';
 $content = '';
 
 // Must have privileges to access this admin area
-if (!SEC_hasRights('banner.edit')) {
+if (!plugin_ismoderator_banner()) {
     COM_404();
 }
 
 USES_lib_admin();
-USES_banner_functions();
 
 $action = '';
 $actionval = '';
@@ -32,7 +31,7 @@ $expected = array(
     'banners', 'categories', 'campaigns',
     'mode', 'view',
 );
-foreach($expected as $provided) {
+foreach ($expected as $provided) {
     if (isset($_POST[$provided])) {
         $action = $provided;
         $actionval = $_POST[$provided];
@@ -182,10 +181,11 @@ case 'save':
             // Delete the submission, if any
             if ($type == 'submission') {
                 $B->setVars($_POST);
-                $status = $B->Insert(false);
+                $B->isNew = true;
+                $status = $B->Save();
                 if ($status == '') {
                     // Only delete from submission table if status is ok
-                    DB_delete($_TABLES['bannersubmission'], 'bid', $B->getID());
+                    DB_delete($_TABLES['bannersubmission'], 'bid', $B->bid);
                 }
             } else {
                 $status = $B->Save($_POST);
@@ -200,7 +200,6 @@ case 'save':
             $view = 'banners';
         }
         break;
-
     }
     break;
 
@@ -236,7 +235,7 @@ case 'moderate':
     USES_banner_class_banner();
     $B = new Banner($_GET['bid'], 'bannersubmission');
     $B->setAdmin(true);
-    if ($B->getID() != '') {
+    if ($B->bid != '') {
         $content .= $B->Edit($mode);
     }
     break;
@@ -324,7 +323,6 @@ default:
         $L->setCampID($_REQUEST['camp_id']);
     $content .= $L->ShowList();
     break;
-
 }   // switch ($view)
 
 echo COM_siteHeader('menu', $LANG_BANNER['banners']);
@@ -343,7 +341,7 @@ function BANR_adminMenu($view='')
 {
     global $_CONF, $LANG_ADMIN, $LANG_BANNER, $_CONF_BANR;
 
-    if (isset($LANG_BANNER['admin_hdr_' . $view]) && 
+    if (isset($LANG_BANNER['admin_hdr_' . $view]) &&
         !empty($LANG_BANNER['admin_hdr_' . $view])) {
         $hdr_txt = $LANG_BANNER['admin_hdr_' . $view];
     } else {
@@ -380,7 +378,7 @@ function BANR_adminMenu($view='')
                     'text' => '<span class="banrNewAdminItem">' .
                             $LANG_BANNER['new_camp'] . '</span>');
     } else {
-        $menu_arr[] = array('url'  => BANR_ADMIN_URL . 
+        $menu_arr[] = array('url'  => BANR_ADMIN_URL .
                             '/index.php?campaigns=x',
                     'text' => $LANG_BANNER['campaigns']);
     }
@@ -390,14 +388,12 @@ function BANR_adminMenu($view='')
 
     $T = new Template(BANR_PI_PATH . '/templates');
     $T->set_file('title', 'banner_admin_title.thtml');
-    $T->set_var('title', 
+    $T->set_var('title',
         $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . $_CONF_BANR['pi_version'] . ')');
     $retval = $T->parse('', 'title');
-    $retval .= ADMIN_createMenu($menu_arr, $hdr_txt, 
+    $retval .= ADMIN_createMenu($menu_arr, $hdr_txt,
             plugin_geticon_banner());
-
     return $retval;
-
 }
 
 ?>
