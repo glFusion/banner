@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+  <link href="../../../docs/docstyle.css" type="text/css" rel="stylesheet" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Category Form</title>
+</head>
+
+<body style="direction: ltr;">
+<div id="gl_container_fluid">
+  <div id="gl_header"><span style="color: rgb(255, 255, 255); float: left; padding-left: 10px; padding-top: 5px; vertical-align: middle;">glFusion Documentation Project
+  </span><a style="float: right; padding-right: 10px; padding-top: 5px; vertical-align: middle;" href="http://www.glfusion.org/wiki/doku.php">glFusion Wiki</a>
+</div>
+<div id="gl_wrapper">
+<div class="body-container">
+<h1><a name="banner_plugin" id="banner_plugin">Banner Plugin</a></h1>
+
+<div class="level1">
+<h1><a name="category_form_options" id="category_form_options">Category Form Options</a></h1>
+
+<table class="inline">
+  <tbody>
+    <tr>
+      <th class="col0 leftalign" colspan="2">Category Options</th>
+    </tr>
+
+    <tr class="row0">
+      <th class="col0 leftalign">Option </th>
+      <th class="col1 leftalign">Description </th>
+    </tr>
+
+    <tr class="row0">
+      <td class="col0 leftalign" valign="top"><a name="desc_cid"></a>Category ID</td>
+      <td class="col1 leftalign">Each category must have a unique ID.  If one is not entered here, an ID will be automatically generated when the category is saved.<br /><br />
+This is used for reference only and has no effect on banner placement.</td>
+    </tr>
+
+    <tr class="row3">
+      <td class="col0 leftalign" valign="top"><a name="desc_category"></a>Category</td>
+      <td class="col1 leftalign">Enter an identifier for this category.  This short name will be appear in lists to identify the category.</td>
+    </tr>
+
+    <tr class="row3">
+      <td class="col0 leftalign" valign="top"><a name="desc_type"></a>Type</td>
+      <td class="col1 leftalign">Enter a string to identify the type for this category.  This string will be used to determine the ad placement in templates, blocks and content.<p />
+For template variables, use the name of the template itself.  For example, to have a category place your add in the Featured Story, set the "type" to "featuredarticle".  Then, in  &lt;layout_dir&gt;/featuredstorytext.thtml, add a new template variable "{banner_featuredarticle}".  This variable will be replaced with the banner content.</td>
+    </tr>
+
+    <tr class="row3">
+      <td class="col0 leftalign" valign="top"><a name="desc_description"></a>Description</td>
+      <td class="col1 leftalign">Enter a description for this category.</td>
+    </tr>
+
+    <tr class="row3">
+      <td class="col0 leftalign" valign="top"><a name="desc_topic"></a>Topic</td>
+      <td class="col1 leftalign">Select the topic with which this category's ads will appear.</td>
+    </tr>
+
+    <tr class="row3">
+      <td class="col0 leftalign" valign="top"><a name="desc_max_img_width"></a>Max. Image Width</td>
+      <td class="col1 leftalign">Enter the maximum allowed width for images in this category.  If left blank, the global configuration item will prevail.  Attempts to upload images greater than this size will fail (this only affects locally-hosted images).</td>
+    </tr>
+
+    <tr class="row3">
+      <td class="col0 leftalign" valign="top"><a name="desc_max_img_height"></a>Max. Image Height</td>
+      <td class="col1 leftalign">Enter the maximum allowed height for images in this category.  If left blank, the global configuration item will prevail.  Attempts to upload images greater than this size will fail (this only affects locally-hosted images).</td>
+    </tr>
+
+    <tr class="row3">
+      <td class="col0 leftalign" valign="top"><a name="desc_enabled"></a>Enabled?</td>
+      <td class="col1 leftalign">If this is unchecked, then no banners will be shown for this category.</td>
+    </tr>
+
+    <tr class="row3">
+      <td class="col0 leftalign" valign="top"><a name="desc_owner"></a>Owner</td>
+      <td class="col1 leftalign">Select the owner of this category.  This controls who may view reports or upload files to this category.</td>
+    </tr>
+
+    <tr class="row3">
+      <td class="col0 leftalign" valign="top"><a name="desc_group"></a>Group</td>
+      <td class="col1 leftalign">Select the user group associated with this category.  This controls who may view reports or upload files to this category.</td>
+    </tr>
+
+  </tbody>
+</table>
+<p></p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
