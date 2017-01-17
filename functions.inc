@@ -955,7 +955,7 @@ function plugin_getuseroption_banner()
     if ($uid < 2) return '';
 
     $banner_cnt = (int)DB_getItem($_TABLES['banner'], 'COUNT(*)',
-                    '1=1' . COM_getPermSQL('AND', 0, 3));
+                    'owner_id = ' .$_USER['uid']);
     if ($banner_cnt < 1) return '';
     /*$camp_cnt = (int)DB_getItem($_TABLES['bannercampaigns'],
                 "COUNT(*)", "owner_id=$uid");
