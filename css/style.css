@@ -91,4 +91,6 @@ div.blockbanner {
     font-weight: bold;
 }
 
-
+.banner_danger {
+    color: red;
+}

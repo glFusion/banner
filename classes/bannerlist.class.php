@@ -104,7 +104,8 @@ class BannerList
         $header_arr = array(
             array(  'text' => $LANG_BANNER['edit'],
                     'field' => 'edit',
-                    'sort' => false),
+                    'sort' => false,
+                    'align' => 'center'),
             array(  'text' => $LANG_BANNER['enabled'],
                     'field' => 'enabled',
                     'align' => 'center',
@@ -171,7 +172,7 @@ class BannerList
                                 $validate,
             );
         } else {
-            $is_admuin = 0;
+            $is_admin = 0;
         }
 
         $options = array('chkdelete' => 'true', 'chkfield' => 'bid');
@@ -236,11 +237,8 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
 
     switch($fieldname) {
     case 'edit':
-        // Not available to non-admins
-        if (!$A['isAdmin']) break;
-
         $retval = COM_createLink(
-                $icon_arr['edit'],
+                '<i class="uk-icon-edit"></i>',
                 $base_url . '/index.php?edit=x&item=banner&amp;bid=' .$A['bid']
                 );
         break;
@@ -257,17 +255,12 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        $retval = '<form action="'."{$base_url}/index.php".'" method="post">
-                <input type=hidden name="bid" value="'.$A['bid'].'">
-                <input type=hidden name="mode" value="deleteBanner">
-                <input type="image"
-                    src="'.$_CONF['layout_url'].'/images/admin/delete.png"
-                    height="16" width="16" border="0"
-                    alt="Delete this Banner"
-                    title="Delete this Baner"
-                    onclick="return confirm('."'Do you really want to delete this item?'".');"
-                    class="gl_mootip">
-            </form>' . "\n";
+        $retval = COM_createLink('',
+                "$base_url/index.php?bid={$A['bid']}&deleteBanner",
+                array(
+                    'class' => 'uk-icon-trash banner_danger',
+                     'onclick' => "return confirm('Do you really want to delete this item?');",
+                ) );
         break;
 
     case 'dovalidate':

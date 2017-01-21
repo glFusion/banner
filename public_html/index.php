@@ -14,7 +14,7 @@
 
 require_once '../lib-common.php';
 
-USES_banner_functions();
+//USES_banner_functions();
 USES_banner_class_banner();
 USES_lib_admin();
 
@@ -28,6 +28,7 @@ $display = '';
 $view = 'campaigns';
 $expected = array('banners', 'campaigns', 'campaignDetail', 'report', 
         'edit', 'toggleEnabled', 'toggleEnabledCampaign',
+        'deleteBanner',
         'action', 'view');
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
@@ -52,6 +53,16 @@ if (isset($_POST['delitem']) && is_array($_POST['delitem'])) {
 $message = array();
 
 switch ($action) {
+case 'deleteBanner':
+    $B = new Banner($_GET['bid']);
+    if ($B->isNew || $B->owner_id != $_USER['uid']) {
+        COM_404();
+    }
+    $B->Delete();
+    echo COM_refresh(BANR_URL);
+    exit;
+    break;
+
 case 'report':
     // Send a broken banner report to the admin
     if (!empty($bid)) {
