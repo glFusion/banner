@@ -1262,6 +1262,7 @@ class Banner
             if ($is_blocked_ip === NULL) {
                 $is_blocked_ip = false;
                 foreach ($_CONF_BANR['ipaddr_dontshow'] as $addr) {
+                    if (empty($addr)) continue;
                     if (strstr($_SERVER['REMOTE_ADDR'], $addr)) {
                         $is_blocked_ip = true;
                         break;
@@ -1275,6 +1276,7 @@ class Banner
             if ($is_blocked_useragent === 'X') {
                 $is_blocked_useragent = false;
                 foreach ($_CONF_BANR['uagent_dontshow'] as $agent) {
+                    if (empty($agent)) continue;
                     if (stristr($_SERVER['HTTP_USER_AGENT'], $agent)) {
                         $is_blocked_useragent = true;
                         break;
