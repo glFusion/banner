@@ -289,7 +289,8 @@ class Campaign
             'banner_ownerid'    => $this->owner_id,
             'owner_username' => DB_getItem($_TABLES['users'],
                                 'username', "uid = {$this->owner_id}"),
-            'owner_selection' => BANNER_UserDropdown($this->owner_id),
+            'owner_selection' => COM_optionList($_TABLES['users'],'uid,username',
+                                $this->owner_id, 1, 'uid <> 1'),
             'group_dropdown' => SEC_getGroupDropdown(
                                 $this->group_id, $this->Access()),
             'permissions_editor' => SEC_getPermissionsHTML(

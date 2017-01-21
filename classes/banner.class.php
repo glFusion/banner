@@ -389,7 +389,7 @@ class Banner
     */
     public function Delete()
     {
-        global $_TABLES, $_CONF_BANR;
+        global $_TABLES, $_CONF_BANR, $_USER;
 
         if (!empty($this->options['filename']) &&
             file_exists($_CONF_BANR['img_dir'] . '/' . $this->options['filename'])) {
@@ -398,7 +398,7 @@ class Banner
 
         DB_delete($_TABLES[$this->table],
             'bid', DB_escapeString(trim($this->bid)));
-        BANNER_auditLog("Deleted banner id {$this->bid}");
+        BANNER_auditLog("{$_USER['uid']} deleted banner id {$this->bid}");
     }
 
 
@@ -625,11 +625,12 @@ class Banner
     *   @param  array   $fields Fields to use in where clause
     *   @return array           Array of Banner ids, empty for none available
     */
-    public static function GetBanner($fields='')
+    public static function GetBanner($fields=array())
     {
         global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
 
         $banners = array();
+        if (!is_array($fields)) $fields = array();
 
         // Determine if any ads at all should be displayed to this user
         if (!self::canShow()) {
@@ -638,40 +639,39 @@ class Banner
 
         $sql_cond = '';
         $limit_clause = '';
-        if (is_array($fields)) {
-            foreach ($fields as $field=>$value) {
-                $value = DB_escapeString($value);
-                switch(strtolower($field)) {
-                case 'type':
-                case 'category':
-                case 'centerblock':
-                    $sql_cond .= " AND c.{$field} = '$value'";
-                    break;
-                case 'tid':
-                case 'topic':
-                    if ($value != '' && $value != 'all') {
-                        $sql_cond .= " AND c.tid IN ('$value', 'all')
+        foreach ($fields as $field=>$value) {
+            $value = DB_escapeString($value);
+            switch(strtolower($field)) {
+            case 'type':
+            case 'category':
+            case 'centerblock':
+                $sql_cond .= " AND c.{$field} = '$value'";
+                break;
+            case 'tid':
+            case 'topic':
+                if ($value != '' && $value != 'all') {
+                    $sql_cond .= " AND c.tid IN ('$value', 'all')
                             AND camp.tid IN ('$value', 'all')
                             AND b.tid IN ('$value', 'all')";
-                    } else {
-                        $sql_cond .= " AND c.tid = 'all'
+                } else {
+                    $sql_cond .= " AND c.tid = 'all'
                             AND camp.tid = 'all'
                             AND b.tid = 'all'";
-                    }
-                    break;
-                case 'campaign':
-                    if ($value != '') {
-                        $sql_cond .= " AND camp.camp_id='$value' ";
-                    }
-                    break;
-                case 'limit':
-                    $limit_clause = " LIMIT $value";
-                    break;
-                default:
-                    $field = DB_escapeString($field);
-                    $sql_cond .= " AND b.{$field} = '$value'";
-                    break;
                 }
+                break;
+            case 'campaign':
+                if ($value != '') {
+                    $sql_cond .= " AND camp.camp_id='$value' ";
+                }
+                break;
+            case 'limit':
+                $value = (int)$value;
+                $limit_clause = " LIMIT $value";
+                break;
+            default:
+                $field = DB_escapeString($field);
+                $sql_cond .= " AND b.{$field} = '$value'";
+                break;
             }
         }
 
@@ -814,11 +814,11 @@ class Banner
                 $dim_str = '';
             }
             if (!empty($img)) {
+                $img_url = COM_createImage($img, $alt, $attr);
                 if ($link) {
-                    $attr['alt'] = $alt;
-                    $retval = COM_createLink($img, $url, $attr);
+                    $retval = COM_createLink($img_url, $url);
                 } else {
-                    $retval = COM_createImage($img, $alt, $attr);
+                    $retval = $img_url;
                 }
             }
             break;
@@ -828,11 +828,11 @@ class Banner
             if ($img != '') {
                 $attr['height'] = $height;
                 $attr['width'] = $width;
+                $img_url = COM_createImage($img, $alt, $attr);
                 if ($link) {
-                    $attr['alt'] = $alt;
-                    $retval = COM_createLink($img, $url, $attr);
+                    $retval = COM_createLink($img_url, $url);
                 } else {
-                    $retval = COM_createImage($img, $alt, $attr);
+                    $retval = $img_url;
                 }
             }
             break;
@@ -1071,7 +1071,8 @@ class Banner
         if (SEC_hasRights('banner.admin')) {
             $T->set_var(array(
                 'isAdmin'        => 'true',
-                'owner_dropdown' => BANNER_UserDropdown($this->owner_id),
+                'owner_dropdown' => COM_optionList($_TABLES['users'],'uid,username',
+                                $this->owner_id, 1, 'uid <> 1'),
                 'banner_ownerid' => $this->owner_id,
                 'ownername'     => COM_getDisplayName($this->owner_id),
             ) );

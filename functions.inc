@@ -870,7 +870,6 @@ function phpblock_banner_topic($A=array(), $param='')
     } else {
         $extra['type'] = 'block';
     }
-
     return BANNER_block_banner($extra);
 }
 
@@ -891,7 +890,6 @@ function phpblock_banner_topic_random($A= array(), $param='')
     } else {
         $extra['type'] = 'block';
     }
-
     return BANNER_block_banner($extra);
 }
 
@@ -951,20 +949,18 @@ function plugin_getuseroption_banner()
 {
     global $LANG_BANNER, $_CONF, $_CONF_BANR, $_USER, $_TABLES;
 
+    $retval = '';
     $uid = (int)$_USER['uid'];
     if ($uid < 2) return '';
 
-    $banner_cnt = (int)DB_getItem($_TABLES['banner'], 'COUNT(*)',
-                    'owner_id = ' .$_USER['uid']);
-    if ($banner_cnt < 1) return '';
-    /*$camp_cnt = (int)DB_getItem($_TABLES['bannercampaigns'],
-                "COUNT(*)", "owner_id=$uid");
-    if ($camp_cnt < 1) return '';*/
-
-    $menu = array($LANG_BANNER['banners'],
+    $banner_cnt = (int)DB_count($_TABLES['banner'],
+                    'owner_id', $_USER['uid']);
+    if ($banner_cnt > 0) {
+        $retval = array($LANG_BANNER['banners'],
             BANR_URL . '/index.php?banners=x',
             $camp_cnt);
-    return $menu;
+    }
+    return $retval;
 }
 
 
@@ -1029,7 +1025,7 @@ function plugin_configmanager_select_defgrpsubmit_banner()
 *   @param  string  $not    'NOT' to exclude the users in $sel, blank to include
 *   @return string          HTML for options in a select list.
 */
-function BANNER_UserDropdown($sel=0, $users='', $not='')
+function XBANNER_UserDropdown($sel=0, $users='', $not='')
 {
     global $_TABLES;
 
@@ -1118,6 +1114,9 @@ function BANNER_block_banner($extra='')
     global $_CONF, $_TABLES, $LANG_BANNER, $topic;
 
     USES_banner_class_banner();
+    if (!Banner::canShow()) {
+        return '';
+    }
 
     $retval = '';
     $params = array();
@@ -1127,9 +1126,7 @@ function BANNER_block_banner($extra='')
     else
         $params = $extra;
 
-    if (!empty($topic)) {
-        $tid = DB_escapeString($topic);
-    } else {
+    if (empty($topic)) {
         $tid = 'all';
     }
     $params['tid'] = $tid;
@@ -1148,7 +1145,6 @@ function BANNER_block_banner($extra='')
         }
         $retval .= "</div>\n";
     }
-
     return $retval;
 }
 
