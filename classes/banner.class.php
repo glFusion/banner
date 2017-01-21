@@ -894,7 +894,7 @@ class Banner
     */
     public function validateUrl()
     {
-        global $LANG_BANNER_STATUS;
+        global $LANG_BANNER_STATUS, $LANG_BANNER;
 
         // Have to have a valid url to check
         if ($this->options['url'] == '') return 'n/a';
@@ -915,7 +915,7 @@ class Banner
         if (array_key_exists($response, $LANG_BANNER_STATUS)) {
             return $response . ' ' . $LANG_BANNER_STATUS[$response];
         } else {
-            return 'Unknown';
+            return $LANG_BANNER['unknown'];
         }
     }
 

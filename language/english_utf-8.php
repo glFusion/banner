@@ -125,6 +125,7 @@ $LANG_BANNER = array(
 'err_missing_upload' => 'No image uploaded for a locally-hosted banner',
 'err_missing_adcode' => 'Ad code cannot be empty for script banner',
 'err_missing_title' => 'A banner title is required',
+'unknown' => 'Unknown',
 
     10 => 'Submissions',
     14 => 'Banner',
