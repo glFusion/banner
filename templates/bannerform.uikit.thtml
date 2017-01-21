@@ -75,7 +75,7 @@ function BANR_changeType(value)
 <fieldset>
   <legend>{$LANG_BANNER['banner_info']}</legend>
   <div class="uk-form-row">
-    <label for="f_bid" class="uk-form-label required">{$LANG_BANNER['bid']}
+    <label for="f_bid" class="uk-form-label label_required">{$LANG_BANNER['bid']}
     </label>
     <div class="uk-form-controls">
       <input required name="bid" id="f_bid" type="text" 
@@ -85,7 +85,7 @@ function BANR_changeType(value)
   </div>
 
   <div class="uk-form-row">
-    <label for="f_title" class="uk-form-label required">{$LANG_BANNER['title']}
+    <label for="f_title" class="uk-form-label label_required">{$LANG_BANNER['title']}
     </label>
     <div class="uk-form-controls">
       <input required name="title" id="f_title" type="text" 
@@ -276,7 +276,7 @@ function BANR_changeType(value)
 {!endif}
 
   <div class="uk-form-row" id="targeturl">
-    <label for="f_targeturl" class="uk-form-label required">{$LANG_BANNER['target_url']}
+    <label for="f_targeturl" class="uk-form-label label_required">{$LANG_BANNER['target_url']}
     </label>
     <div class="uk-form-controls">
       <input name="url" id="f_targeturl"
@@ -299,7 +299,7 @@ function BANR_changeType(value)
   </div>
 
   <div class="uk-form-row" id="upload">
-    <label for="f_upload" class="uk-form-label required">{$LANG_BANNER['upload_img']}
+    <label for="f_upload" class="uk-form-label label_required">{$LANG_BANNER['upload_img']}
     </label>
     <div class="uk-form-controls">
       <input id="f_upload" type="file" name="bannerimage">
@@ -308,7 +308,7 @@ function BANR_changeType(value)
   </div>
 
   <div class="uk-form-row" id="imageurl">
-    <label for="f_imageurl" class="uk-form-label required">{$LANG_BANNER['remote_img']}
+    <label for="f_imageurl" class="uk-form-label label_required">{$LANG_BANNER['remote_img']}
     </label>
     <div class="uk-form-controls">
       <input name="image_url" id="f_imageurl" 
@@ -366,7 +366,7 @@ function BANR_changeType(value)
   </div>
 
   <div class="uk-form-row" id="adcode">
-    <label for="f_adcode" class="uk-form-label required">{$LANG_BANNER['ad_code']}:
+    <label for="f_adcode" class="uk-form-label label_required">{$LANG_BANNER['ad_code']}:
         <img src="{layout_url}/images/button_help.png" alt="" />
     </label>
     <div class="uk-form-controls">
