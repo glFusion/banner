@@ -2,18 +2,18 @@
  */
 var BANR_xmlHttp;
 
-function BANR_toggleEnabled(cbox, id, type, base_url)
+function BANR_toggleEnabled(cbox, id, type)
 {
   BANR_xmlHttp = BANR_GetXmlHttpObject();
   if (BANR_xmlHttp==null) {
     alert ("Browser does not support HTTP Request")
     return
   }
-  var newval = cbox.checked == true ? 1 : 0;
-  var url=base_url + "/admin/plugins/banner/ajax.php?action=toggleEnabled";
+  var oldval = cbox.checked == true ? 0 : 1;
+  var url=site_admin_url + "/plugins/banner/ajax.php?action=toggleEnabled";
   url=url+"&id="+id;
   url=url+"&type="+type;
-  url=url+"&newval="+newval;
+  url=url+"&oldval="+oldval;
   url=url+"&sid="+Math.random();
   BANR_xmlHttp.onreadystatechange=BANR_sc_BannerEnabled;
   BANR_xmlHttp.open("GET",url,true);
@@ -40,7 +40,6 @@ function BANR_sc_BannerEnabled()
         document.getElementById(spanid).checked = false;
     }
   }
-
 }
 
 function BANR_GetXmlHttpObject()

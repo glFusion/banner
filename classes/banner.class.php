@@ -308,21 +308,21 @@ class Banner
      *  Update the 'enabled' value for a banner ad.
      *  @param  integer $newval New value to set (1 or 0)
      *  @param  string  $bid    Optional ad ID.  Current object if blank
-     *  @return boolean         True if toggled, False otherwise
+     *  @return integer     New value, or old value if an error occurred
      */
-    public function toggleEnabled($newval)
+    public function toggleEnabled($oldval)
     {
         global $_TABLES;
 
-        if (!$this->hasAccess(3)) {
-            return false;
+        if ($this->isNew || !$this->hasAccess(3)) {
+            return $oldval;
         }
 
-        $newval = $newval == 0 ? 0 : 1;
+        $newval = $oldval == 0 ? 1 : 0;
         DB_change($_TABLES['banner'],
                 'enabled', $newval,
                 'bid', DB_escapeString($this->bid));
-        return true;
+        return DB_error() ? $oldval : $newval;
     }
 
 
@@ -1225,14 +1225,14 @@ class Banner
 
         // Set some static variables since this function can be called
         // multiple times per page load.
-        static $in_admin_url = 'X';
-        static $is_admin = 'X';
-        static $is_blocked_user = 'X';
-        static $is_blocked_ip = 'X';
+        static $in_admin_url = NULL;
+        static $is_admin = NULL;
+        static $is_blocked_useragent = NULL;
+        static $is_blocked_ip = NULL;
 
-        // Check if this is an admin URL and the banner should be shown.
+        // Check if this is an admin URL and the banner should not be shown.
         if ($_CONF_BANR['show_in_admin'] == 0) {
-            if ($in_admin_url === 'X') {
+            if ($in_admin_url === NULL) {
                 $urlparts = parse_url($_CONF['site_admin_url']);
                 if (stristr($_SERVER['REQUEST_URI'], $urlparts['path']) != false) {
                     $in_admin_url = true;
@@ -1240,19 +1240,15 @@ class Banner
                     $in_admin_url = false;
                 }
             }
-            if ($in_admin_url) {
-                return false;
-            }
+            if ($in_admin_url) return false;
         }
 
         // See if this is a banner admin, and we shouldn't show it
         if ($_CONF_BANR['adshow_admins'] == 0) {
-            if ($is_admin === 'X') {
+            if ($is_admin === NULL) {
                 $is_admin = SEC_hasRights('banner.admin') ? true : false;
             }
-            if ($is_admin) {
-                return false;
-            }
+            if ($is_admin) return false;
         }
 
         // Now check if this user or IP address is in the blocked lists
@@ -1263,7 +1259,7 @@ class Banner
         }*/
 
         if (is_array($_CONF_BANR['ipaddr_dontshow'])) {
-            if ($is_blocked_ip === 'X') {
+            if ($is_blocked_ip === NULL) {
                 $is_blocked_ip = false;
                 foreach ($_CONF_BANR['ipaddr_dontshow'] as $addr) {
                     if (strstr($_SERVER['REMOTE_ADDR'], $addr)) {
@@ -1276,16 +1272,16 @@ class Banner
         }
 
         if (is_array($_CONF_BANR['uagent_dontshow'])) {
-            if ($is_blocked_user === 'X') {
-                $is_blocked_user = false;
+            if ($is_blocked_useragent === 'X') {
+                $is_blocked_useragent = false;
                 foreach ($_CONF_BANR['uagent_dontshow'] as $agent) {
                     if (stristr($_SERVER['HTTP_USER_AGENT'], $agent)) {
-                        $is_blocked_user = true;
+                        $is_blocked_useragent = true;
                         break;
                     }
                 }
             }
-            if ($is_blocked_user) return false;
+            if ($is_blocked_useragent) return false;
         }
 
         // Allow the site admin to implement a custom banner control function

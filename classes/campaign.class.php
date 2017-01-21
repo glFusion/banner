@@ -200,16 +200,17 @@ class Campaign
     *   @param  integer $newval     New value to set (1 or 0)
     *   @param  string  $id         Campaign ID to toggle
     */
-    public static function toggleEnabled($newval, $id)
+    public static function toggleEnabled($oldval, $id)
     {
         global $_TABLES;
 
-        if ($id == '') return;
+        if ($id == '') return $oldval;
 
-        $newval = $newval == 0 ? 0 : 1;
+        $newval = $oldval == 0 ? 1 : 0;
         DB_change($_TABLES['bannercampaigns'],
                 'enabled', $newval,
                 'camp_id', DB_escapeString(trim($id)));
+        return DB_error() ? $oldval : $newval;
     }
 
 

@@ -17,34 +17,31 @@
 */
 require_once '../../../lib-common.php';
 
-$status = false;
-
 switch ($_GET['action']) {
 case 'toggleEnabled':
-    $newval = $_REQUEST['newval'] == 1 ? 1 : 0;
+    $oldval = $_REQUEST['oldval'] == 1 ? 1 : 0;
 
     switch ($_GET['type']) {
     case 'banner':
         USES_banner_class_banner();
         $B = new Banner($_REQUEST['id']);
-        $status = $B->toggleEnabled($newval);
+        $newval = $B->toggleEnabled($oldval);
         break;
 
     case 'category':
         USES_banner_class_category();
-        Category::toggleEnabled($newval, $_REQUEST['id']);
+        $newval = Category::toggleEnabled($oldval, $_REQUEST['id']);
         $status = true;
         break;
 
     case 'campaign':
         USES_banner_class_campaign();
-        Campaign::toggleEnabled($newval, $_REQUEST['id']);
-        $status = true;
+        $newval = Campaign::toggleEnabled($oldval, $_REQUEST['id']);
         break;
 
     case 'cat_cb':
         USES_banner_class_category();
-        Category::toggleCenterblock($newval, $_REQUEST['id']);
+        $newval = Category::toggleCenterblock($oldval, $_REQUEST['id']);
         $status = true;
         break;
 

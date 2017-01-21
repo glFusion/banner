@@ -251,7 +251,7 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
         }
         $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"banr_ena_check\"
                 id=\"togena{$A['bid']}\"
-                onclick='BANR_toggleEnabled(this, \"{$A['bid']}\",\"banner\", \"{$_CONF['site_url']}\");' />\n";
+                onclick='BANR_toggleEnabled(this, \"{$A['bid']}\",\"banner\");' />\n";
         break;
 
     case 'delete':

@@ -156,42 +156,46 @@ class Category
     *   Toggle boolean database fields
     *
     *   @param  string  $field  Databsae field to update
-    *   @param  integer $value  New value to set (1 or 0)
+    *   @param  integer $oldval     Current value of item
     *   @param  string  $id     Category ID
     */
-    private static function _toggle($field, $value, $id)
+    private static function _toggle($field, $oldval, $id)
     {
         global $_TABLES;
 
-        $newval = $newval == 0 ? 0 : 1;
+        $newval = $oldval == 0 ? 1 : 0;
         DB_query("UPDATE {$_TABLES['bannercategories']}
                 SET `$field` = $newval
                 WHERE cid = '" . DB_escapeString($id) . "'");
+        return DB_error() ? $oldval : $newval;
     }
 
 
     /**
     *   Update the "cenberblock" flag for a category
     *
-    *   @param  integer $newval     New value to set (1 or 0)
+    *   @uses   Category::_toggle()
+    *   @param  integer $oldval     Current value of item
     *   @param  string  $id         Category ID.
+    *   @return integer     New value, or old value upon error
     */
-    public static function toggleCenterblock($newval, $id)
+    public static function toggleCenterblock($oldval, $id)
     {
-        self::_toggle('centerblock', $newval, $id);
+        return self::_toggle('centerblock', $oldval, $id);
     }
 
 
     /**
     *   Update the 'enabled' value for a category
     *
-    *   @param  integer $newval     New value to set (1 or 0)
+    *   @uses   Category::_toggle()
+    *   @param  integer $oldval     Current value of item
     *   @param  string  $id         Category ID
+    *   @return integer     New value, or old value upon error
     */
-    public function toggleEnabled($newval, $id)
+    public function toggleEnabled($oldval, $id)
     {
-        self::_toggle('enabled', $newval, $id);
-
+        return self::_toggle('enabled', $oldval, $id);
     }
 
 
@@ -205,7 +209,7 @@ class Category
         if (self::isRequired($this->type))
             return;
 
-        if (!$this->isUsed($id)) {
+        if (!self::isUsed($id)) {
             DB_delete($_TABLES['bannercategories'],
                 'cid', DB_escapeString(trim($id)));
         }
@@ -259,7 +263,7 @@ class Category
         } else {
             // Set the delete button if this is an existing category
             // that is not used or required
-            if (!$this->isUsed() && !$self::isRequired($this->type)) {
+            if (!self::isUsed($this->cid) && !$self::isRequired($this->type)) {
                 $delete_option = 'true';
             }
         }
@@ -525,10 +529,12 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
     $access = 3;
     switch ($fieldname) {
     case 'edit':
-        $retval = COM_createLink(
-                    $icon_arr['edit'],
-                    "$admin_url?edit=x&item=category&amp;cid=" . urlencode($A['cid'])
-                    );
+        $retval = COM_createLink('',
+                    "$admin_url?edit=x&item=category&amp;cid=" . urlencode($A['cid']),
+                    array(
+                        'class' => 'uk-icon uk-icon-edit',
+                    )
+                );
         break;
 
     case 'enabled':
@@ -539,15 +545,18 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         }
         $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"cat_ena_check\"
                 id=\"togena{$A['cid']}\"
-                onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"category\", \"{$_CONF['site_url']}\");' />\n";
+                onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"category\");' />\n";
         break;
 
     case 'delete':
         if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
-            $retval .= COM_createLink('<img src='. $_CONF['layout_url']
-                            . '/images/admin/delete.png>',
+            $retval .= COM_createLink('',
                         "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
-                        array('onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');"));
+                        array(
+                            'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
+                            'class' => 'uk-icon-trash banner_danger',
+                        )
+                );
         }
         break;
 
@@ -561,7 +570,7 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         }
         $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"catcb_ena_check\"
                 id=\"togcatcb{$A['cid']}\"
-                onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"cat_cb\", \"{$_CONF['site_url']}\");' />\n";
+                onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"cat_cb\");' />\n";
         break;
 
     case 'access':
