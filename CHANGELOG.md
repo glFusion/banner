@@ -1,7 +1,7 @@
 # Changelog - Banner plugin for glFusion
 
 ## Version 0.2.0
-Released TBD
+Released 2017-01-21
 
 Compatibile with glFusion 1.6.0 or higher.
 - Remove PEAR dependency in banner validation
@@ -9,7 +9,7 @@ Compatibile with glFusion 1.6.0 or higher.
 - Simplify permissions.
   - Remove banner view permission
   - Change category to simple group view permission
-  - Use full perms only for campaigns where users may add ads
+  - Use full perms only for campaigns where users may submit ads
 - Use LGLIB_ImageUrl() to size images to category settings
   - Global size limits should now be large sanity checks
   - Image is scaled to the smaller of the Category or Banner size limit
