@@ -263,7 +263,7 @@ class Category
         } else {
             // Set the delete button if this is an existing category
             // that is not used or required
-            if (!self::isUsed($this->cid) && !$self::isRequired($this->type)) {
+            if (!self::isUsed($this->cid) && !self::isRequired($this->type)) {
                 $delete_option = 'true';
             }
         }
