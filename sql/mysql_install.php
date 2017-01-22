@@ -10,6 +10,8 @@
 *   @filesource
 */
 
+global $_TABLES;
+
 $_SQL['bannercategories'] = "
 CREATE TABLE {$_TABLES['bannercategories']} (
   `cid` varchar(32) NOT NULL,
@@ -105,23 +107,22 @@ $DEFVALUES['bannercampaigns'] = "INSERT INTO `{$_TABLES['bannercampaigns']}` (
   );";
 
 
-$UPGRADE['0.1.0'] = array(
+$BANR_UPGRADE = array(
+'0.1.0' => array(
     "ALTER TABLE {$_TABLES['bannercategories']}
         ADD `max_img_width` int(4) unsigned default 0,
         ADD `max_img_height` int(4) unsigned default 0",
     "ALTER TABLE {$_TABLES['banner']}
         ADD `max_impressions` int(11) NOT NULL default '0'
             AFTER `impressions`",
-);
-
-$UPGRADE['0.1.1'] = array(
+    ),
+'0.1.1' => array(
     "ALTER TABLE {$_TABLES['banner']}
         ADD `tid` varchar(20) default 'all'",
     "ALTER TABLE {$_TABLES['bannercampaigns']}
         ADD `tid` varchar(20) default 'all'",
-);
-
-$UPGRADE['0.2.0'] = array(
+    ),
+'0.2.0' => array(
     "UPDATE {$_TABLES['bannercategories']} SET group_id = 2",
     "ALTER TABLE {$_TABLES['banner']}
         DROP perm_owner,
@@ -143,6 +144,7 @@ $UPGRADE['0.2.0'] = array(
         CHANGE group_id grp_view mediumint(8) unsigned default 2",
     "ALTER TABLE {$_TABLES['bannercampaigns']}
         DROP usercanadd",
+    ),
 );
 
 ?>

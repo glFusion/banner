@@ -11,6 +11,7 @@
 *   @filesource
 */
 
+USES_banner_install_defaults();
 
 /**
 *   Perform the upgrade starting at the current version.
@@ -30,24 +31,26 @@ function banner_do_upgrade()
         return false;
     }
 
-    if ($current_ver < '0.1.0') {
+    if (!COM_checkVersion($current_ver, '0.1.0')) {
+        $current_ver = '0.1.0';
         // upgrade from 0.0.x to 0.1.0
-        $status = banner_upgrade_0_1_0();
-        if (!$status) return false;
+        if (!banner_upgrade_0_1_0()) return false;
     }
 
-    if ($current_ver < '0.1.1') {
+    if (!COM_checkVersion($current_ver, '0.1.1')) {
         // upgrade from 0.1.0 to 0.1.1
-        $status = banner_do_upgrade_sql('0.1.1');
-        if ($status) return false;
+        $current_ver = '0.1.1';
+        if (!banner_do_upgrade_sql($current_ver)) return false;
+        if (!banner_do_update_version($current_ver)) return false;
     }
 
-    if ($current_ver < '0.1.4') {
-        // upgrade to 0.1.1
+    if (!COM_checkVersion($current_ver, '0.1.4')) {
+        // upgrade to 0.1.4
         // this adds a field that was missing in the installation of 0.1.0
         // but was added in the upgrade to 0.1.0.
         // an error is to be expected and ignored.
-       DB_query("ALTER TABLE {$_TABLES['bannersubmission']}
+        $current_ver = '0.1.4';
+        DB_query("ALTER TABLE {$_TABLES['bannersubmission']}
             ADD `max_impressions` int(11) NOT NULL default '0'
             AFTER `impressions`", 1);
 
@@ -56,17 +59,17 @@ function banner_do_upgrade()
             ADD `tid` varchar(20) default 'all'
             AFTER `weight`", 1);
 
-        if (!banner_do_update_version('0.1.4')) return false;
+        if (!banner_do_update_version($current_ver)) return false;
     }
 
-    if ($current_ver < '0.1.7') {
-        $status = banner_upgrade_0_1_7();
-        if (!$status) return false;
+    if (!COM_checkVersion($current_ver, '0.1.7')) {
+        $current_ver = '0.1.7';
+        if (!banner_upgrade_0_1_7()) return false;
     }
 
-    if ($current_ver < '0.2.0') {
-        $status = banner_upgrade_0_2_0();
-        if (!$status) return false;
+    if (!COM_checkVersion($current_ver, '0.2.0')) {
+        $current_ver = '0.2.0';
+        if (!banner_upgrade_0_2_0()) return false;
     }
 
     return true;
@@ -108,18 +111,17 @@ function banner_do_update_version($version)
 */
 function banner_do_upgrade_sql($version)
 {
-    global $_TABLES, $_CONF_BANR, $_DB_dbms;
+    global $_TABLES, $_CONF_BANR, $BANR_UPGRADE, $_DB_dbms;
 
-    /** Include the table creation strings */
     require_once BANR_PI_PATH . "/sql/{$_DB_dbms}_install.php";
 
     // If no sql statements passed in, return success
-    if (!is_array($UPGRADE[$version]))
+    if (!is_array($BANR_UPGRADE[$version]))
         return true;
 
     // Execute SQL now to perform the upgrade
     COM_errorLOG("--Updating Banner to version $version");
-    foreach($UPGRADE[$version] as $sql) {
+    foreach($BANR_UPGRADE[$version] as $sql) {
         COM_errorLOG("Banner Plugin $version update: Executing SQL => $sql");
         DB_query($sql, '1');
         if (DB_error()) {
@@ -139,8 +141,6 @@ function banner_do_upgrade_sql($version)
 function banner_upgrade_0_1_0()
 {
     global $_CONF_BANR, $BANR_DEFAULT;
-
-    USES_banner_install_defaults();
 
     // Add new configuration items
     $c = config::get_instance();
@@ -164,8 +164,6 @@ function banner_upgrade_0_1_7()
 {
     global $_CONF_BANR, $BANR_DEFAULT, $UPGRADE;
 
-    USES_banner_install_defaults();
-
     // Add new configuration items
     $c = config::get_instance();
     if ($c->group_exists($_CONF_BANR['pi_name'])) {
@@ -186,9 +184,7 @@ function banner_upgrade_0_1_7()
 */
 function banner_upgrade_0_2_0()
 {
-    global $_CONF_BANR, $_TABLES;
-
-    USES_banner_install_defaults();
+    global $_CONF_BANR, $_TABLES, $_BANR_DEFAULT;
 
     // Add new configuration items
     $c = config::get_instance();
