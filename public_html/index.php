@@ -90,7 +90,7 @@ case 'toggleEnabled':
 
 case 'toggleEnabledCampaign':
     USES_banner_class_campaign();
-    $C = new Campaign($_REQUEST['camp_id']);
+    $C = new banrCampaign($_REQUEST['camp_id']);
     $C->toggleEnabled($_REQUEST['newval']);
     $view = 'campaigns';
     break;
@@ -128,7 +128,7 @@ default:
 
 case 'campaigns':
     USES_banner_class_campaignlist();
-    $L = new CampaignList();
+    $L = new banrCampaignList();
     $content .= $L->ShowList();
     break;
 
@@ -137,7 +137,7 @@ case 'campaignDetail':
     USES_banner_class_image();
     USES_lib_admin();
 
-    $C = new Campaign($_REQUEST['camp_id']);
+    $C = new banrCampaign($_REQUEST['camp_id']);
     $C->getBanners();
 
     $menu_arr = array(

@@ -14,7 +14,7 @@
 *   Class to handle category data
 *   @package    banner
 */
-class Category
+class banrCategory
 {
     /** Properties of the category
         @var array() */
@@ -174,7 +174,7 @@ class Category
     /**
     *   Update the "cenberblock" flag for a category
     *
-    *   @uses   Category::_toggle()
+    *   @uses   banrCategory::_toggle()
     *   @param  integer $oldval     Current value of item
     *   @param  string  $id         Category ID.
     *   @return integer     New value, or old value upon error
@@ -188,7 +188,7 @@ class Category
     /**
     *   Update the 'enabled' value for a category
     *
-    *   @uses   Category::_toggle()
+    *   @uses   banrCategory::_toggle()
     *   @param  integer $oldval     Current value of item
     *   @param  string  $id         Category ID
     *   @return integer     New value, or old value upon error
@@ -549,7 +549,7 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
+        if (!self::isRequired($A['type']) && !self::isUsed($A['cid'])) {
             $retval .= COM_createLink('',
                         "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
                         array(

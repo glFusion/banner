@@ -780,7 +780,7 @@ class Banner
         );
 
         USES_banner_class_category();
-        $C = new Category($this->cid);
+        $C = new banrCategory($this->cid);
         if ($width == 0)
             $width = min($this->options['width'], $C->max_img_width);
         if ($height == 0)
@@ -1028,8 +1028,8 @@ class Banner
             'mootools'      => $_SYSTEM['disable_jquery'] ? 'true' : '',
             'banner_title' => htmlspecialchars($this->title),
             'max_url_length' => 255,
-            'category_options' => Category::Dropdown(0, $this->cid),
-            'campaign_options' => Campaign::Dropdown($this->camp_id),
+            'category_options' => banrCategory::Dropdown(0, $this->cid),
+            'campaign_options' => banrCampaign::Dropdown($this->camp_id),
             //'publishstart' => $this->publishstart,
             //'publishend' => $this->publishend,
             'banner_hits' => $this->hits,

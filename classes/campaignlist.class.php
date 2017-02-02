@@ -3,7 +3,7 @@
 *   Class to create the admin list of advertising campaigns.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 20092017 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
 *   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php
@@ -17,7 +17,7 @@ USES_banner_class_campaign();
 *   Class to manage banner campaigns
 *   @package banner
 */
-class CampaignList
+class banrCampaignList
 {
     /** Indicate whether this is an administrator or not.
     *   @var boolean */
@@ -37,7 +37,7 @@ class CampaignList
     /**
     *   Constructor.
     */
-    public function CampaignList($isAdmin = false)
+    public function __construct($isAdmin = false)
     {
         $this->setAdmin($isAdmin);
     }
@@ -166,7 +166,7 @@ function BANNER_getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        if (!Campaign::isUsed($A['camp_id'])) {
+        if (!banrCampaign::isUsed($A['camp_id'])) {
             $retval .= COM_createLink('',
                 "$base_url/index.php?delete=x&item=campaign&amp;camp_id={$A['camp_id']}",
                 array(

@@ -30,18 +30,18 @@ case 'toggleEnabled':
 
     case 'category':
         USES_banner_class_category();
-        $newval = Category::toggleEnabled($oldval, $_REQUEST['id']);
+        $newval = banrCategory::toggleEnabled($oldval, $_REQUEST['id']);
         $status = true;
         break;
 
     case 'campaign':
         USES_banner_class_campaign();
-        $newval = Campaign::toggleEnabled($oldval, $_REQUEST['id']);
+        $newval = banrCampaign::toggleEnabled($oldval, $_REQUEST['id']);
         break;
 
     case 'cat_cb':
         USES_banner_class_category();
-        $newval = Category::toggleCenterblock($oldval, $_REQUEST['id']);
+        $newval = banrCategory::toggleCenterblock($oldval, $_REQUEST['id']);
         $status = true;
         break;
 

@@ -92,13 +92,13 @@ case 'delete':
         break;
     case 'category':
         USES_banner_class_category();
-        $C = new Category($_REQUEST['cid']);
+        $C = new banrCategory($_REQUEST['cid']);
         $content .= $C->Delete();
         $view = 'categories';
         break;
     case 'campaign':
         USES_banner_class_campaign();
-        $C = new Campaign($_REQUEST['camp_id']);
+        $C = new banrCampaign($_REQUEST['camp_id']);
         $C->Delete();
         $view = 'campaigns';
         break;
@@ -117,13 +117,13 @@ case 'delMultiBanner':
 
 case 'toggleEnabledCategory':
     USES_banner_class_category();
-    Category::toggleEnabled($_REQUEST['newval'], $_REQUEST['cid']);
+    banrCategory::toggleEnabled($_REQUEST['newval'], $_REQUEST['cid']);
     $view = 'categories';
     break;
 
 case 'toggleEnabledCampaign':
     USES_banner_class_campaign();
-    Campaign::toggleEnabled($_REQUEST['newval'], $_REQUEST['camp_id']);
+    banrCampaign::toggleEnabled($_REQUEST['newval'], $_REQUEST['camp_id']);
     $view = 'campaigns';
     break;
 
@@ -132,7 +132,7 @@ case 'save':
     case 'category':
         USES_banner_class_category();
         // 'oldcid' will be empty for new entries, non-empty for updates
-        $C = new Category($_POST['oldcid']);
+        $C = new banrCategory($_POST['oldcid']);
         $status = $C->Save($_POST);
         if ($status != '') {
             $content .= BANNER_errorMessage($status);
@@ -149,7 +149,7 @@ case 'save':
 
     case 'campaign':
         USES_banner_class_campaign();
-        $C = new Campaign($_POST['old_camp_id']);
+        $C = new banrCampaign($_POST['old_camp_id']);
         $status = $C->Save($_POST);
             if ($status != '') {
             $content .= BANNER_errorMessage($status);
@@ -215,7 +215,7 @@ default:
 switch ($view) {
 case 'campaigns':
     USES_banner_class_campaignlist();
-    $L = new CampaignList(true);
+    $L = new banrCampaignList(true);
     $content .= $L->ShowList();
     //$content .= BANNER_adminCampaigns();
     break;
@@ -253,7 +253,7 @@ case 'edit':
         break;
     case 'campaign':
         USES_banner_class_campaign();
-        $C = new Campaign($_REQUEST['camp_id']);
+        $C = new banrCampaign($_REQUEST['camp_id']);
         if (!empty($_POST)) {
             $C->SetVars($_POST);
         }
@@ -263,7 +263,7 @@ case 'edit':
         break;
     case 'category':
         USES_banner_class_category();
-        $C = new Category($_REQUEST['cid']);
+        $C = new banrCategory($_REQUEST['cid']);
         $content .= $C->Edit();
         break;
     }
@@ -271,7 +271,7 @@ case 'edit':
 
 case 'newcategory':
     USES_banner_class_category();
-    $C = new Category();
+    $C = new banrCategory();
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
@@ -280,14 +280,14 @@ case 'newcategory':
 
 case 'editcategory':
     USES_banner_class_category();
-    $C = new Category($_REQUEST['cid']);
+    $C = new banrCategory($_REQUEST['cid']);
     $content .= $C->Edit();
     break;
 
 case 'newcampaign':
 echo "here in newcampaign";die;
     USES_banner_class_campaign();
-    $C = new Campaign();
+    $C = new banrCampaign();
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
@@ -298,7 +298,7 @@ echo "here in newcampaign";die;
 
 case 'editcampaign':
     USES_banner_class_campaign();
-    $C = new Campaign($_REQUEST['camp_id']);
+    $C = new banrCampaign($_REQUEST['camp_id']);
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }

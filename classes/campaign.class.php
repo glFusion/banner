@@ -14,7 +14,7 @@
 *   Class to manage banner campaigns
 *   @package banner
 */
-class Campaign
+class banrCampaign
 {
     /** Properties of a campaign
     *   @var array */
@@ -216,7 +216,7 @@ class Campaign
 
     /**
     *   Delete a campaign.
-    *   Can be called as Campaign::Delete($id).
+    *   Can be called as banrCampaign::Delete($id).
     *
     *   @param  string  $id ID of campaign to delete, this object if empty
     */
@@ -405,7 +405,7 @@ class Campaign
     */
     public function XUserList($uid='')
     {
-        echo "Campaign::UserList() DEPRECATED";die;
+        echo "banrCampaign::UserList() DEPRECATED";die;
         global $_TABLES;
 
         // Set up the user id to show as selected
@@ -453,7 +453,7 @@ class Campaign
     *   Determine if the current user has access at lease equal to the
     *   specified value.
     *
-    *   @see Campaign::Access()
+    *   @see banrCampaign::Access()
     *   @param  integer $level  Level to check current access against
     *   @return boolean         True if the users access >= requested level
     */
@@ -533,7 +533,7 @@ class Campaign
         }
     }
 
-}   // class Campaign
+}   // class banrCampaign
 
 
 /**
