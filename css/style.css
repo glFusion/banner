@@ -87,6 +87,7 @@ div.blockbanner {
 .banrNewAdminItem {
     font-style: italic;
     font-weight: bold;
+    color: red;
 }
 
 .banner_danger {
