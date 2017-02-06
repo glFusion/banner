@@ -18,7 +18,7 @@ CREATE TABLE {$_TABLES['bannercategories']} (
   `type` varchar(32) NOT NULL,
   `category` varchar(32) NOT NULL,
   `description` text,
-  `tid` varchar(20) default NULL,
+  `tid` varchar(20) default 'all',
   `enabled` tinyint(1) unsigned default '1',
   `centerblock` tinyint(1) unsigned default '0',
   `grp_view` mediumint(8) unsigned NOT NULL default '2',
@@ -86,11 +86,11 @@ CREATE TABLE {$_TABLES['bannercampaigns']} (
 )";
 
 $DEFVALUES['bannercategories'] = "INSERT INTO `{$_TABLES['bannercategories']}`
+    (cid, type, category, description, max_img_width, max_img_height)
     VALUES
-        ('20090010100000000','header','Header','Header Banners','all',1,0,2,13,3,2,2,2,468,60),
-        ('20090010100000001','footer','Footer','Footer Banners','all',1,0,2,13,3,2,2,2,468,60),
-        ('20090010100000002','block','Block','Block Banners','all',1,0,2,13,3,2,2,2,140,400)
-";
+        ('20090010100000000','header','Header','Header Banners',468,60),
+        ('20090010100000001','footer','Footer','Footer Banners',468,60),
+        ('20090010100000002','block','Block','Block Banners',140,400)";
 
 $DEFVALUES['bannercampaigns'] = "INSERT INTO `{$_TABLES['bannercampaigns']}` (
     camp_id, description, start, finish, enabled,
