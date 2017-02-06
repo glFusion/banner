@@ -771,11 +771,12 @@ class Banner
         $url = COM_buildUrl(BANR_URL . '/portal.php?id=' . $this->bid);
         $target = isset($this->options['target']) ?
                     $this->options['target'] : '_blank';
-        $class = 'banner_img';
-        $attr = array(
+        $a_attr = array(
+            'target' => $target,
+        );
+        $img_attr = array(
             'title' => htmlspecialchars($title),
             'class' => 'banner_img',
-            'target' => $target,
             'data-uk-tooltip' => '',
         );
 
@@ -799,24 +800,21 @@ class Banner
                 ),
                 $output, $svc_msg);
             if ($status == PLG_RET_OK) {
-                $attr['width'] = $output['width'];
-                $attr['height'] = $output['height'];
-                /*$dim_str = 'width="' . $output['width'] .
-                            '" height="' . $output['height'] . '"';*/
+                $img_attr['width'] = $output['width'];
+                $img_attr['height'] = $output['height'];
                 $img = $output['url'];
             } else {
                 // Newer lglib plugin not available, call the legacy function.
                 $img = LGLIB_ImageUrl(
                     $_CONF_BANR['img_dir'] . '/' . $this->options['filename'],
                     $width, $height);
-                $attr['width'] = $width;
-                $attr['height'] = $height;
-                $dim_str = '';
+                $img_attr['width'] = $width;
+                $img_attr['height'] = $height;
             }
             if (!empty($img)) {
-                $img_url = COM_createImage($img, $alt, $attr);
+                $img_url = COM_createImage($img, $alt, $img_attr);
                 if ($link) {
-                    $retval = COM_createLink($img_url, $url);
+                    $retval = COM_createLink($img_url, $url, $a_attr);
                 } else {
                     $retval = $img_url;
                 }
@@ -826,11 +824,11 @@ class Banner
         case BANR_TYPE_REMOTE:
             $img = $this->options['image_url'];
             if ($img != '') {
-                $attr['height'] = $height;
-                $attr['width'] = $width;
-                $img_url = COM_createImage($img, $alt, $attr);
+                $img_attr['height'] = $height;
+                $img_attr['width'] = $width;
+                $img_url = COM_createImage($img, $alt, $img_attr);
                 if ($link) {
-                    $retval = COM_createLink($img_url, $url);
+                    $retval = COM_createLink($img_url, $url, $a_attr);
                 } else {
                     $retval = $img_url;
                 }
