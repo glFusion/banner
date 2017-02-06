@@ -549,7 +549,7 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        if (!self::isRequired($A['type']) && !self::isUsed($A['cid'])) {
+        if (!banrCategory::isRequired($A['type']) && !banrCategory::isUsed($A['cid'])) {
             $retval .= COM_createLink('',
                         "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
                         array(
