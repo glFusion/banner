@@ -13,7 +13,8 @@ Compatibile with glFusion 1.6.0 or higher.
 - Use LGLIB_ImageUrl() to size images to category settings
   - Global size limits should now be large sanity checks
   - Image is scaled to the smaller of the Category or Banner size limit
-  - Banner-specific dimensions are reduced to a max of the image size.
+  - Banner dimensions are reduced to a max of the image size when
+adding locally-hosted images.
 
 ## glBanner - 0.1.2
 Released 2010-03-17.

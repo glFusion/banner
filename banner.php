@@ -1,5 +1,4 @@
 <?php
-//  $Id: banner.php 96 2014-04-02 20:19:25Z root $
 /**
 *   Table definitions and other static config variables.
 *
@@ -39,8 +38,6 @@ $_CONF_BANR['pi_url']            = 'http://www.leegarner.com';
 $_CONF_BANR['pi_display_name']   = 'Banner Ads';
 
 // Fixed config variables
-$_CONF_BANR['img_url'] = $_CONF['site_url'] . '/' . $_CONF_BANR['pi_name'] . '/images/';
 $_CONF_BANR['img_dir'] = $_CONF['path_html'] . $_CONF_BANR['pi_name'] . '/images/banners/';
-
 
 ?>

@@ -1,5 +1,3 @@
-/*  $Id: toggleEnabled.js 96 2014-04-02 20:19:25Z root $
- */
 var BANR_xmlHttp;
 
 function BANR_toggleEnabled(cbox, id, type)
