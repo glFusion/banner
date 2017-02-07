@@ -134,7 +134,6 @@ case 'campaigns':
 
 case 'campaignDetail':
     USES_banner_class_campaign();
-    USES_banner_class_image();
     USES_lib_admin();
 
     $C = new banrCampaign($_REQUEST['camp_id']);
@@ -148,20 +147,23 @@ case 'campaignDetail':
     );
     $content .= ADMIN_createMenu($menu_arr, $LANG_BANNER['banners'] . $validate_help, plugin_geticon_banner());
 
-    $T = new Template($_CONF['path'] . 'plugins/banner/templates/');
-    $T->set_file(array('camp_detail' => 'campaign.thtml',));
-    $T->set_var('camp_id', $C->camp_id);
-    $T->set_var('camp_descrip', $C->description);
-    $T->set_var('camp_pubstart', $C->start);
-    $T->set_var('camp_pubfinish', $C->finish);
+    $T = new Template(BANR_PI_PATH . '/templates/');
+    $T->set_file('camp_detail', 'campaign.thtml');
+    $T->set_var(array(
+        'camp_id'       => $C->camp_id,
+        'camp_descrip'  => $C->description,
+        'camp_pubstart' => $C->start,
+        'camp_pubfinish'=> $C->finish,
+    ) );
     $T->set_block('camp_detail', 'BannerRow', 'brow');
     foreach ($C->Banners as $B) {
-        $T->set_var('banner_id', $B->bid);
-        $T->set_var('banner_pubstart', $B->publishstart);
-        $T->set_var('banner_pubend', $B->publishend);
-        list($width, $height) = Image::reDim($B->width, $B->height, 300);
-        $T->set_var('banner_content', $B->BuildBanner('', $width, $height, false));
-        $T->set_var('banner_hits', $B->hits.'/'.$B->max_hits);
+        $T->set_var(array(
+            'banner_id'         => $B->bid,
+            'banner_pubstart'   => $B->publishstart,
+            'banner_pubend'     => $B->publishend,
+            'banner_content'    => $B->BuildBanner('', 300, 300, false),
+            'banner_hits'       => $B->hits.'/'.$B->max_hits,
+        ) );
         $T->parse('brow', 'BannerRow', true);
     }
     $T->parse ('output', 'camp_detail');

@@ -259,8 +259,6 @@ class banrCampaign
     {
         global $_CONF, $_CONF_BANR, $_TABLES, $LANG_ACCESS, $LANG_BANNER, $_SYSTEM;
 
-        USES_banner_class_image();      // for banner dimensions
-
         $T = new Template($_CONF['path'] . 'plugins/' .
                         $_CONF_BANR['pi_name'].'/templates/admin/');
         $tpltype = $_SYSTEM['framework'] == 'uikit' ? '.uikit' : '';
@@ -316,10 +314,9 @@ class banrCampaign
         if (!$this->isNew) {
             $this->getBanners();
             foreach ($this->Banners as $B) {
-                list($width, $height) = Image::reDim($B->width, $B->height, 300);
                 $url = COM_buildUrl(BANR_ADMIN_URL .
                         '/index.php?edit=banner&bid=' . $B->bid);
-                $T->set_var('image', $B->BuildBanner('', $width, $height, $false));
+                $T->set_var('image', $B->BuildBanner('', 300, 300, false));
                 $T->set_var('ad_id', COM_createLink($B->bid, $url, array()));
                 $T->set_var('hits', $B->hits);
                 $T->parse('ad', 'AdRow', true);
@@ -510,7 +507,7 @@ class banrCampaign
 
 
     /**
-    *   Return an array of Banner objects for the banners associated
+    *   Get an array of Banner objects for the banners associated
     *   with this campaign.
     *   Sets the internal Banner variable to an array of Banner objects.
     */
