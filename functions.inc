@@ -50,9 +50,6 @@ if (file_exists(BANR_PI_PATH . '/config.php')) {
     include_once BANR_PI_PATH . '/config.php';
 }
 
-// This is temporary, and will be included in glFusion 1.6.0
-isset($_SYSTEM['framework']) || $_SYSTEM['framework'] = 'legacy';
-
 // Mark whether this is a uikit theme. Save to global conf var
 // so it's available where needed.
 $_CONF_BANR['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
