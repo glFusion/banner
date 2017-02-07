@@ -1,10 +1,11 @@
 <?php
 /**
 *   Table definitions for the Banner plugin
+*
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2011 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -69,43 +70,33 @@ CREATE TABLE {$_TABLES['bannercampaigns']} (
   `description` text,
   `start` datetime default NULL,
   `finish` datetime default NULL,
-  `enabled` tinyint(1) NOT NULL default '1',
+  `enabled` tinyint(1) UNSIGNED NOT NULL default '1',
   `hits` int(11) default '0',
   `max_hits` int(11) default NULL,
   `impressions` int(11) NOT NULL default '0',
   `max_impressions` int(11) NOT NULL default '0',
-  `max_banners` int(11) default NULL,
-  `owner_id` mediumint(11) unsigned NOT NULL default '1',
+  `max_banners` int(11) NOT NULL default 0,
+  `owner_id` mediumint(11) unsigned NOT NULL default '2',
   `group_id` mediumint(11) unsigned NOT NULL default '1',
   `perm_owner` tinyint(1) unsigned NOT NULL default '3',
-  `perm_group` tinyint(1) unsigned NOT NULL default '2',
+  `perm_group` tinyint(1) unsigned NOT NULL default '3',
   `perm_members` tinyint(1) unsigned NOT NULL default '2',
   `perm_anon` tinyint(1) unsigned NOT NULL default '2',
-  `tid` varchar(20) default NULL,
+  `tid` varchar(20) default 'all',
   PRIMARY KEY  (`camp_id`)
 )";
 
 $DEFVALUES['bannercategories'] = "INSERT INTO `{$_TABLES['bannercategories']}`
-    (cid, type, category, description, max_img_width, max_img_height)
+        (cid, type, category, description, max_img_width, max_img_height)
     VALUES
         ('20090010100000000','header','Header','Header Banners',468,60),
         ('20090010100000001','footer','Footer','Footer Banners',468,60),
         ('20090010100000002','block','Block','Block Banners',140,400)";
 
 $DEFVALUES['bannercampaigns'] = "INSERT INTO `{$_TABLES['bannercampaigns']}` (
-    camp_id, description, start, finish, enabled,
-    hits, max_hits, impressions, max_impressions, max_banners,
-    owner_id, group_id,
-    perm_owner, perm_group, perm_members, perm_anon,
-    tid
-  ) VALUES (
-    '20090010100000000', 'Default System Campaign', NULL, NULL, 1,
-    0, 0, 0, 0, 0,
-    2, 1,
-    3, 3, 2, 2,
-    'all'
-  );";
-
+        (camp_id, description)
+    VALUES
+        ('20090010100000000', 'Default System Campaign')"
 
 $BANR_UPGRADE = array(
 '0.1.0' => array(
@@ -123,7 +114,6 @@ $BANR_UPGRADE = array(
         ADD `tid` varchar(20) default 'all'",
     ),
 '0.2.0' => array(
-    "UPDATE {$_TABLES['bannercategories']} SET group_id = 2",
     "ALTER TABLE {$_TABLES['banner']}
         DROP perm_owner,
         DROP perm_group,
@@ -136,6 +126,7 @@ $BANR_UPGRADE = array(
         DROP perm_members,
         DROP perm_anon,
         DROP group_id",
+    "UPDATE {$_TABLES['bannercategories']} SET group_id = 2",
     "ALTER TABLE {$_TABLES['bannercategories']}
         DROP perm_owner,
         DROP perm_group,
