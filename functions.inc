@@ -204,8 +204,10 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             USES_banner_class_banner();
             $bid = COM_sanitizeID($autotag['parm1'], false);
             $B = new Banner($bid);
-            $banner = $B->BuildBanner($title);
-            $B->updateImpressions();
+            if (!$B->isNew) {
+                $banner = $B->BuildBanner($title);
+                $B->updateImpressions();
+            }
             break;
 
         case 'randombanner':
@@ -217,9 +219,11 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
                 $options['cid']= $cid;
             }
             $bids = Banner::GetBanner($options);
-            $B = new Banner($bids[0]);
-            $banner = $B->BuildBanner($title);
-            $B->updateImpressions();
+            if (!empty($bids)) {
+                $B = new Banner($bids[0]);
+                $banner = $B->BuildBanner($title);
+                $B->updateImpressions();
+            }
             break;
 
         case 'bannercategory' :
@@ -248,12 +252,12 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             while ($A = DB_fetchArray($result, false)) {
                 $B->Read($A['bid']);
                 $T->set_var('banner', $B->BuildBanner());
+                $B->updateImpressions();
                 $T->parse('BRow', 'bannerRow', true);
             }
             $T->parse('output','block');
             $banner = $T->finish($T->get_var('output'));
             break;
-
         }
 
         $content = str_replace($autotag['tagstr'], $banner, $content);
@@ -263,11 +267,11 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
 
 
 /**
-* Called by the plugin Editor to display the current plugin code version
-* This may be different than the version installed and registered currently.
-* If newer then you may want to run the update
+*   Called by the plugin Editor to display the current plugin code version
+*   This may be different than the version installed and registered currently.
+*   If newer then you may want to run the update
 *
-* @return   string  version number
+*   @return string  version number
 */
 function plugin_chkVersion_banner ()
 {
@@ -384,15 +388,15 @@ function plugin_cclabel_banner()
 
 
 /**
-* returns the administrative option for this plugin
+*   Returns the administrative option for this plugin
 *
-* @return   mixed   array(title, url, num. banner), or void when not allowed
+*   @return mixed   array(title, url, num. banner), or false when not allowed
 */
 function plugin_getadminoption_banner()
 {
     global $_TABLES, $LANG_BANNER;
 
-    if (SEC_hasRights ('banner.edit,banner.delete', 'OR')) {
+    if (SEC_hasRights('banner.edit,banner.delete', 'OR')) {
         $total_banner = DB_getItem ($_TABLES['banner'], 'COUNT(*)',
                                    COM_getPermSql (''));
 
@@ -498,7 +502,6 @@ function plugin_enablestatechange_banner($enabled)
         DB_query($sql);
         }
     }
-
 }
 
 
