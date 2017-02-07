@@ -384,8 +384,6 @@ class Banner
 
     /**
     *   Delete the current banner.
-    *
-    *   @param  string  $bid    Optional banner ID to delete
     */
     public function Delete()
     {
@@ -507,7 +505,7 @@ class Banner
             if (isset($_FILES['bannerimage']['name']) &&
                 !empty($_FILES['bannerimage']['name'])) {
                 USES_banner_class_image();
-                $U = new Image($this->bid, 'bannerimage');
+                $U = new banrImage($this->bid, 'bannerimage');
 
                 // Set max image size to the global sanity check.
                 // Images will be resized down to the category size for display

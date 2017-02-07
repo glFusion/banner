@@ -17,7 +17,7 @@ USES_class_upload();
  *  Image-handling class
  *  @package banner
  */
-class Image extends upload
+class banrImage extends upload
 {
     /** Path to actual image (without filename)
      *  @var string */
@@ -125,6 +125,6 @@ class Image extends upload
         return array($newwidth, $newheight);
     }
 
-}   // class Image
+}   // class banrImage
 
 ?>
