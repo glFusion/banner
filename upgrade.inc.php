@@ -172,13 +172,13 @@ function banner_upgrade_0_1_7()
     }
 
     if (!banner_do_upgrade_sql('0.1.7')) return false;
-    return banner_do_update_version('0.1.0');
+    return banner_do_update_version('0.1.7');
 }
 
 
 /**
 *   Update to version 0.2.0
-*   Removes add permission matrix
+*   Removes permission matrix for banners and categories
 *
 *   @return boolean     True on success, false on failure
 */
