@@ -12,9 +12,8 @@ Compatibile with glFusion 1.6.0 or higher.
   - Use full perms only for campaigns where users may submit ads
 - Use LGLIB_ImageUrl() to size images to category settings
   - Global size limits should now be large sanity checks
-  - Image is scaled to the smaller of the Category or Banner size limit
-  - Banner dimensions are reduced to a max of the image size when
-adding locally-hosted images.
+  - Image is scaled to the smaller of the Category or Banner size limit when displayed.
+  - Locally-hosted banner dimensions are reduced to a max of the image size during upload.
 
 ## glBanner - 0.1.2
 Released 2010-03-17.

@@ -25,8 +25,13 @@ function banner_do_upgrade()
 
     $pi_name = $_CONF_BANR['pi_name'];
 
-    if (isset($_PLUGIN_INFO[$_CONF_BANR['pi_name']])) {
-        $current_ver = $_PLUGIN_INFO[$_CONF_BANR['pi_name']];
+    if (isset($_PLUGIN_INFO[$pi_name]))
+        if (is_array($_PLUGIN_INFO[$pi_name])) {
+            // glFusion > = 1.6.6
+            $current_ver = $_PLUGIN_INFO[$pi_name]['pi_version'];
+        else {
+            $current_ver = $_PLUGIN_INFO[$_CONF_BANR['pi_name']];
+        }
     } else {
         return false;
     }
