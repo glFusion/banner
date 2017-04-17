@@ -1,5 +1,9 @@
 # Changelog - Banner plugin for glFusion
 
+## Version 0.2.1
+Release TBD
+- Change admin list AJAX to use Jquery
+
 ## Version 0.2.0
 Released 2017-01-21
 

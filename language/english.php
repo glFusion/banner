@@ -3,9 +3,9 @@
 *   Default English Language file for the Banner plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.7
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -126,6 +126,9 @@ $LANG_BANNER = array(
 'err_missing_adcode' => 'Ad code cannot be empty for script banner',
 'err_missing_title' => 'A banner title is required',
 'unknown' => 'Unknown',
+'msg_item_enabled' => 'Item has been enabled',
+'msg_item_disabled' => 'Item has been disabled',
+'msg_item_nochange' => 'Item was unchanged',
 
     10 => 'Submissions',
     14 => 'Banner',
