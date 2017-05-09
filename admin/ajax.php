@@ -1,15 +1,16 @@
 <?php
 /**
-*  Common AJAX functions
+*   Common AJAX functions
 *
-*  @author     Lee Garner <lee@leegarner.com>
-*  @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*  @package    banner
-*  @version    0.2.1
-*  @license    http://opensource.org/licenses/gpl-2.0.php
-*  GNU Public License v2 or later
-*  @filesource
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+*   @package    banner
+*   @version    0.2.1
+*   @license    http://opensource.org/licenses/gpl-2.0.php
+*               GNU Public License v2 or later
+*   @filesource
 */
+namespace Banner;
 
 /**
 *  Include required glFusion common functions
@@ -29,18 +30,18 @@ case 'toggleEnabled':
 
     case 'category':
         USES_banner_class_category();
-        $newval = banrCategory::toggleEnabled($oldval, $_POST['id']);
+        $newval = Category::toggleEnabled($oldval, $_POST['id']);
         $status = true;
         break;
 
     case 'campaign':
         USES_banner_class_campaign();
-        $newval = banrCampaign::toggleEnabled($oldval, $_POST['id']);
+        $newval = Campaign::toggleEnabled($oldval, $_POST['id']);
         break;
 
     case 'cat_cb':
         USES_banner_class_category();
-        $newval = banrCategory::toggleCenterblock($oldval, $_POST['id']);
+        $newval = Category::toggleCenterblock($oldval, $_POST['id']);
         $status = true;
         break;
 

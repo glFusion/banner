@@ -3,6 +3,7 @@
 ## Version 0.2.1
 Release TBD
 - Change admin list AJAX to use Jquery
+- Implement PHP namespace
 
 ## Version 0.2.0
 Released 2017-01-21

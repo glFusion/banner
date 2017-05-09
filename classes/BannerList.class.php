@@ -5,12 +5,12 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.2.0
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
-
+namespace Banner;
 
 /**
 *   Define a class for banner lists
@@ -209,7 +209,7 @@ class BannerList
             $query_arr['sql'] .= " AND b.cid = '{$this->catID}' ";
         }
 
-        $retval .= ADMIN_list('banner', 'BANNER_getField_banner', $header_arr,
+        $retval .= ADMIN_list('banner', '\Banner\BANNER_getField_banner', $header_arr,
                 $text_arr, $query_arr, $defsort_arr, '', '', $options, $form_arr);
 
         return $retval;

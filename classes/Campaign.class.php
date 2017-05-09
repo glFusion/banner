@@ -4,17 +4,18 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.2.0
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
+namespace Banner;
 
 /**
 *   Class to manage banner campaigns
 *   @package banner
 */
-class banrCampaign
+class Campaign
 {
     /** Properties of a campaign
     *   @var array */
@@ -216,7 +217,7 @@ class banrCampaign
 
     /**
     *   Delete a campaign.
-    *   Can be called as banrCampaign::Delete($id).
+    *   Can be called as Campaign::Delete($id).
     *
     *   @param  string  $id ID of campaign to delete, this object if empty
     */
@@ -259,7 +260,7 @@ class banrCampaign
     {
         global $_CONF, $_CONF_BANR, $_TABLES, $LANG_ACCESS, $LANG_BANNER, $_SYSTEM;
 
-        $T = new Template($_CONF['path'] . 'plugins/' .
+        $T = new \Template($_CONF['path'] . 'plugins/' .
                         $_CONF_BANR['pi_name'].'/templates/admin/');
         $tpltype = $_SYSTEM['framework'] == 'uikit' ? '.uikit' : '';
         $T->set_file (array('editform' => "campaignedit$tpltype.thtml"));
@@ -402,7 +403,7 @@ class banrCampaign
     */
     public function XUserList($uid='')
     {
-        echo "banrCampaign::UserList() DEPRECATED";die;
+        echo "Campaign::UserList() DEPRECATED";die;
         global $_TABLES;
 
         // Set up the user id to show as selected
@@ -450,7 +451,7 @@ class banrCampaign
     *   Determine if the current user has access at lease equal to the
     *   specified value.
     *
-    *   @see banrCampaign::Access()
+    *   @see Campaign::Access()
     *   @param  integer $level  Level to check current access against
     *   @return boolean         True if the users access >= requested level
     */
@@ -530,7 +531,38 @@ class banrCampaign
         }
     }
 
-}   // class banrCampaign
+
+    /**
+    *   Update the impression counter for this campaign.
+    *
+    *   @param  string  $camp_id    Campaign ID
+    */
+    public static function updateImpressions($camp_id)
+    {
+        global $_TABLES;
+        DB_query("UPDATE {$_TABLES['bannercampaigns']}
+                SET impressions=impressions+1
+                WHERE camp_id='" . DB_escapeString($camp_id) . "'");
+    }
+
+
+    /**
+    *   Update the hit counter for this campaign.
+    *
+    *   @param  string  $camp_id    Campaign to update
+    */
+    public static function updateHits($camp_id)
+    {
+        global $_TABLES;
+
+        // Update the campaign total hits
+        $sql = "UPDATE {$_TABLES['bannercampaigns']}
+                SET hits=hits+1
+                WHERE camp_id='" . DB_escapeString($camp_id) . "'";
+        DB_query($sql);
+    }
+ 
+}   // class Campaign
 
 
 /**

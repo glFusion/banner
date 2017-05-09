@@ -4,13 +4,14 @@
 *   Provides a way for users to view and edit banners that they own.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2011 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1.6
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
 */
+namespace Banner;
 
 require_once '../lib-common.php';
 
@@ -90,7 +91,7 @@ case 'toggleEnabled':
 
 case 'toggleEnabledCampaign':
     USES_banner_class_campaign();
-    $C = new banrCampaign($_REQUEST['camp_id']);
+    $C = new Campaign($_REQUEST['camp_id']);
     $C->toggleEnabled($_REQUEST['newval']);
     $view = 'campaigns';
     break;
@@ -128,7 +129,7 @@ default:
 
 case 'campaigns':
     USES_banner_class_campaignlist();
-    $L = new banrCampaignList();
+    $L = new CampaignList();
     $content .= $L->ShowList();
     break;
 
@@ -136,7 +137,7 @@ case 'campaignDetail':
     USES_banner_class_campaign();
     USES_lib_admin();
 
-    $C = new banrCampaign($_REQUEST['camp_id']);
+    $C = new Campaign($_REQUEST['camp_id']);
     $C->getBanners();
 
     $menu_arr = array(
@@ -147,7 +148,7 @@ case 'campaignDetail':
     );
     $content .= ADMIN_createMenu($menu_arr, $LANG_BANNER['banners'] . $validate_help, plugin_geticon_banner());
 
-    $T = new Template(BANR_PI_PATH . '/templates/');
+    $T = new \Template(BANR_PI_PATH . '/templates/');
     $T->set_file('camp_detail', 'campaign.thtml');
     $T->set_var(array(
         'camp_id'       => $C->camp_id,
@@ -226,7 +227,7 @@ function BANR_userMenu($view='')
                     'text' => $LANG_BANNER['campaigns']);
     }
 
-    $T = new Template(BANR_PI_PATH . '/templates');
+    $T = new \Template(BANR_PI_PATH . '/templates');
     $T->set_file('title', 'banner_admin_title.thtml');
     $T->set_var('title', 
         $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . $_CONF_BANR['pi_version'] . ')');
@@ -235,7 +236,6 @@ function BANR_userMenu($view='')
             plugin_geticon_banner());
 
     return $retval;
-
 }
 
 ?>

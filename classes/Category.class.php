@@ -4,17 +4,18 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.2.0
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
+namespace Banner;
 
 /**
 *   Class to handle category data
 *   @package    banner
 */
-class banrCategory
+class Category
 {
     /** Properties of the category
         @var array() */
@@ -174,7 +175,7 @@ class banrCategory
     /**
     *   Update the "cenberblock" flag for a category
     *
-    *   @uses   banrCategory::_toggle()
+    *   @uses   Category::_toggle()
     *   @param  integer $oldval     Current value of item
     *   @param  string  $id         Category ID.
     *   @return integer     New value, or old value upon error
@@ -188,7 +189,7 @@ class banrCategory
     /**
     *   Update the 'enabled' value for a category
     *
-    *   @uses   banrCategory::_toggle()
+    *   @uses   Category::_toggle()
     *   @param  integer $oldval     Current value of item
     *   @param  string  $id         Category ID
     *   @return integer     New value, or old value upon error
@@ -248,7 +249,7 @@ class banrCategory
             return COM_showMessage(6, 'banner');
         }
 
-        $T = new Template(BANR_PI_PATH . '/templates/admin');
+        $T = new \Template(BANR_PI_PATH . '/templates/admin');
         $tpltype = $_CONF_BANR['_is_uikit'] ? '.uikit' : '';
         $T->set_file(array('page' => "categoryeditor$tpltype.thtml"));
 
@@ -504,7 +505,7 @@ function BANNER_adminCategories()
     $text_arr = array();
     $dummy = array();
     $data_arr = BANNER_list_categories();
-    $retval .= ADMIN_simpleList('BANNER_getField_Category', $header_arr,
+    $retval .= ADMIN_simpleList('\Banner\BANNER_getField_Category', $header_arr,
                                 $text_arr, $data_arr);
     return $retval;
 }
@@ -549,7 +550,7 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        if (!banrCategory::isRequired($A['type']) && !banrCategory::isUsed($A['cid'])) {
+        if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
             $retval .= COM_createLink('',
                         "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
                         array(

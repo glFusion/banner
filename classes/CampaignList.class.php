@@ -5,11 +5,12 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.2.0
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
+namespace Banner;
 
 USES_banner_class_campaign();
 
@@ -17,7 +18,7 @@ USES_banner_class_campaign();
 *   Class to manage banner campaigns
 *   @package banner
 */
-class banrCampaignList
+class CampaignList
 {
     /** Indicate whether this is an administrator or not.
     *   @var boolean */
@@ -120,7 +121,7 @@ class banrCampaignList
         }
 
         $retval .= ADMIN_list('bannercampaigns',
-                'BANNER_getField_Campaign', $header_arr,
+                '\Banner\BANNER_getField_Campaign', $header_arr,
                 $text_arr, $query_arr, $defsort_arr, '', '', '',
                 $form_arr);
 
@@ -166,7 +167,7 @@ function BANNER_getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        if (!banrCampaign::isUsed($A['camp_id'])) {
+        if (!Campaign::isUsed($A['camp_id'])) {
             $retval .= COM_createLink('',
                 "$base_url/index.php?delete=x&item=campaign&amp;camp_id={$A['camp_id']}",
                 array(

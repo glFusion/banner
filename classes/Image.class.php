@@ -5,11 +5,12 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.2.0
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
 */
+namespace Banner;
 
 USES_class_upload();
 
@@ -17,7 +18,7 @@ USES_class_upload();
  *  Image-handling class
  *  @package banner
  */
-class banrImage extends upload
+class Image extends \upload
 {
     /** Path to actual image (without filename)
      *  @var string */
@@ -36,10 +37,12 @@ class banrImage extends upload
     var $ext;
 
     /**
-     *  Constructor
-     *  @param string $name Optional image filename
-     */
-    function __construct($bid, $varname='bannerimage')
+    *   Constructor
+    *
+    *   @param string   $bid        Banner ID
+    *   @param string   $varname    Form variable name, optional
+    */
+    public function __construct($bid, $varname='bannerimage')
     {
         global $_CONF_BANR, $_CONF;
 
@@ -89,7 +92,12 @@ class banrImage extends upload
     }
 
 
-    function getFilename()
+    /**
+    *   Get the filename for the current image
+    *
+    *   @return string  Image filenmae
+    */
+    public function getFilename()
     {
         return $this->filename;
     }
@@ -102,8 +110,9 @@ class banrImage extends upload
      *  @param integer $width       New width, in pixels
      *  @param integer $height      New height, in pixels
      *  @return array  $newwidth, $newheight
+     *  @deprecated Using LGLIB now
      */
-    function reDim($s_width, $s_height, $maxdim=0)
+    public function reDim($s_width, $s_height, $maxdim=0)
     {
         // get both sizefactors that would resize one dimension correctly
         if ($maxdim > 0 && $s_width > $maxdim)
@@ -125,6 +134,6 @@ class banrImage extends upload
         return array($newwidth, $newheight);
     }
 
-}   // class banrImage
+}   // class Image
 
 ?>

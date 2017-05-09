@@ -1,15 +1,16 @@
 <?php
 /**
- *  Banner admin entry point.
- *
- *  @author     Lee Garner <lee@leegarner.com>
- *  @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
- *  @package    banner
- *  @version    0.1.0
- *  @license    http://opensource.org/licenses/gpl-2.0.php
- *  GNU Public License v2 or later
- *  @filesource
- */
+*   Banner admin entry point.
+*
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+*   @package    banner
+*   @version    0.2.1
+*   @license    http://opensource.org/licenses/gpl-2.0.php
+*               GNU Public License v2 or later
+*   @filesource
+*/
+namespace Banner;
 
 /** Import core glFusion libraries */
 require_once '../../../lib-common.php';
@@ -92,13 +93,13 @@ case 'delete':
         break;
     case 'category':
         USES_banner_class_category();
-        $C = new banrCategory($_REQUEST['cid']);
+        $C = new Category($_REQUEST['cid']);
         $content .= $C->Delete();
         $view = 'categories';
         break;
     case 'campaign':
         USES_banner_class_campaign();
-        $C = new banrCampaign($_REQUEST['camp_id']);
+        $C = new Campaign($_REQUEST['camp_id']);
         $C->Delete();
         $view = 'campaigns';
         break;
@@ -117,13 +118,13 @@ case 'delMultiBanner':
 
 case 'toggleEnabledCategory':
     USES_banner_class_category();
-    banrCategory::toggleEnabled($_REQUEST['newval'], $_REQUEST['cid']);
+    Category::toggleEnabled($_REQUEST['newval'], $_REQUEST['cid']);
     $view = 'categories';
     break;
 
 case 'toggleEnabledCampaign':
     USES_banner_class_campaign();
-    banrCampaign::toggleEnabled($_REQUEST['newval'], $_REQUEST['camp_id']);
+    Campaign::toggleEnabled($_REQUEST['newval'], $_REQUEST['camp_id']);
     $view = 'campaigns';
     break;
 
@@ -132,7 +133,7 @@ case 'save':
     case 'category':
         USES_banner_class_category();
         // 'oldcid' will be empty for new entries, non-empty for updates
-        $C = new banrCategory($_POST['oldcid']);
+        $C = new Category($_POST['oldcid']);
         $status = $C->Save($_POST);
         if ($status != '') {
             $content .= BANNER_errorMessage($status);
@@ -149,7 +150,7 @@ case 'save':
 
     case 'campaign':
         USES_banner_class_campaign();
-        $C = new banrCampaign($_POST['old_camp_id']);
+        $C = new Campaign($_POST['old_camp_id']);
         $status = $C->Save($_POST);
             if ($status != '') {
             $content .= BANNER_errorMessage($status);
@@ -215,7 +216,7 @@ default:
 switch ($view) {
 case 'campaigns':
     USES_banner_class_campaignlist();
-    $L = new banrCampaignList(true);
+    $L = new CampaignList(true);
     $content .= $L->ShowList();
     //$content .= BANNER_adminCampaigns();
     break;
@@ -253,7 +254,7 @@ case 'edit':
         break;
     case 'campaign':
         USES_banner_class_campaign();
-        $C = new banrCampaign($_REQUEST['camp_id']);
+        $C = new Campaign($_REQUEST['camp_id']);
         if (!empty($_POST)) {
             $C->SetVars($_POST);
         }
@@ -263,7 +264,7 @@ case 'edit':
         break;
     case 'category':
         USES_banner_class_category();
-        $C = new banrCategory($_REQUEST['cid']);
+        $C = new Category($_REQUEST['cid']);
         $content .= $C->Edit();
         break;
     }
@@ -271,7 +272,7 @@ case 'edit':
 
 case 'newcategory':
     USES_banner_class_category();
-    $C = new banrCategory();
+    $C = new Category();
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
@@ -280,14 +281,14 @@ case 'newcategory':
 
 case 'editcategory':
     USES_banner_class_category();
-    $C = new banrCategory($_REQUEST['cid']);
+    $C = new Category($_REQUEST['cid']);
     $content .= $C->Edit();
     break;
 
 case 'newcampaign':
 echo "here in newcampaign";die;
     USES_banner_class_campaign();
-    $C = new banrCampaign();
+    $C = new Campaign();
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
@@ -298,7 +299,7 @@ echo "here in newcampaign";die;
 
 case 'editcampaign':
     USES_banner_class_campaign();
-    $C = new banrCampaign($_REQUEST['camp_id']);
+    $C = new Campaign($_REQUEST['camp_id']);
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
@@ -386,7 +387,7 @@ function BANR_adminMenu($view='')
     $menu_arr[] = array('url'  => $_CONF['site_admin_url'],
                   'text' => $LANG_ADMIN['admin_home']);
 
-    $T = new Template(BANR_PI_PATH . '/templates');
+    $T = new \Template(BANR_PI_PATH . '/templates');
     $T->set_file('title', 'banner_admin_title.thtml');
     $T->set_var('title',
         $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . $_CONF_BANR['pi_version'] . ')');

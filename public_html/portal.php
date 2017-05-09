@@ -4,13 +4,14 @@
 *   the destination url.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.1
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *   GNU Public License v2 or later
 *   @filesource
 */
+namespace Banner;
 
 /** Import core glFusion libraries */
 require_once '../lib-common.php';

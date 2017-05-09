@@ -5,11 +5,12 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.2.0
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
+namespace Banner;
 
 /**
 *   Define a class to deal with banners
@@ -48,9 +49,11 @@ class Banner
     var $errors = array();
 
     /**
-     *  Constructor
-     *  @param string $bid Banner ID to retrieve, blank for empty class
-     */
+    *   Constructor
+    *
+    *   @param  string  $bid    Banner ID to retrieve, blank for empty class
+    *   @param  string  $table  Table, e.g. Submission or prod
+    */
     public function __construct($bid='', $table='')
     {
         global $_USER, $_GROUPS, $_CONF_BANR;
@@ -80,7 +83,8 @@ class Banner
     }
 
 
-    /** Setter function. Set values in the properties array.
+    /**
+    *   Setter function. Set a value in the properties array.
     *
     *   @param  string  $key    Name of property to set
     *   @param  mixed   $value  Value to set
@@ -137,7 +141,7 @@ class Banner
     *   Getter function. Returns a property value
     *
     *   @param  string  $key    Name of property to retrieve
-       @return mixec           Value of property
+    *   @return mixed           Value of property
     */
     public function __get($key)
     {
@@ -148,13 +152,33 @@ class Banner
         }
     }
 
+
+    /**
+    *   Set the admin flag
+    *
+    *   @param  boolean $isadmin    True or False
+    */
     public function setAdmin($isadmin)
     {   $this->isAdmin = $isadmin ? true : false;   }
 
+
+    /**
+    *   Sets the table in use, either submission or production.
+    *   Ensures that a valid table name is set
+    *
+    *   @param  string  $table  Table key
+    */
     public function setTable($table)
     {   $this->table = $table == 'bannersubmission' ? 'bannersubmission' : 'banner';
     }
 
+
+    /**
+    *   Get an option value
+    *
+    *   @param  string  $name   Option name
+    *   @return mixed           Option value, NULL if not set
+    */
     public function getOpt($name)
     {
         if (isset($this->options[$name])) {
@@ -327,8 +351,8 @@ class Banner
 
 
     /**
-     *  Update the impression (display) count.
-     */
+    *   Update the impression (display) count.
+    */
     public function updateImpressions()
     {
         global $_TABLES, $_CONF_BANR, $_USER;
@@ -347,9 +371,12 @@ class Banner
         DB_query("UPDATE {$_TABLES['banner']}
                 SET impressions=impressions+1
                 WHERE bid='{$this->bid}'");
-        DB_query("UPDATE {$_TABLES['bannercampaigns']}
+
+        USES_banner_class_campaign();
+        Campaign::updateImpressions($this->camp_id);
+/*        DB_query("UPDATE {$_TABLES['bannercampaigns']}
                 SET impressions=impressions+1
-                WHERE camp_id='{$this->camp_id}'");
+                WHERE camp_id='{$this->camp_id}'");*/
     }
 
 
@@ -374,11 +401,14 @@ class Banner
                 WHERE bid='{$this->bid}'";
         DB_query($sql);
 
-        // Update the campaign total hits
+        USES_banner_class_campaign();
+        Campaign::updateHits($this->camp_id);
+
+/*        // Update the campaign total hits
         $sql = "UPDATE {$_TABLES['bannercampaigns']}
                 SET hits=hits+1
                 WHERE camp_id='{$this->camp_id}'";
-        DB_query($sql);
+        DB_query($sql);*/
     }
 
 
@@ -505,21 +535,21 @@ class Banner
             if (isset($_FILES['bannerimage']['name']) &&
                 !empty($_FILES['bannerimage']['name'])) {
                 USES_banner_class_image();
-                $U = new banrImage($this->bid, 'bannerimage');
+                $Img = new Image($this->bid, 'bannerimage');
 
                 // Set max image size to the global sanity check.
                 // Images will be resized down to the category size for display
-                $U->setMaxDimensions(
+                $Img->setMaxDimensions(
                     $_CONF_BANR['img_max_height'],
                     $_CONF_BANR['img_max_width']
                 );
 
-                $U->uploadFiles();
-                if ($U->areErrors() > 0) {
+                $Img->uploadFiles();
+                if ($Img->areErrors() > 0) {
                     $this->options['filename'] = '';
-                    return $U->printErrors(false);
+                    return $Img->printErrors(false);
                 } else {
-                    $this->options['filename'] = $U->getFilename();
+                    $this->options['filename'] = $Img->getFilename();
                 }
 
                 // Set the image dimensions in the banner record if either
@@ -779,7 +809,7 @@ class Banner
         );
 
         USES_banner_class_category();
-        $C = new banrCategory($this->cid);
+        $C = new Category($this->cid);
         if ($width == 0)
             $width = min($this->options['width'], $C->max_img_width);
         if ($height == 0)
@@ -958,7 +988,7 @@ class Banner
             break;
         }
 
-        $T = new Template(BANR_PI_PATH . '/templates/');
+        $T = new \Template(BANR_PI_PATH . '/templates/');
         $tpltype = $_CONF_BANR['_is_uikit'] ? '.uikit' : '';
         $T->set_file('editor',"bannerform$tpltype.thtml");
 
@@ -1024,8 +1054,8 @@ class Banner
             'mootools'      => $_SYSTEM['disable_jquery'] ? 'true' : '',
             'banner_title' => htmlspecialchars($this->title),
             'max_url_length' => 255,
-            'category_options' => banrCategory::Dropdown(0, $this->cid),
-            'campaign_options' => banrCampaign::Dropdown($this->camp_id),
+            'category_options' => Category::Dropdown(0, $this->cid),
+            'campaign_options' => Campaign::Dropdown($this->camp_id),
             //'publishstart' => $this->publishstart,
             //'publishend' => $this->publishend,
             'banner_hits' => $this->hits,
@@ -1114,8 +1144,8 @@ class Banner
             $enddt = $this->uxdt_end;
         }
 
-        $startdt = new Date($startdt, $_USER['tzid']);
-        $enddt = new Date($enddt, $_USER['tzid']);
+        $startdt = new \Date($startdt, $_USER['tzid']);
+        $enddt = new \Date($enddt, $_USER['tzid']);
         $h_fmt = $_CONF['hour_mode'] == 12 ? 'h' : 'H';
         $st_hour = $startdt->format($h_fmt, true);
         $end_hour = $enddt->format($h_fmt, true);

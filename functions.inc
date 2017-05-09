@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.2.0
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -62,27 +62,27 @@ define ('BANR_CLASSPATH', BANR_PI_PATH . '/classes');
 
 /** Import Banner class */
 function USES_banner_class_banner()
-{   require_once BANR_CLASSPATH . '/banner.class.php';  }
+{   require_once BANR_CLASSPATH . '/Banner.class.php';  }
 
 /** Import Banner List class */
 function USES_banner_class_bannerlist()
-{   require_once BANR_CLASSPATH . '/bannerlist.class.php';  }
+{   require_once BANR_CLASSPATH . '/BannerList.class.php';  }
 
 /** Import Banner Campaign class */
 function USES_banner_class_campaign()
-{   require_once BANR_CLASSPATH . '/campaign.class.php';    }
+{   require_once BANR_CLASSPATH . '/Campaign.class.php';    }
 
 /** Import Campaign List class */
 function USES_banner_class_campaignlist()
-{   require_once BANR_CLASSPATH . '/campaignlist.class.php';    }
+{   require_once BANR_CLASSPATH . '/CampaignList.class.php';    }
 
 /** Import Category Class */
 function USES_banner_class_category()
-{   require_once BANR_CLASSPATH . '/category.class.php';    }
+{   require_once BANR_CLASSPATH . '/Category.class.php';    }
 
 /** Import Image class */
 function USES_banner_class_image()
-{   require_once BANR_CLASSPATH . '/image.class.php';   }
+{   require_once BANR_CLASSPATH . '/Image.class.php';   }
 
 /** Import Banner User Functions */
 function USES_banner_userfunctions()
@@ -157,9 +157,9 @@ function plugin_centerblock_banner($where=1,$page=1,$topic ='')
     }
 
     USES_banner_class_banner();
-    $bids = Banner::GetBanner($options);
+    $bids = \Banner\Banner::GetBanner($options);
     if (!empty($bids)) {
-        $B = new Banner($bids[0]);
+        $B = new \Banner\Banner($bids[0]);
         $B->updateImpressions();
 
         $T = new Template(BANR_PI_PATH . '/templates');
@@ -203,7 +203,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             // Get a specific banner
             USES_banner_class_banner();
             $bid = COM_sanitizeID($autotag['parm1'], false);
-            $B = new Banner($bid);
+            $B = new \Banner\Banner($bid);
             if (!$B->isNew) {
                 $banner = $B->BuildBanner($title);
                 $B->updateImpressions();
@@ -218,9 +218,9 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             if (!empty($cid)) {
                 $options['cid']= $cid;
             }
-            $bids = Banner::GetBanner($options);
+            $bids = \Banner\Banner::GetBanner($options);
             if (!empty($bids)) {
-                $B = new Banner($bids[0]);
+                $B = new \Banner\Banner($bids[0]);
                 $banner = $B->BuildBanner($title);
                 $B->updateImpressions();
             }
@@ -248,7 +248,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             $T = new Template(BANR_PI_PATH . '/templates');
             $T->set_file('block', 'bannercategory.thtml');
             $T->set_block('block', 'bannerRow', 'BRow');
-            $B = new Banner();
+            $B = new \Banner\Banner();
             while ($A = DB_fetchArray($result, false)) {
                 $B->Read($A['bid']);
                 $T->set_var('banner', $B->BuildBanner());
@@ -325,7 +325,7 @@ function plugin_chkVersion_banner ()
         $text_arr = array('has_menu' => false,
                           'title'    => $LANG_BANNER['stats_headline'],
         );
-        $B = new Banner();
+        $B = new \Banner\Banner();
         for ($i = 0; $i < $nrows; $i++) {
             list($bid) = DB_fetchArray ($result);
             $B->Read($bid);
@@ -640,7 +640,7 @@ function plugin_moderationdelete_banner($id)
 {
     global $_CONF_BANR;
 
-    $B = new Banner($id);
+    $B = new \Banner\Banner($id);
     $filename = $B->getOpt('filename');
     if ($filename != NULL &&
         file_exists($_CONF_BANR['img_dir'] . '/' . $filename)) {
@@ -663,7 +663,7 @@ function plugin_savesubmission_banner($A)
 
     USES_banner_class_banner();
 
-    $B = new Banner();
+    $B = new \Banner\Banner();
     $retval = '';
 
     if ($_CONF_BANR['submissionqueue'] == 1 &&
@@ -717,7 +717,7 @@ function plugin_submit_banner($A=array())
 
     USES_banner_class_banner();
 
-    $B = new Banner();
+    $B = new \Banner\Banner();
     $B->setAdmin(false);
     if (is_array($A)) {
         $B->setVars($A);
@@ -783,10 +783,10 @@ function plugin_templateSetVars_banner($templatename, &$template)
     if (empty($templatenames)) return;
     $options['topic'] = empty($topic) ? 'all' : $topic;
 
-    $B = new Banner();
+    $B = new \Banner\Banner();
     foreach ($templatenames as $type) {
         $options['type'] = $type;
-        $bids = Banner::GetBanner($options);
+        $bids = \Banner\Banner::GetBanner($options);
         if (is_array($bids) && !empty($bids)) {
             $B->Read($bids[0]);
             $banner = $B->BuildBanner();
@@ -1114,7 +1114,7 @@ function BANNER_block_banner($extra='')
     global $_CONF, $_TABLES, $LANG_BANNER, $topic;
 
     USES_banner_class_banner();
-    if (!Banner::canShow()) {
+    if (!\Banner\Banner::canShow()) {
         return '';
     }
 
@@ -1133,11 +1133,11 @@ function BANNER_block_banner($extra='')
 
     // Get the banner IDs that fit the requirements.  Could be an array or a
     // single value, so convert into an array
-    $bids = Banner::GetBanner($params);
+    $bids = \Banner\Banner::GetBanner($params);
 
     if (is_array($bids) && !empty($bids)) {
         $retval .= "<div class=\"aligncenter\">\n";
-        $B = new Banner();
+        $B = new \Banner\Banner();
         foreach ($bids as $bid) {
             $B->Read($bid);
             $retval .= '<div class="blockbanner">' . $B->BuildBanner() . '</div>';
