@@ -1169,6 +1169,28 @@ function BANNER_docURL($file, $lang='')
 
 
 /**
+*   Get an icon from the CSS icon set, either UIkit or FontAwesome
+*
+*   @param  string  $name   Base name of icon, e.g. "edit" for "uk-icon-edit"
+*   @param  string  $style  Style name from local CSS
+*   @return string      Class names for icon
+*/
+function BANR_getIcon($name, $style='info')
+{
+    global $_CONF_BANR;
+
+    if ($style != '')
+        $style = ' banr-icon-' . $style;
+
+    if ($_CONF_BANR['_is_uikit']) {
+        return ' uk-icon-' . $name . $style;
+    } else {
+        return 'fa fa-' . $name . $style;
+    }
+}
+
+
+/**
  *  Log activity to a plugin-specific log file
  *
  *  @param string $logentry Text to log

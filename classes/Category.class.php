@@ -530,11 +530,8 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
     $access = 3;
     switch ($fieldname) {
     case 'edit':
-        $retval = COM_createLink('',
-                    "$admin_url?edit=x&item=category&amp;cid=" . urlencode($A['cid']),
-                    array(
-                        'class' => 'uk-icon uk-icon-edit',
-                    )
+        $retval = COM_createLink('<i class="' . BANR_getIcon('edit') . '"></i>',
+                    "$admin_url?edit=x&item=category&amp;cid=" . urlencode($A['cid'])
                 );
         break;
 
@@ -551,11 +548,10 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
 
     case 'delete':
         if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
-            $retval .= COM_createLink('',
+            $retval .= COM_createLink('<i class="' . BANR_getIcon('trash', 'danger') . '"></i>',
                         "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
                         array(
                             'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
-                            'class' => 'uk-icon-trash banner_danger',
                         )
                 );
         }

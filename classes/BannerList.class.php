@@ -209,7 +209,7 @@ class BannerList
             $query_arr['sql'] .= " AND b.cid = '{$this->catID}' ";
         }
 
-        $retval .= ADMIN_list('banner', '\Banner\BANNER_getField_banner', $header_arr,
+        $retval .= ADMIN_list('banner', __NAMESPACE__ . '\BANNER_getField_banner', $header_arr,
                 $text_arr, $query_arr, $defsort_arr, '', '', $options, $form_arr);
 
         return $retval;
@@ -238,7 +238,7 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
     switch($fieldname) {
     case 'edit':
         $retval = COM_createLink(
-                '<i class="uk-icon-edit"></i>',
+                '<i class="' . BANR_getIcon('edit') . '"></i>',
                 $base_url . '/index.php?edit=x&item=banner&amp;bid=' .$A['bid']
                 );
         break;
@@ -255,10 +255,9 @@ function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        $retval = COM_createLink('',
+        $retval = COM_createLink('<i class="' . BANR_getIcon('trash', 'danger') . '"></i>',
                 "$base_url/index.php?bid={$A['bid']}&deleteBanner",
                 array(
-                    'class' => 'uk-icon-trash banner_danger',
                      'onclick' => "return confirm('Do you really want to delete this item?');",
                 ) );
         break;

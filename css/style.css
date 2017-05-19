@@ -90,6 +90,9 @@ div.blockbanner {
     color: red;
 }
 
-.banner_danger {
+.banr-icon-danger {
     color: red;
+}
+.banr-icon-info {
+    color: #0077dd;
 }
