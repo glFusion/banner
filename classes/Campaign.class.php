@@ -368,7 +368,7 @@ class Campaign
         }
 
         if (DB_count($_TABLES['bannercampaigns'], 'camp_id', $this->camp_id) > $allowed) {
-            return $LANG_BANNER['duplicate_camp_id'];
+            return false;
         }
 
         $sql2 = " SET
@@ -389,7 +389,8 @@ class Campaign
                 perm_members={$this->perm_members},
                 perm_anon={$this->perm_anon},
                 tid='" . DB_escapeString($this->tid) . "'";
-         //echo $sql;die;
+        $sql = $sql1 . $sql2 . $sql3;
+        //echo $sql;die;
         DB_query($sql);
         return DB_Error() ? false : true;
     }

@@ -151,8 +151,7 @@ case 'save':
     case 'campaign':
         USES_banner_class_campaign();
         $C = new Campaign($_POST['old_camp_id']);
-        $status = $C->Save($_POST);
-            if ($status != '') {
+        if (!$C->Save($_POST)) {
             $content .= BANNER_errorMessage($status);
             if (isset($_POST['old_camp_id']) && !empty($_POST['old_camp_id'])) {
                 $view = 'edit';
