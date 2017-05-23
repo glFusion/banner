@@ -209,9 +209,8 @@ class BannerList
             $query_arr['sql'] .= " AND b.cid = '{$this->catID}' ";
         }
 
-        $retval .= ADMIN_list('banner', __NAMESPACE__ . '\BANNER_getField_banner', $header_arr,
+        $retval .= ADMIN_list('banner', __NAMESPACE__ . '\getField_banner', $header_arr,
                 $text_arr, $query_arr, $defsort_arr, '', '', $options, $form_arr);
-
         return $retval;
     }
 
@@ -227,7 +226,7 @@ class BannerList
 *   @param  array   $icon_arr   Array of system icons
 *   @return string              HTML for field display within the list cell
 */
-function BANNER_getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
+function getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $LANG_ACCESS, $_CONF_BANR;
 

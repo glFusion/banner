@@ -121,7 +121,7 @@ class CampaignList
         }
 
         $retval .= ADMIN_list('bannercampaigns',
-                __NAMESPACE__ . '\BANNER_getField_Campaign', $header_arr,
+                __NAMESPACE__ . '\getField_Campaign', $header_arr,
                 $text_arr, $query_arr, $defsort_arr, '', '', '',
                 $form_arr);
 
@@ -141,7 +141,7 @@ class CampaignList
 *   @param  array   $icon_arr   Array of system icons
 *   @return string              HTML for field display within the list cell
 */
-function BANNER_getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr)
+function getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $_TABLES, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
 

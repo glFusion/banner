@@ -210,9 +210,9 @@ class Category
         if (self::isRequired($this->type))
             return;
 
-        if (!self::isUsed($id)) {
+        if (!self::isUsed($this->cid)) {
             DB_delete($_TABLES['bannercategories'],
-                'cid', DB_escapeString(trim($id)));
+                'cid', DB_escapeString($this->cid));
         }
     }
 
@@ -464,7 +464,7 @@ class Category
 *   @return string  HTML for administration page
 *   @see lib-admin.php
 */
-function BANNER_adminCategories()
+function adminCategories()
 {
     global $LANG_ADMIN, $LANG_BANNER;
 
@@ -501,11 +501,10 @@ function BANNER_adminCategories()
     );
 
     $defsort_arr = array('field' => 'category', 'direction' => 'asc');
-
     $text_arr = array();
     $dummy = array();
-    $data_arr = BANNER_list_categories();
-    $retval .= ADMIN_simpleList('\Banner\BANNER_getField_Category', $header_arr,
+    $data_arr = list_categories();
+    $retval .= ADMIN_simpleList(__NAMESPACE__ . '\getField_Category', $header_arr,
                                 $text_arr, $data_arr);
     return $retval;
 }
@@ -520,7 +519,7 @@ function BANNER_adminCategories()
 *   @param  array   $icon_arr       Array of system icons
 *   @return string                  HTML to display the field
 */
-function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
+function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $_TABLES, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
 
@@ -605,7 +604,7 @@ function BANNER_getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
     return $retval;
 }
 
-function BANNER_list_categories()
+function list_categories()
 {
     global $_TABLES;
 

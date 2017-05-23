@@ -222,7 +222,7 @@ case 'campaigns':
 
 case 'categories':
     USES_banner_class_category();
-    $content .= BANNER_adminCategories();
+    $content .= adminCategories();
     break;
 
 // Redirect to the system moderation page
