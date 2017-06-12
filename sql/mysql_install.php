@@ -93,10 +93,10 @@ $DEFVALUES['bannercategories'] = "INSERT INTO `{$_TABLES['bannercategories']}`
         ('20090010100000001','footer','Footer','Footer Banners',468,60),
         ('20090010100000002','block','Block','Block Banners',140,400)";
 
-$DEFVALUES['bannercampaigns'] = "INSERT INTO `{$_TABLES['bannercampaigns']}` (
+$DEFVALUES['bannercampaigns'] = "INSERT INTO `{$_TABLES['bannercampaigns']}`
         (camp_id, description)
     VALUES
-        ('20090010100000000', 'Default System Campaign')"
+        ('20090010100000000', 'Default System Campaign')";
 
 $BANR_UPGRADE = array(
 '0.1.0' => array(
