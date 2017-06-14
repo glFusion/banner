@@ -43,7 +43,7 @@
     <div class="uk-form-controls">
       <input name="finish" id="f_finish" type="text" size="32" maxlength="32" 
         value="{dt_finish}" />
-      <i id="f_start_trigger" title="{$LANG_BANNER['select_date']}" class="uk-icon-calendar"></i>
+      <i id="f_finish_trigger" title="{$LANG_BANNER['select_date']}" class="uk-icon-calendar"></i>
       <span id="finish" class="tooltip_cfg tooltipstered"></span> 
     </div>
   </div>
