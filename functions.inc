@@ -26,6 +26,8 @@ define ('BANR_TYPE_LOCAL',  0);    // Locally-uploaded image
 define ('BANR_TYPE_REMOTE', 1);    // Remote image url
 define ('BANR_TYPE_SCRIPT', 2);    // Script, e.g. Google Adsense
 define ('BANR_PI_PATH', $_CONF['path'] . 'plugins/banner');
+define ('BANR_MAX_DATE', '9999-12-31 23:59:59');
+define ('BANR_MIN_DATE', '0000-01-01 00:00:00');
 
 $langfile = $_CONF['language'] . '.php';
 if (!file_exists(BANR_PI_PATH . '/language/' . $langfile)) {
@@ -53,6 +55,7 @@ if (file_exists(BANR_PI_PATH . '/config.php')) {
 // Mark whether this is a uikit theme. Save to global conf var
 // so it's available where needed.
 $_CONF_BANR['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
+$_CONF_BANR['_now'] = new Date('now', $_CONF['timezone']);
 
 define ('BANR_ADMIN_URL',
         $_CONF['site_admin_url'] . '/plugins/'.$_CONF_BANR['pi_name']);

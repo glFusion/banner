@@ -22,10 +22,6 @@ class Banner
     *   @var string */
     var $oldID;
 
-    /** Publication dates
-     *  @var string */
-    var $uxdt_start, $uxdt_end;
-
     /** Indicate whether this is a new banner or not
      *  @var boolean */
     var $isNew;
@@ -91,6 +87,8 @@ class Banner
     */
     public function __set($key, $value)
     {
+        global $_CONF_BANR;
+
         switch ($key) {
         case 'owner_id':
         case 'hits':
@@ -112,8 +110,17 @@ class Banner
             $this->properties[$key] = trim($value);
             break;
 
+        case 'publishstart':
+        case 'publishend':
+            if (!$value) {      // zero or null
+                if ($key == 'publishstart') {
+                    $value = BANR_MIN_DATE;
+                } else {
+                    $value = BANR_MAX_DATE;
+                }
+            }
         case 'date':
-            $this->properties[$key] = $value;
+            $this->properties[$key] = new \Date($value, $_CONF_BANR['timezone']);
             break;
 
         case 'enabled':
@@ -198,9 +205,7 @@ class Banner
         global $_TABLES;
 
         $A = DB_fetchArray(DB_query("
-            SELECT *,
-                UNIX_TIMESTAMP(publishstart) AS uxdt_start,
-                UNIX_TIMESTAMP(publishend) AS uxdt_end
+            SELECT *
             FROM {$_TABLES[$this->table]}
             WHERE bid='".DB_escapeString($bid)."'", false));
 
@@ -234,8 +239,8 @@ class Banner
             $this->options = @unserialize($A['options']);
             if (!$this->options) $this->options = array();
             $this->weight = $A['weight'];
-            $this->uxdt_start = $A['uxdt_start'];
-            $this->uxdt_end = $A['uxdt_end'];
+            $this->publishstart = $A['publishstart'];
+            $this->publishend = $A['publishend'];
             $this->date = $A['date'];
         } else {
             $this->options = array();
@@ -258,10 +263,10 @@ class Banner
 
             // Assemble the dates from component parts
             if (!isset($A['start_dt_limit']) || $A['start_dt_limit'] != 1) {
-                $this->uxdt_start = 0;
+                $this->publishstart = 0;
             } else {
                 if ($_CONF['hour_mode'] == 12) {
-                    if ($A['publish_ampm'] == 'pm') {
+                    if ($A['start_ampm'] == 'pm') {
                         if ((int)$A['start_hour'] < 12) {
                             $A['start_hour'] += 12;
                         }
@@ -270,14 +275,13 @@ class Banner
                     }
 
                 }
-
-                $this->uxdt_start = mktime((int)$A['start_hour'],
-                        (int)$A['start_minute'], 0,
-                        (int)$A['start_month'], (int)$A['start_day'],
-                        (int)$A['start_year']);
+                $dt = sprintf('%d-%02d-%02d %02d:%02d:00',
+                        $A['start_year'], $A['start_month'], $A['start_day'],
+                        $A['start_hour'], $A['start_minute']);
+                $this->publishstart = $dt;
             }
             if (!isset($A['end_dt_limit']) || $A['end_dt_limit'] != 1) {
-                $this->uxdt_end = 0;
+                $this->publishend = 0;
             } else {
                 if ($_CONF['hour_mode'] == 12) {
                     if ($A['end_ampm'] == 'pm') {
@@ -288,11 +292,10 @@ class Banner
                         $A['end_hour'] = 0;
                     }
                 }
-
-                $this->uxdt_end = mktime((int)$A['end_hour'],
-                        (int)$A['end_minute'], 0,
-                        (int)$A['end_month'], (int)$A['end_day'],
-                        (int)$A['end_year']);
+                $dt = sprintf('%d-%02d-%02d %02d:%02d:00',
+                        $A['end_year'], $A['end_month'], $A['end_day'],
+                        $A['end_hour'], $A['end_minute']);
+                $this->publishend = $dt;
             }
 
             // Only admins can set some values, use the defaults for others
@@ -316,8 +319,6 @@ class Banner
 
         $this->notes = $A['notes'];
         $this->title = $A['title'];
-        //$this->publishstart = substr($A['publishstart'], 0, 16);
-        //$this->publishend = substr($A['publishend'], 0, 16);
         $this->enabled = $A['enabled'] == 1 ? 1 : 0;
         $this->impressions = $A['impressions'];
         $this->max_impressions = $A['max_impressions'];
@@ -361,7 +362,7 @@ class Banner
         // so configured.
         if (
             ($_CONF_BANR['cntimpr_admins'] == 0 &&
-                SEC_hasRights('banner.admin'))
+                plugin_isadmin_banner())
         || ($_CONF_BANR['cntimpr_owner'] == 0 &&
                 $this->owner_id == $_USER['uid'])
         ) {
@@ -389,7 +390,7 @@ class Banner
 
         // Don't update the count for ads show to admins or owners, if
         // so configured.
-        if (($_CONF_BANR['cntclicks_admins'] == 0 && SEC_hasRights('banner.admin'))
+        if (($_CONF_BANR['cntclicks_admins'] == 0 && plugin_isadmin_banner())
             || ($_CONF_BANR['cntclicks_owner'] == 0 && $this->owner_id == $_USER['uid'])
         ) {
             return;
@@ -486,7 +487,7 @@ class Banner
                 return $LANG_BANNER['access_denied'];
             }
         } else {
-            if (!SEC_hasRights('banner.admin') &&
+            if (!plugin_isadmin_banner() &&
                 !$this->hasAccess(3)) {
                 return $LANG_BANNER['access_denied'];
             }
@@ -505,13 +506,9 @@ class Banner
         // we also have to make sure this ID isn't in the main table
         // If updating a banner, check if the ID is in use, if it's changing
         $allowed = ($this->isNew || $this->bid != $this->oldID) ? 0 : 1;
-        $num1 = DB_numRows(DB_query("SELECT bid
-                    FROM {$_TABLES['banner']}
-                    WHERE bid='{$this->bid}'"));
+        $num1 = DB_count($_TABLES['banner'], 'bid', $this->bid);
         if ($this->_isSubmission()) {
-            $num2 = DB_numRows(DB_query("SELECT bid
-                    FROM {$_TABLES['bannersubmission']}
-                    WHERE bid='{$this->bid}'"));
+            $num2 = DB_count($_TABLES['bannersubmission'], 'bid', $this->bid);
         } else {
             $num2 = 0;
         }
@@ -600,15 +597,12 @@ class Banner
             return COM_showMessageText($MESSAGE[31], $MESSAGE[30]);
         }
 
-        $publishstart = $this->uxdt_start == 0 ? 'NULL' :
-                        "FROM_UNIXTIME({$this->uxdt_start})";
-        $publishend = $this->uxdt_end == 0 ? 'NULL' :
-                        "FROM_UNIXTIME({$this->uxdt_end})";
         $options = serialize($this->options);
 
         // Determine if this is an INSERT or UPDATE
         if ($this->isNew) {
-            $sql1 = "INSERT INTO {$_TABLES[$this->table]} SET ";
+            $sql1 = "INSERT INTO {$_TABLES[$this->table]} SET
+                date = '{$_CONF_BANR['_now']->toMySQL(true)}' ";
             $sql3 = '';
         } else {
             $sql1 = "UPDATE {$_TABLES[$this->table]} SET ";
@@ -621,8 +615,8 @@ class Banner
                 options = '" . DB_escapeString($options) . "',
                 title = '" . DB_escapeString($this->title). "',
                 notes = '" . DB_escapeString($this->notes). "',
-                publishstart = $publishstart,
-                publishend = $publishend,
+                publishstart = '" . $this->publishstart->toMySQL(true) . "',
+                publishend = '" . $this->publishend->toMySQL(true) . "',
                 enabled = {$this->enabled},
                 hits = {$this->hits},
                 max_hits = {$this->max_hits},
@@ -631,6 +625,7 @@ class Banner
                 owner_id = {$this->owner_id},
                 weight = {$this->weight},
                 tid='" . DB_escapeString($this->tid) . "'";
+        //echo "$sql1 $sql2 $sql3";die;
         DB_query($sql1 . $sql2 . $sql3);
         if (!DB_error()) {
             $category = DB_getItem($_TABLES['bannercategories'], "category",
@@ -707,7 +702,7 @@ class Banner
         if ($_CONF_BANR['adshow_owner'] == 0) {
             $sql_cond .= " AND b.owner_id <> '" . (int)$_USER['uid'] . "'";
         }
-
+        $now = $_CONF_BANR['_now']->toMySQL(true);
         $sql = "SELECT b.bid, weight*RAND() as score
                 FROM {$_TABLES['banner']} b
                 LEFT JOIN {$_TABLES['bannercategories']} c
@@ -717,8 +712,8 @@ class Banner
                 WHERE b.enabled = 1
                 AND c.enabled = 1
                 AND camp.enabled = 1
-                AND (b.publishstart IS NULL OR b.publishstart < NOW())
-                AND (b.publishend IS NULL OR b.publishend > NOW())
+                AND (b.publishstart < '$now')
+                AND (b.pubend  > '$now')
                 AND (b.max_hits = 0 OR b.hits < b.max_hits)
                 AND (b.max_impressions = 0 OR b.impressions < b.max_impressions)
                 AND (camp.start IS NULL OR camp.start < NOW())
@@ -755,13 +750,14 @@ class Banner
 
         $A = array();
         if (!self::CanShow()) return $A;
+        $now = $_CONF_BANR['_now']->toMySQL(true);
 
         $sql = "SELECT bid
                 FROM {$_TABLES['banner']}
                 WHERE (date >= (DATE_SUB(NOW(),
                         INTERVAL {$_CONF_BANR['newbannerinterval']} DAY)))
-                AND (publishstart IS NULL OR publishstart < NOW())
-                AND (publishend IS NULL OR publishend > NOW()) " .
+                AND (publishstart < '$now')
+                AND (publishhend > '$now') " .
                 COM_getPermSQL( 'AND' ) .
                 ' ORDER BY date DESC LIMIT 15';
 
@@ -1037,6 +1033,8 @@ class Banner
         } else {
             $T->set_var('disp_img', '');
             $this->bid = COM_makeSid();
+            $this->publishstart = 0;
+            $this->publishend = 0;
         }
 
         $T->set_var('banner_id', $this->bid);
@@ -1056,8 +1054,6 @@ class Banner
             'max_url_length' => 255,
             'category_options' => Category::Dropdown(0, $this->cid),
             'campaign_options' => Campaign::Dropdown($this->camp_id),
-            //'publishstart' => $this->publishstart,
-            //'publishend' => $this->publishend,
             'banner_hits' => $this->hits,
             'banner_maxhits' => $this->max_hits,
             'impressions'   => $this->impressions,
@@ -1094,7 +1090,7 @@ class Banner
             $this->owner_id = $_USER['uid'];
         }
 
-        if (SEC_hasRights('banner.admin')) {
+        if (plugin_isadmin_banner()) {
             $T->set_var(array(
                 'isAdmin'        => 'true',
                 'owner_dropdown' => COM_optionList($_TABLES['users'],'uid,username',
@@ -1111,41 +1107,37 @@ class Banner
 
         $T->set_var('gltoken_name', CSRF_TOKEN);
         $T->set_var('gltoken', SEC_createToken());
-
-        if ($this->uxdt_start == NULL) {
+        if ($this->publishstart == BANR_MIN_DATE) {
             $T->set_var(array(
                 'start_dt_limit_chk'    => '',
                 'startdt_sel_show'      => 'none',
                 'startdt_txt_show'      => '',
             ) );
-            $startdt = time();
+            $startdt = $_CONF_BANR['_now'];
         } else {
             $T->set_var(array(
                 'start_dt_limit_chk'    => 'checked="checked"',
                 'startdt_sel_show'      => '',
                 'startdt_txt_show'      => 'none',
             ) );
-            $startdt = $this->uxdt_start;
+            $startdt = $this->publishstart;
         }
 
-        if ($this->uxdt_end == NULL) {
+        if ($this->publishend == BANR_MAX_DATE) {
             $T->set_var(array(
                 'end_dt_limit_chk'      => '',
                 'enddt_sel_show'        => 'none',
                 'enddt_txt_show'        => '',
             ) );
-            $enddt = time();
+            $enddt = $_CONF_BANR['_now'];
         } else {
             $T->set_var(array(
                 'end_dt_limit_chk'      => 'checked="checked"',
                 'enddt_sel_show'        => '',
                 'enddt_txt_show'        => 'none',
             ) );
-            $enddt = $this->uxdt_end;
+            $enddt = $this->publishend;
         }
-
-        $startdt = new \Date($startdt, $_USER['tzid']);
-        $enddt = new \Date($enddt, $_USER['tzid']);
         $h_fmt = $_CONF['hour_mode'] == 12 ? 'h' : 'H';
         $st_hour = $startdt->format($h_fmt, true);
         $end_hour = $enddt->format($h_fmt, true);
@@ -1154,7 +1146,7 @@ class Banner
             'start_hour_options' =>
                         COM_getHourFormOptions($st_hour, $_CONF['hour_mode']),
             'start_ampm_selection' =>
-                        COM_getAmPmFormSelection('publish_ampm', $st_ampm),
+                        self::getAmPmFormSelection('start_ampm', $st_ampm),
             'start_month_options' => COM_getMonthFormOptions($startdt->format('m', true)),
             'start_day_options' => COM_getDayFormOptions($startdt->format('d', true)),
             'start_year_options' => COM_getYearFormOptions($startdt->format('Y', true)),
@@ -1162,7 +1154,7 @@ class Banner
                         COM_getMinuteFormOptions($startdt->format('i', true)),
             'end_hour_options' =>
                         COM_getHourFormOptions($end_hour, $_CONF['hour_mode']),
-            'end_ampm_selection' => COM_getAmPmFormSelection('end_ampm', $end_ampm),
+            'end_ampm_selection' => self::getAmPmFormSelection('end_ampm', $end_ampm),
             'end_month_options' => COM_getMonthFormOptions($enddt->format('m', true)),
             'end_day_options' => COM_getDayFormOptions($enddt->format('d', true)),
             'end_year_options' => COM_getYearFormOptions($enddt->format('Y', true)),
@@ -1272,7 +1264,7 @@ class Banner
         // See if this is a banner admin, and we shouldn't show it
         if ($_CONF_BANR['adshow_admins'] == 0) {
             if ($is_admin === NULL) {
-                $is_admin = SEC_hasRights('banner.admin') ? true : false;
+                $is_admin = plugin_isadmin_banner ? true : false;
             }
             if ($is_admin) return false;
         }
@@ -1366,6 +1358,44 @@ class Banner
     private function _isSubmission()
     {
         return $this->table == 'bannersubmission' ? true : false;
+    }
+
+
+    /**
+    *   Get the AM/PM time selector for publication start/end fields.
+    *   Same function as COM_getAmPmFormSelection(), but sets the "id"
+    *   attribute of the field the same as the "name" to allow
+    *   the datepicker to update the field.
+    *
+    *   @param  string  $name   Name of field, also used for the ID
+    *   @param  string  $seleted    "am" or "pm"
+    *   @return string      HTML for selection
+    */
+    private static function getAmPmFormSelection($name, $selected = '')
+    {
+        global $_CONF;
+
+        $retval = '';
+
+        if ( isset( $_CONF['hour_mode'] ) && ( $_CONF['hour_mode'] == 24 )) {
+            $retval = '';
+        } else {
+            if ( empty( $selected )) {
+                $selected = date( 'a' );
+            }
+
+            $retval .= '<select id="' . $name . '" name="' . $name . '">' . LB;
+            $retval .= '<option value="am"';
+            if ($selected == 'am') {
+                $retval .= ' selected="selected"';
+            }
+            $retval .= '>am</option>' . LB . '<option value="pm"';
+            if ($selected == 'pm') {
+                $retval .= ' selected="selected"';
+            }
+            $retval .= '>pm</option>' . LB . '</select>' . LB;
+        }
+        return $retval;
     }
 
 }   // class Banner
