@@ -296,6 +296,14 @@ function getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
         }
         break;
 
+    case 'publishstart':
+        $retval = $fieldvalue == BANR_MIN_DATE ? 'n/a' : $fieldvalue;
+        break;
+
+    case 'publishend':
+        $retval = $fieldvalue == BANR_MAX_DATE ? 'n/a' : $fieldvalue;
+        break;
+
     default:
         $retval = $fieldvalue;
         break;
