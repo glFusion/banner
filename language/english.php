@@ -129,6 +129,8 @@ $LANG_BANNER = array(
 'msg_item_enabled' => 'Item has been enabled',
 'msg_item_disabled' => 'Item has been disabled',
 'msg_item_nochange' => 'Item was unchanged',
+'select_date' => 'Select Date',
+'required' => 'Required',
 
     10 => 'Submissions',
     14 => 'Banner',

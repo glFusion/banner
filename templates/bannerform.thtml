@@ -161,10 +161,7 @@ function BANR_changeType(value)
           {start_year_options}
         </select>
                                 
-        <img src="{site_url}/images/datepicker.jpg" 
-            id="start_trigger"
-            style="cursor: pointer;"
-            title="Select Date" />
+        <i id="start_trigger" title="{$LANG_BANNER['select_date']}" class="fa fa-calendar"></i>
 
         &nbsp;&nbsp;
         <select name="start_hour">
@@ -203,10 +200,7 @@ function BANR_changeType(value)
           {end_year_options}
         </select>
                                 
-        <img src="{site_url}/images/datepicker.jpg" 
-            id="end_trigger"
-            style="cursor: pointer;"
-            title="Select Date" />
+        <i id="end_trigger" title="{$LANG_BANNER['select_date']}" class="fa fa-calendar"></i>
 
         &nbsp;&nbsp;
         <select name="end_hour">

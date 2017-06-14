@@ -41,10 +41,7 @@ window.addEvent('domready',function() {
       <td>
         <input name="start" id="f_start" type="text" size="32"
             value="{dt_start}" />
-        <img src="{site_url}/images/datepicker.jpg" 
-            id="f_start_trigger"
-            style="cursor: pointer;"
-            title="Select Date"
+        <i id="f_start_trigger" title="{$LANG_BANNER['select_date']}" class="fa fa-calendar"></i>
       </td>
     </tr>
 
@@ -56,10 +53,7 @@ window.addEvent('domready',function() {
       <td>
         <input name="finish" id="f_finish" type="text" size="32" maxlength="32" 
             value="{dt_finish}" />
-        <img src="{site_url}/images/datepicker.jpg" 
-            id="f_finish_trigger"
-            style="cursor: pointer;"
-            title="Select Date"
+        <i id="f_finish_trigger" title="{$LANG_BANNER['select_date']}" class="fa fa-calendar"></i>
       </td>
     </tr>
 

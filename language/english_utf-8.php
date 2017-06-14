@@ -93,7 +93,7 @@ $LANG_BANNER = array(
 'topic'         => 'Topic',
 'cat_mgmt'      => 'Category Management',
 'banner_mgmt'   => 'Banner Ad Management',
-'category'      => 'Category',
+'category'      => 'Category Name',
 'description'   => 'Description',
 'edit_details'  => 'Enter or edit the details below.',
 'title'         => 'Title',
@@ -129,6 +129,8 @@ $LANG_BANNER = array(
 'msg_item_enabled' => 'Item has been enabled',
 'msg_item_disabled' => 'Item has been disabled',
 'msg_item_nochange' => 'Item was unchanged',
+'select_date' => 'Select Date',
+'required' => 'Required',
 
     10 => 'Submissions',
     14 => 'Banner',
