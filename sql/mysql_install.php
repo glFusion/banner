@@ -136,6 +136,12 @@ $BANR_UPGRADE = array(
     "ALTER TABLE {$_TABLES['bannercampaigns']}
         DROP usercanadd",
     ),
+'0.2.1' => array(
+    "UPDATE {$_TABLES['banner']} SET
+        publishstart = '" . BANR_MIN_DATE . "' WHERE publishstart IS NULL",
+    "UPDATE {$_TABLES['banner']} SET
+        publishend = '" . BANR_MAX_DATE . "' WHERE publishend IS NULL",
+    ),
 );
 
 ?>

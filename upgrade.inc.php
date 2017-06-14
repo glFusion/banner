@@ -25,11 +25,11 @@ function banner_do_upgrade()
 
     $pi_name = $_CONF_BANR['pi_name'];
 
-    if (isset($_PLUGIN_INFO[$pi_name]))
+    if (isset($_PLUGIN_INFO[$pi_name])) {
         if (is_array($_PLUGIN_INFO[$pi_name])) {
             // glFusion > = 1.6.6
             $current_ver = $_PLUGIN_INFO[$pi_name]['pi_version'];
-        else {
+        } else {
             $current_ver = $_PLUGIN_INFO[$_CONF_BANR['pi_name']];
         }
     } else {
@@ -75,6 +75,12 @@ function banner_do_upgrade()
     if (!COM_checkVersion($current_ver, '0.2.0')) {
         $current_ver = '0.2.0';
         if (!banner_upgrade_0_2_0()) return false;
+    }
+
+    if (!COM_checkVersion($current_ver, '0.2.1')) {
+        $current_ver = '0.2.1';
+        if (!banner_do_upgrade_sql($current_ver)) return false;
+        if (!banner_do_update_version($current_ver)) return false;
     }
 
     return true;
