@@ -348,43 +348,63 @@ function BANR_adminMenu($view='')
         $hdr_txt = $LANG_BANNER['admin_hdr'];
     }
 
-    if ($view == 'banners') {
-        $menu_arr[] = array(
-                    'url'  => BANR_ADMIN_URL . '/index.php?edit=x',
-                    'text' => '<span class="banrNewAdminItem">' .
-                            $LANG_BANNER['new_banner'], '</span>');
-//        $menu_arr[] = array(
-//                    'url' => BANR_ADMIN_URL . '/index.php?validate=enabled',
-//                    'text' => $LANG_BANNER['validate_banner']);
-    } else {
-        $menu_arr[] = array(
-                    'url'  => BANR_ADMIN_URL . '/index.php',
-                    'text' => $LANG_BANNER['banners']);
-    }
+    switch ($view) {
+    case 'banners':
+        $act_banners = true;
+        $act_categories = false;
+        $act_campaigns = false;
+        $new_menu = array(
+            'url'  => BANR_ADMIN_URL . '/index.php?edit=x',
+            'text' => '<span class="banrNewAdminItem">' .
+                            $LANG_BANNER['new_banner'] . '</span>',
+        );
+        break;
 
-    if ($view == 'categories') {
-        $menu_arr[] = array(
-                    'url'  => BANR_ADMIN_URL . '/index.php?edit=x&item=category',
-                    'text' => '<span class="banrNewAdminItem">' .
-                            $LANG_BANNER['new_cat']. '</span>');
-    } else {
-        $menu_arr[] = array('url'  => BANR_ADMIN_URL . '/index.php?categories=x',
-                    'text' => $LANG_BANNER['categories']);
-    }
+    case 'categories':
+        $act_banners = false;
+        $act_categories = true;
+        $act_campaigns = false;
+        $new_menu = array(
+            'url'  => BANR_ADMIN_URL . '/index.php?edit=x&item=category',
+            'text' => '<span class="banrNewAdminItem">' .
+                    $LANG_BANNER['new_cat'] . '</span>',
+        );
+        break;
 
-    if ($view == 'campaigns') {
-        $menu_arr[] = array(
-                    'url'  => BANR_ADMIN_URL . '/index.php?edit=x&item=campaign',
-                    'text' => '<span class="banrNewAdminItem">' .
-                            $LANG_BANNER['new_camp'] . '</span>');
-    } else {
-        $menu_arr[] = array('url'  => BANR_ADMIN_URL .
-                            '/index.php?campaigns=x',
-                    'text' => $LANG_BANNER['campaigns']);
+    case 'campaigns':
+        $act_banners = false;
+        $act_categories = false;
+        $act_campaigns = true;
+        $new_menu = array(
+            'url'  => BANR_ADMIN_URL . '/index.php?edit=x&item=campaign',
+            'text' => '<span class="banrNewAdminItem">' .
+                    $LANG_BANNER['new_camp'] . '</span>',
+        );
+        break;
     }
-
-    $menu_arr[] = array('url'  => $_CONF['site_admin_url'],
-                  'text' => $LANG_ADMIN['admin_home']);
+ 
+    $menu_arr = array(
+        array(
+            'url'  => BANR_ADMIN_URL . '/index.php',
+            'text' => $LANG_BANNER['banners'],
+            'active' => $act_banners,
+        ),
+        array(
+            'url'  => BANR_ADMIN_URL . '/index.php?categories=x',
+            'text' => $LANG_BANNER['categories'],
+            'active' => $act_categories,
+        ),
+        array(
+            'url'  => BANR_ADMIN_URL . '/index.php?campaigns=x',
+            'text' => $LANG_BANNER['campaigns'],
+            'active' => $act_campaigns,
+        ),
+        $new_menu,
+        array(
+            'url'  => $_CONF['site_admin_url'],
+            'text' => $LANG_ADMIN['admin_home'],
+        ),
+    );
 
     $T = new \Template(BANR_PI_PATH . '/templates');
     $T->set_file('title', 'banner_admin_title.thtml');
