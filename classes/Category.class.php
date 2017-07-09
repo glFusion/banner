@@ -416,10 +416,9 @@ class Category
 
         // Retrieve the campaigns to which the current user has access
         $sql = "SELECT c.cid, c.description
-                FROM {$_TABLES['bannercategories']} c
-                WHERE 1=1 ";
+                FROM {$_TABLES['bannercategories']} c ";
         if ($access > 0) {
-            $sql .= COM_getPermSQL('AND', 0, $access, 'c');
+            $sql .= COM_getPermSQL('WHERE', 0, $access, 'c');
         }
         //echo $sql;
         $result = DB_query($sql);

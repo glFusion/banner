@@ -325,7 +325,7 @@ default:
     break;
 }   // switch ($view)
 
-echo COM_siteHeader('menu', $LANG_BANNER['banners']);
+echo COM_siteHeader('none', $LANG_BANNER['banners']);
 echo BANR_adminMenu($view);
 echo $content;
 echo COM_siteFooter();

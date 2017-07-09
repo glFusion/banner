@@ -487,9 +487,8 @@ class Campaign
                 LEFT JOIN {$_TABLES['banner']} b
                     ON c.camp_id=b.camp_id
                 LEFT JOIN {$_TABLES['users']} u
-                    ON u.uid = c.owner_id
-                WHERE 1=1 " .
-                    COM_getPermSQL('AND', 0, $access, 'c') .
+                    ON u.uid = c.owner_id " .
+                    COM_getPermSQL('WHERE', 0, $access, 'c') .
                 " GROUP BY c.camp_id HAVING
                     (c.max_banners = 0 OR cnt < c.max_banners)";
         //echo $sql;

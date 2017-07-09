@@ -34,13 +34,17 @@ class Banner
     *   @var array */
     var $properties = array();
 
+    /**
+    *   Options from the serialized "options" DB field.
+    *   These depend on the banner type.
+    *   @var array */
     var $options = array();
 
-    /** Database table name currently in use
+    /** Database table name currently in use, submission vs. prod
     *   @var string */
     var $table;
 
-    /** Hoder for error messages to be returned to callers
+    /** Holder for error messages to be returned to callers
     *   @var array */
     var $errors = array();
 
@@ -758,7 +762,7 @@ class Banner
                         INTERVAL {$_CONF_BANR['newbannerinterval']} DAY)))
                 AND (publishstart < '$now')
                 AND (publishhend > '$now') " .
-                COM_getPermSQL( 'AND' ) .
+                COM_getPermSQL('AND') .
                 ' ORDER BY date DESC LIMIT 15';
 
         $result = DB_query($sql);

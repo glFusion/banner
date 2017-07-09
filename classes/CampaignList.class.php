@@ -28,13 +28,6 @@ class CampaignList
     *   @var string */
     var $url;
 
-    /** Value given to SQL query for 'isAdmin'.
-    *   This is a hack to inform CAMPAIGN_getField() of the user's
-    *   admin status.
-    *   @var integer */
-    var $sql_value;
-
-
     /**
     *   Constructor.
     */
@@ -54,10 +47,8 @@ class CampaignList
         $this->isAdmin = $isAdmin == true ? true : false;
         if ($this->isAdmin) {
             $this->url = BANR_ADMIN_URL;
-            $this->sql_value = 1;
         } else {
             $this->url = BANR_URL;
-            $this->sql_value = 0;
         }
     }
 
@@ -106,13 +97,9 @@ class CampaignList
         );
 
         $query_arr = array('table' => 'bannercampaigns',
-            'sql' => "SELECT
-                    c.*, $uid as uid,
-                    {$this->sql_value} as isAdmin
-                FROM
-                    {$_TABLES['bannercampaigns']} AS c
-                WHERE 1=1" .
-                COM_getPermSQL('AND', 0, 3, 'c'),
+            'sql' => "SELECT c.*, $uid as uid
+                    FROM {$_TABLES['bannercampaigns']} AS c " .
+                    COM_getPermSQL('WHERE', 0, 3, 'c'),
             'query_fields' => array('camp_id', 'description'),
             'default_filter' => ''
         );
@@ -122,7 +109,7 @@ class CampaignList
 
         $retval .= ADMIN_list('bannercampaigns',
                 __NAMESPACE__ . '\getField_Campaign', $header_arr,
-                $text_arr, $query_arr, $defsort_arr, '', '', '',
+                $text_arr, $query_arr, $defsort_arr, '', $this->isAdmin, '',
                 $form_arr);
 
         return $retval;
@@ -139,15 +126,16 @@ class CampaignList
 *   @param  string  $fieldvalue Value of the current field
 *   @param  array   $A          Array of all field names and values
 *   @param  array   $icon_arr   Array of system icons
+*   @param  boolean $isAdmin    True if this is an administrator viewing
 *   @return string              HTML for field display within the list cell
 */
-function getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr)
+function getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr, $isAdmin)
 {
     global $_CONF, $_TABLES, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
 
     $retval = '';
 
-    $base_url = $A['isAdmin'] == 1 ? BANR_ADMIN_URL : BANR_URL;
+    $base_url = $isAdmin ? BANR_ADMIN_URL : BANR_URL;
     switch($fieldname) {
     case 'edit':
         $retval .= COM_createLink('<i class="' . BANR_getIcon('edit') . '"></i>',
