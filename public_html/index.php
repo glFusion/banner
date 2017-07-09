@@ -29,7 +29,7 @@ $display = '';
 $view = 'campaigns';
 $expected = array('banners', 'campaigns', 'campaignDetail', 'report', 
         'edit', 'toggleEnabled', 'toggleEnabledCampaign',
-        'deleteBanner',
+        'deleteBanner', 'save',
         'action', 'view');
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
