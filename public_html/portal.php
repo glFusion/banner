@@ -11,7 +11,6 @@
 *   GNU Public License v2 or later
 *   @filesource
 */
-namespace Banner;
 
 /** Import core glFusion libraries */
 require_once '../lib-common.php';
@@ -21,8 +20,6 @@ if (!in_array('banner', $_PLUGINS)) {
     echo COM_refresh($_CONF['site_url'] . '/index.php');
     exit;
 }
-
-USES_banner_class_banner();
 
 $url = '';
 
@@ -35,7 +32,7 @@ if (!empty($bid)) {
     // an attached &msg - strip it off
     $i = explode('&', $bid);
     $bid = $i[0];
-    $B = new Banner($bid);
+    $B = new Banner\Banner($bid);
     $url = $B->options['url'];
     if (!empty($url)) {
         $B->updateHits();

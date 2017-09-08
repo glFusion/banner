@@ -93,9 +93,6 @@ class BannerList
                  $_TABLES, $_CONF, $_CONF_BANR;
 
         USES_lib_admin();
-        // Banner class is used by the field display function when the
-        // url is validated. Just include it once here.
-        USES_banner_class_banner();
 
         $uid = (int)$_USER['uid'];
         $retval = '';

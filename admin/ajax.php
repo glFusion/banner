@@ -10,7 +10,6 @@
 *               GNU Public License v2 or later
 *   @filesource
 */
-namespace Banner;
 
 /**
 *  Include required glFusion common functions
@@ -23,25 +22,21 @@ case 'toggleEnabled':
 
     switch ($_POST['type']) {
     case 'banner':
-        USES_banner_class_banner();
-        $B = new Banner($_POST['id']);
+        $B = new Banner\Banner($_POST['id']);
         $newval = $B->toggleEnabled($oldval);
         break;
 
     case 'category':
-        USES_banner_class_category();
-        $newval = Category::toggleEnabled($oldval, $_POST['id']);
+        $newval = Banner\Category::toggleEnabled($oldval, $_POST['id']);
         $status = true;
         break;
 
     case 'campaign':
-        USES_banner_class_campaign();
-        $newval = Campaign::toggleEnabled($oldval, $_POST['id']);
+        $newval = Banner\Campaign::toggleEnabled($oldval, $_POST['id']);
         break;
 
     case 'cat_cb':
-        USES_banner_class_category();
-        $newval = Category::toggleCenterblock($oldval, $_POST['id']);
+        $newval = Banner\Category::toggleCenterblock($oldval, $_POST['id']);
         $status = true;
         break;
 

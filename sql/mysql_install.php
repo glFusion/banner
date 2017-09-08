@@ -13,8 +13,7 @@
 
 global $_TABLES;
 
-$_SQL['bannercategories'] = "
-CREATE TABLE {$_TABLES['bannercategories']} (
+$_SQL['bannercategories'] = "CREATE TABLE {$_TABLES['bannercategories']} (
   `cid` varchar(32) NOT NULL,
   `type` varchar(32) NOT NULL,
   `category` varchar(32) NOT NULL,
@@ -50,22 +49,19 @@ $banner_def =
   `tid` varchar(20) default 'all'
 ";
 
-$_SQL['banner'] = "
-CREATE TABLE {$_TABLES['banner']} (
+$_SQL['banner'] = "CREATE TABLE {$_TABLES['banner']} (
   $banner_def,
   PRIMARY KEY  (`bid`),
   KEY `banner_category` (`cid`),
   KEY `banner_date` (`date`)
 )";
 
-$_SQL['bannersubmission'] = "
-CREATE TABLE {$_TABLES['bannersubmission']} (
+$_SQL['bannersubmission'] = "CREATE TABLE {$_TABLES['bannersubmission']} (
   $banner_def,
   PRIMARY KEY  (`bid`)
 )";
 
-$_SQL['bannercampaigns'] = "
-CREATE TABLE {$_TABLES['bannercampaigns']} (
+$_SQL['bannercampaigns'] = "CREATE TABLE {$_TABLES['bannercampaigns']} (
   `camp_id` varchar(40) NOT NULL,
   `description` text,
   `start` datetime default NULL,

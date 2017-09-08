@@ -2,6 +2,7 @@
 
 ## Version 0.2.1
 Release TBD
+- Use class autoloader
 - Change admin list AJAX to use Jquery
 - Implement PHP namespace
 - Use icon sets from Uikit or FontAwesom, depending on theme

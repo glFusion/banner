@@ -516,8 +516,6 @@ class Campaign
     {
         global $_TABLES;
 
-        USES_banner_class_banner();
-
         $sql = "SELECT bid
                 FROM {$_TABLES['banner']}
                 WHERE camp_id='{$this->camp_id}'";

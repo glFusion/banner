@@ -12,8 +12,6 @@
 */
 namespace Banner;
 
-USES_banner_class_campaign();
-
 /**
 *   Class to manage banner campaigns
 *   @package banner

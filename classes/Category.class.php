@@ -454,21 +454,19 @@ class Category
         }
     }
 
-}   // class Category
 
+    /**
+    *   Create the category administration home page.
+    *
+    *   @return string  HTML for administration page
+    *   @see lib-admin.php
+    */
+    public function AdminList()
+    {
+        global $LANG_ADMIN, $LANG_BANNER;
 
-/**
-*   Create the category administration home page.
-*
-*   @return string  HTML for administration page
-*   @see lib-admin.php
-*/
-function adminCategories()
-{
-    global $LANG_ADMIN, $LANG_BANNER;
-
-    $retval = '';
-    $header_arr = array(
+        $retval = '';
+        $header_arr = array(
                 array('text' => $LANG_BANNER['edit'],
                     'field' => 'edit',
                     'sort' => false,
@@ -497,16 +495,41 @@ function adminCategories()
                     'field' => 'delete',
                     'sort' => false,
                     'align' => 'center'),
-    );
+        );
 
-    $defsort_arr = array('field' => 'category', 'direction' => 'asc');
-    $text_arr = array();
-    $dummy = array();
-    $data_arr = list_categories();
-    $retval .= ADMIN_simpleList(__NAMESPACE__ . '\getField_Category', $header_arr,
+        $defsort_arr = array('field' => 'category', 'direction' => 'asc');
+        $text_arr = array();
+        $dummy = array();
+        $data_arr = self::list_categories();
+        $retval .= ADMIN_simpleList(__NAMESPACE__ . '\getField_Category', $header_arr,
                                 $text_arr, $data_arr);
-    return $retval;
-}
+        return $retval;
+    }
+
+
+    /**
+    *   Get the data array of categories
+    *
+    *   @return array   Array of category information for the admin list
+    */
+    private function list_categories()
+    {
+        global $_TABLES;
+
+        $sql = "SELECT cid, category, tid, type, grp_view, centerblock, enabled
+                FROM {$_TABLES['bannercategories']}
+                ORDER BY category";
+        //echo $sql;die;
+        $result = DB_query($sql);
+        while ($A = DB_fetchArray($result)) {
+            $topic = DB_getItem($_TABLES['topics'], 'topic', "tid='{$A['tid']}'");
+            $A['topic_text'] = $topic;
+            $data_arr[] = $A;
+        }
+        return $data_arr;
+    }
+
+}   // class Category
 
 
 /**
@@ -601,23 +624,6 @@ function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
     }
 
     return $retval;
-}
-
-function list_categories()
-{
-    global $_TABLES;
-
-    $sql = "SELECT cid, category, tid, type, grp_view, centerblock, enabled
-            FROM {$_TABLES['bannercategories']}
-            ORDER BY category";
-    //echo $sql;die;
-    $result = DB_query($sql);
-    while ($A = DB_fetchArray($result)) {
-        $topic = DB_getItem($_TABLES['topics'], 'topic', "tid='{$A['tid']}'");
-        $A['topic_text'] = $topic;
-        $data_arr[] = $A;
-    }
-    return $data_arr;
 }
 
 ?>

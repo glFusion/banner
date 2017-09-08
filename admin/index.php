@@ -10,7 +10,6 @@
 *               GNU Public License v2 or later
 *   @filesource
 */
-namespace Banner;
 
 /** Import core glFusion libraries */
 require_once '../../../lib-common.php';
@@ -71,8 +70,7 @@ if (isset($_REQUEST['bid'])) {
 
 switch ($action) {
 case 'toggleEnabled':
-    USES_banner_class_banner();
-    $B = new Banner($_REQUEST['bid']);
+    $B = new Banner\Banner($_REQUEST['bid']);
     $B->toggleEabled($_REQUEST['newval']);
     $view = 'banners';
     break;
@@ -80,26 +78,23 @@ case 'toggleEnabled':
 case 'delete':
     switch ($item) {
     case 'banner':
-        USES_banner_class_banner();
         if ($type == 'submission') {
-            $B = new Banner($_REQUEST['bid'], 'bannersubmission');
+            $B = new Banner\Banner($_REQUEST['bid'], 'bannersubmission');
             $view = 'moderation';
         } else {
-            $B = new Banner($_REQUEST['bid']);
+            $B = new Banner\Banner($_REQUEST['bid']);
             $view = 'banners';
         }
         if ($B->canEdit())
             $B->Delete();
         break;
     case 'category':
-        USES_banner_class_category();
-        $C = new Category($_REQUEST['cid']);
+        $C = new Banner\Category($_REQUEST['cid']);
         $content .= $C->Delete();
         $view = 'categories';
         break;
     case 'campaign':
-        USES_banner_class_campaign();
-        $C = new Campaign($_REQUEST['camp_id']);
+        $C = new Banner\Campaign($_REQUEST['camp_id']);
         $C->Delete();
         $view = 'campaigns';
         break;
@@ -107,9 +102,8 @@ case 'delete':
     break;
 
 case 'delMultiBanner':
-    USES_banner_class_banner();
     foreach ($_POST['delitem'] as $item) {
-        $B = new Banner($item);
+        $B = new Banner\Banner($item);
         if ($B->canEdit())
             $B->Delete();
     }
@@ -117,23 +111,20 @@ case 'delMultiBanner':
     break;
 
 case 'toggleEnabledCategory':
-    USES_banner_class_category();
-    Category::toggleEnabled($_REQUEST['newval'], $_REQUEST['cid']);
+    Banner\Category::toggleEnabled($_REQUEST['newval'], $_REQUEST['cid']);
     $view = 'categories';
     break;
 
 case 'toggleEnabledCampaign':
-    USES_banner_class_campaign();
-    Campaign::toggleEnabled($_REQUEST['newval'], $_REQUEST['camp_id']);
+    Banner\Campaign::toggleEnabled($_REQUEST['newval'], $_REQUEST['camp_id']);
     $view = 'campaigns';
     break;
 
 case 'save':
     switch ($item) {
     case 'category':
-        USES_banner_class_category();
         // 'oldcid' will be empty for new entries, non-empty for updates
-        $C = new Category($_POST['oldcid']);
+        $C = new Banner\Category($_POST['oldcid']);
         $status = $C->Save($_POST);
         if ($status != '') {
             $content .= BANNER_errorMessage($status);
@@ -149,8 +140,7 @@ case 'save':
         break;
 
     case 'campaign':
-        USES_banner_class_campaign();
-        $C = new Campaign($_POST['old_camp_id']);
+        $C = new Banner\Campaign($_POST['old_camp_id']);
         if (!$C->Save($_POST)) {
             $content .= BANNER_errorMessage($status);
             if (isset($_POST['old_camp_id']) && !empty($_POST['old_camp_id'])) {
@@ -167,8 +157,7 @@ case 'save':
     case 'banner':
         $status = '';
         if (SEC_checkToken()) {
-            USES_banner_class_banner();
-            $B = new Banner();
+            $B = new Banner\Banner();
             $B->setAdmin(true);
 
             if ($type == 'submission') {
@@ -214,15 +203,13 @@ default:
 
 switch ($view) {
 case 'campaigns':
-    USES_banner_class_campaignlist();
-    $L = new CampaignList(true);
+    $L = new Banner\CampaignList(true);
     $content .= $L->ShowList();
     //$content .= BANNER_adminCampaigns();
     break;
 
 case 'categories':
-    USES_banner_class_category();
-    $content .= adminCategories();
+    $content .= Banner\Category::AdminList();
     break;
 
 // Redirect to the system moderation page
@@ -232,8 +219,7 @@ case 'moderation':
 
 case 'editsubmission':
 case 'moderate':
-    USES_banner_class_banner();
-    $B = new Banner($_GET['bid'], 'bannersubmission');
+    $B = new Banner\Banner($_GET['bid'], 'bannersubmission');
     $B->setAdmin(true);
     if ($B->bid != '') {
         $content .= $B->Edit($mode);
@@ -243,8 +229,7 @@ case 'moderate':
 case 'edit':
     switch ($item) {
     case 'banner':
-        USES_banner_class_banner();
-        $B = new Banner($bid);
+        $B = new Banner\Banner($bid);
         if (!empty($_POST)) {
             $B->SetVars($_POST);
         }
@@ -252,8 +237,7 @@ case 'edit':
         $content .= $B->Edit($mode);
         break;
     case 'campaign':
-        USES_banner_class_campaign();
-        $C = new Campaign($_REQUEST['camp_id']);
+        $C = new Banner\Campaign($_REQUEST['camp_id']);
         if (!empty($_POST)) {
             $C->SetVars($_POST);
         }
@@ -262,16 +246,14 @@ case 'edit':
         $content .= $C->Edit();
         break;
     case 'category':
-        USES_banner_class_category();
-        $C = new Category($_REQUEST['cid']);
+        $C = new Banner\Category($_REQUEST['cid']);
         $content .= $C->Edit();
         break;
     }
     break;
 
 case 'newcategory':
-    USES_banner_class_category();
-    $C = new Category();
+    $C = new Banner\Category();
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
@@ -279,15 +261,13 @@ case 'newcategory':
     break;
 
 case 'editcategory':
-    USES_banner_class_category();
-    $C = new Category($_REQUEST['cid']);
+    $C = new Banner\Category($_REQUEST['cid']);
     $content .= $C->Edit();
     break;
 
 case 'newcampaign':
 echo "here in newcampaign";die;
-    USES_banner_class_campaign();
-    $C = new Campaign();
+    $C = new Banner\Campaign();
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
@@ -297,8 +277,7 @@ echo "here in newcampaign";die;
     break;
 
 case 'editcampaign':
-    USES_banner_class_campaign();
-    $C = new Campaign($_REQUEST['camp_id']);
+    $C = new Banner\Campaign($_REQUEST['camp_id']);
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
@@ -315,8 +294,7 @@ default:
             $content .= COM_showMessage($msg, 'banner');
         }
     }
-    USES_banner_class_bannerlist();
-    $L = new BannerList(true);
+    $L = new Banner\BannerList(true);
     if (isset($_REQUEST['category']))
         $L->setCatID($_REQUEST['category']);
     if (isset($_REQUEST['camp_id']))

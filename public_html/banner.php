@@ -10,17 +10,13 @@
 *               GNU Public License v2 or later
 *   @filesource
 */
-namespace Banner;
 
 require_once '../lib-common.php';
 
 /** Make sure the banner plugin is loaded */
-if (!function_exists('USES_banner_class_banner')) {
+if (!in_array('banner', $_PLUGINS)) {
     exit;
 }
-
-/** Import the needed Banner class */
-USES_banner_class_banner();
 
 /** Set up the options array */
 $options = array(
@@ -28,8 +24,8 @@ $options = array(
     'campaign'] => isset($_GET['campaign']) ? trim($_GET['campaign']) : '',
 );
 
-$B = new Banner();
-$bids = Banner::GetBanner($options);
+$B = new Banner\Banner();
+$bids = Banner\Banner::GetBanner($options);
 if (is_array($bids) && !empty($bids)) {
     $B->Read($bids[0]);
     $banner = $B->BuildBanner();

@@ -377,11 +377,7 @@ class Banner
                 SET impressions=impressions+1
                 WHERE bid='{$this->bid}'");
 
-        USES_banner_class_campaign();
         Campaign::updateImpressions($this->camp_id);
-/*        DB_query("UPDATE {$_TABLES['bannercampaigns']}
-                SET impressions=impressions+1
-                WHERE camp_id='{$this->camp_id}'");*/
     }
 
 
@@ -406,14 +402,7 @@ class Banner
                 WHERE bid='{$this->bid}'";
         DB_query($sql);
 
-        USES_banner_class_campaign();
         Campaign::updateHits($this->camp_id);
-
-/*        // Update the campaign total hits
-        $sql = "UPDATE {$_TABLES['bannercampaigns']}
-                SET hits=hits+1
-                WHERE camp_id='{$this->camp_id}'";
-        DB_query($sql);*/
     }
 
 
@@ -535,7 +524,6 @@ class Banner
             // Handle the file upload
             if (isset($_FILES['bannerimage']['name']) &&
                 !empty($_FILES['bannerimage']['name'])) {
-                USES_banner_class_image();
                 $Img = new Image($this->bid, 'bannerimage');
 
                 // Set max image size to the global sanity check.
@@ -808,7 +796,6 @@ class Banner
             'data-uk-tooltip' => '',
         );
 
-        USES_banner_class_category();
         $C = new Category($this->cid);
         if ($width == 0)
             $width = min($this->options['width'], $C->max_img_width);
@@ -957,10 +944,6 @@ class Banner
         global $_CONF, $_GROUPS, $_TABLES, $_USER, $_CONF_BANR, $_PLUGINS,
             $LANG_ACCESS, $MESSAGE, $LANG_BANNER, $LANG_ADMIN,
             $LANG12, $_SYSTEM;
-
-        USES_banner_class_campaign();
-        USES_banner_class_category();
-        USES_banner_class_image();
 
         $retval = '';
 

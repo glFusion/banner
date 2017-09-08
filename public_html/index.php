@@ -11,12 +11,8 @@
 *               GNU Public License v2 or later
 *   @filesource
 */
-namespace Banner;
 
 require_once '../lib-common.php';
-
-//USES_banner_functions();
-USES_banner_class_banner();
 USES_lib_admin();
 
 // Nothing here for anonymous users.
@@ -55,7 +51,7 @@ $message = array();
 
 switch ($action) {
 case 'deleteBanner':
-    $B = new Banner($_GET['bid']);
+    $B = new Banner\Banner($_GET['bid']);
     if ($B->isNew || $B->owner_id != $_USER['uid']) {
         COM_404();
     }
@@ -83,24 +79,21 @@ case 'report':
     }
     break;
 case 'toggleEnabled':
-    USES_banner_class_banner();
-    $B = new Banner($_REQUEST['bid']);
+    $B = new Banner\Banner($_REQUEST['bid']);
     $B->toggleEnabled($_REQUEST['newval']);
     $view = 'banners';
     break;
 
 case 'toggleEnabledCampaign':
-    USES_banner_class_campaign();
-    $C = new Campaign($_REQUEST['camp_id']);
+    $C = new Banner\Campaign($_REQUEST['camp_id']);
     $C->toggleEnabled($_REQUEST['newval']);
     $view = 'campaigns';
     break;
 
 case 'delmulti':
     // Delete multiple banners.  Double-check that the user has access.
-    USES_banner_class_banner();
     foreach ($_POST['delitem'] as $item) {
-        $B = new Banner($item);
+        $B = new Banner\Banner($item);
         if ($B->hasAccess(3)) {
             $B->Delete();
         } else {
@@ -120,24 +113,19 @@ case 'banners':
 default:
     $view_title = $LANG_BANNER[114];
     $camp_id = '';
-    USES_banner_class_bannerlist();
-    $L = new BannerList();
+    $L = new Banner\BannerList();
     if (isset($_REQUEST['camp_id']))
         $L->setCampID($_REQUEST['camp_id']);
     $content .= $L->ShowList();
     break;
 
 case 'campaigns':
-    USES_banner_class_campaignlist();
-    $L = new CampaignList();
+    $L = new Banner\CampaignList();
     $content .= $L->ShowList();
     break;
 
 case 'campaignDetail':
-    USES_banner_class_campaign();
-    USES_lib_admin();
-
-    $C = new Campaign($_REQUEST['camp_id']);
+    $C = new Banner\Campaign($_REQUEST['camp_id']);
     $C->getBanners();
 
     $menu_arr = array(
@@ -173,8 +161,7 @@ case 'campaignDetail':
 
 case 'edit':
     if (SEC_hasRights('banner.edit')) {
-        USES_banner_class_banner();
-        $B = new Banner($_REQUEST['bid']);
+        $B = new Banner\Banner($_REQUEST['bid']);
         $B->setAdmin(false);
         $content .= $B->Edit('useredit');
     }
