@@ -3,6 +3,10 @@
 The Banner plugin for glFusion allows site administrators to display
 banner ads in the header, footer, blocks or within other content on their site.
 
+## Requirements
+* glFusion 1.6.0 or higher
+* lgLib plugin 1.0.5 or higher
+
 ## Definitions
 * Banner: An image or html/javascript snippet to display an ad on the site,
 including a link to the advertiser's site.
