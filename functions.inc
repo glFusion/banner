@@ -471,10 +471,19 @@ function plugin_upgrade_banner()
 */
 function plugin_enablestatechange_banner($enabled)
 {
-    global $_TABLES;
+    global $_TABLES, $_PLUGINS;
 
     $enabled = $enabled == 1 ? 1 : 0;
     $blockfns = array('phpblock_banner_');
+
+    // If trying to enable the plugin but lgLib is not available,
+    // take no action and return
+    if ($enabled && !in_array('lglib', $_PLUGINS)) {
+        // Re-disable the plugin
+        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'banner');
+        $enable = false;
+        $enabled = 0;
+    }
 
     if ($enabled == 0) {
         foreach ($blockfns as $blockfn) {
@@ -483,6 +492,24 @@ function plugin_enablestatechange_banner($enabled)
                 WHERE phpblockfn like '{$blockfn}%'";
         DB_query($sql);
         }
+    }
+}
+
+
+/**
+*   Receives notification of anothe plugin's deletion
+*
+*   @param  mixed   $id     Item ID
+*   @param  string  $type   Plugin Name
+*/
+function plugin_itemdeleted_banner($id, $type)
+{
+    global $_TABLES;
+
+    // If the lgLib plugin is disabled or removed, disable thie plugin
+    if ($type == 'lglib' && $id == '*') {
+        plugin_enablestatechange_banner(false);
+        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'banner');
     }
 }
 
