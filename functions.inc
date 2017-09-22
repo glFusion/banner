@@ -795,9 +795,31 @@ function plugin_templateSetVars_banner($templatename, &$template)
             $B->Read($bids[0]);
             $banner = $B->BuildBanner();
             $B->updateImpressions();
-            $template->set_var("banner_{$type}", $banner);
+            $template->set_var("banner_{$type}", $banner, true, true);
         }
-    }   // foreach
+    }
+}
+
+
+/**
+*   Provide a banner for PLG_displayAdBlock()
+*
+*   @param  string  $plugin     Calling plugin, e.g. 'story'
+*   @param  integer $counter    Item display counter
+*   @return string              Banner image and link code
+*/
+function plugin_displayadblock_banner($plugin, $counter)
+{
+    $options = array(
+        'limit' => '1',
+        'type'  => $plugin,
+    );
+    $bids = Banner\Banner::GetBanner($options);
+    if (is_array($bids) && !empty($bids)) {
+        $B = new Banner\Banner($bids[0]);
+        $B->updateImpressions();
+        return $B->BuildBanner();
+    }
 }
 
 

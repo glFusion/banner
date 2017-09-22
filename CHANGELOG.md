@@ -6,6 +6,8 @@ Release TBD
 - Change admin list AJAX to use Jquery
 - Implement PHP namespace
 - Use icon sets from Uikit or FontAwesom, depending on theme
+- Implement plugin_displayadblock_banner()
+- Disable banner caching in templateSetVars
 
 ## Version 0.2.0
 Released 2017-01-21
