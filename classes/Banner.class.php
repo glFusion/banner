@@ -594,7 +594,7 @@ class Banner
         // Determine if this is an INSERT or UPDATE
         if ($this->isNew) {
             $sql1 = "INSERT INTO {$_TABLES[$this->table]} SET
-                date = '{$_CONF_BANR['_now']->toMySQL(true)}' ";
+                date = '{$_CONF_BANR['_now']->toMySQL(true)}', ";
             $sql3 = '';
         } else {
             $sql1 = "UPDATE {$_TABLES[$this->table]} SET ";
@@ -705,7 +705,7 @@ class Banner
                 AND c.enabled = 1
                 AND camp.enabled = 1
                 AND (b.publishstart < '$now')
-                AND (b.pubend  > '$now')
+                AND (b.publishend  > '$now')
                 AND (b.max_hits = 0 OR b.hits < b.max_hits)
                 AND (b.max_impressions = 0 OR b.impressions < b.max_impressions)
                 AND (camp.start IS NULL OR camp.start < NOW())
@@ -718,7 +718,6 @@ class Banner
                 . $sql_cond
                 . ' ORDER BY score DESC '
                 . $limit_clause;
-
         //echo $sql;die;
         //COM_errorLog($sql);
         $result = DB_query($sql, 1);
