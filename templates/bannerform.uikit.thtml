@@ -275,7 +275,7 @@ function BANR_changeType(value)
     <label for="f_targeturl" class="uk-form-label">{$LANG_BANNER['target_url']}
     </label>
     <div class="uk-form-controls">
-      <input required name="url" id="f_targeturl"
+      <input name="url" id="f_targeturl"
         type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
         value="{target_url}" /> {$LANG_BANNER['includehttp']}
       <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
