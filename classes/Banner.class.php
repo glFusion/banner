@@ -909,7 +909,11 @@ class Banner
         global $LANG_BANNER_STATUS, $LANG_BANNER;
 
         // Have to have a valid url to check
-        if ($this->options['url'] == '') return 'n/a';
+        if ($this->options['url'] == '') {
+            return 'n/a&nbsp;<i class="tooltip ' . BANR_getIcon('question-circle','') .
+                '" title="' . $LANG_BANNER['html_status_na'] .
+                '"></i>';
+        }
 
         // Get the header and response code
         $ch = curl_init();

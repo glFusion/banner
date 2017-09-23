@@ -70,6 +70,7 @@ $LANG_BANNER = array(
 'categories'    => 'Categories',
 'validate_now'  => 'Validate now',
 'html_status'   => 'HTML Status',
+'html_status_na' => 'HTTP Response is not checked for HTML or script banners',
 'validate_instr' => '<p>To validate all banner displayed, please click on the "Validate now" banner below. Please note that this might take some time depending on the amount of banner displayed.</p>',
 'banner_mgr'    => 'Banner Manager',
 'banner_instr_list' => 'To modify or delete a banner, click on that banner\'s edit icon below.  To create a new banner or a new category, click on "New banner" or "New category" above. To edit multiple categories, click on "Edit categories" above.',
