@@ -195,11 +195,11 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             break;
 
         case 'randombanner':
-            // Get a random banner, optionally from a specific category
-            $cid = COM_applyFilter($autotag['parm1']);
+            // Get a random banner, optionally from a specific category ID
+            $type = isset($autotag['parm1']) ? COM_applyFilter($autotag['parm1']) : '';
             $options = array('limit' => 1);
-            if (!empty($cid)) {
-                $options['cid']= $cid;
+            if (!empty($type)) {
+                $options['type'] = $type;
             }
             $bids = Banner\Banner::GetBanner($options);
             if (!empty($bids)) {
@@ -210,6 +210,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             break;
 
         case 'bannercategory' :
+            // Get all banners under a specific category
             $cid = COM_applyFilter($autotag['parm1']);
             if (!empty($cid)) {
                 // if there's a cid, join that table
@@ -810,9 +811,14 @@ function plugin_templateSetVars_banner($templatename, &$template)
 */
 function plugin_displayadblock_banner($plugin, $counter)
 {
+    if ($counter > 0) {
+        $type = $plugin . '_' . (int)$counter;
+    } else {
+        $type = $plugin . '%';
+    }
     $options = array(
         'limit' => '1',
-        'type'  => $plugin,
+        'type'  => $type,
     );
     $bids = Banner\Banner::GetBanner($options);
     if (is_array($bids) && !empty($bids)) {

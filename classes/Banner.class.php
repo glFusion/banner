@@ -642,7 +642,7 @@ class Banner
     */
     public static function GetBanner($fields=array())
     {
-        global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
+        global $_TABLES, $_CONF_BANR, $_CONF, $_USER, $topic;
 
         $banners = array();
         if (!is_array($fields)) $fields = array();
@@ -654,10 +654,13 @@ class Banner
 
         $sql_cond = '';
         $limit_clause = '';
+        $topic_sql = '';
         foreach ($fields as $field=>$value) {
             $value = DB_escapeString($value);
             switch(strtolower($field)) {
             case 'type':
+                $sql_cond = " AND c.{$field} LIKE '$value'";
+                break;
             case 'category':
             case 'centerblock':
                 $sql_cond .= " AND c.{$field} = '$value'";
@@ -665,11 +668,11 @@ class Banner
             case 'tid':
             case 'topic':
                 if ($value != '' && $value != 'all') {
-                    $sql_cond .= " AND c.tid IN ('$value', 'all')
+                    $topic_sql .= " AND c.tid IN ('$value', 'all')
                             AND camp.tid IN ('$value', 'all')
                             AND b.tid IN ('$value', 'all')";
                 } else {
-                    $sql_cond .= " AND c.tid = 'all'
+                    $topic_sql .= " AND c.tid = 'all'
                             AND camp.tid = 'all'
                             AND b.tid = 'all'";
                 }
@@ -690,6 +693,13 @@ class Banner
             }
         }
 
+        if ($topic_sql == '' && !empty($topic)) {
+            $topic = DB_escapeString($topic);
+            $topic_sql .= " AND c.tid IN ('$topic', 'all')
+                        AND camp.tid IN ('$topic', 'all')
+                        AND b.tid IN ('$topic', 'all')";
+        }
+
         // Eliminate ads owned by the current user
         if ($_CONF_BANR['adshow_owner'] == 0) {
             $sql_cond .= " AND b.owner_id <> '" . (int)$_USER['uid'] . "'";
@@ -708,14 +718,15 @@ class Banner
                 AND (b.publishend  > '$now')
                 AND (b.max_hits = 0 OR b.hits < b.max_hits)
                 AND (b.max_impressions = 0 OR b.impressions < b.max_impressions)
-                AND (camp.start IS NULL OR camp.start < NOW())
-                AND (camp.finish IS NULL OR camp.finish > NOW())
+                AND (camp.start IS NULL OR camp.start < '$now')
+                AND (camp.finish IS NULL OR camp.finish > '$now')
                 AND (camp.hits < camp.max_hits OR camp.max_hits = 0)
                 AND (camp.max_impressions = 0
                     OR camp.impressions < camp.max_impressions) "
                 . COM_getPermSQL('AND', 0, 2, 'camp')
                 . SEC_buildAccessSql('AND', 'c.grp_view')
                 . $sql_cond
+                . $topic_sql
                 . ' ORDER BY score DESC '
                 . $limit_clause;
         //echo $sql;die;
@@ -745,7 +756,7 @@ class Banner
 
         $sql = "SELECT bid
                 FROM {$_TABLES['banner']}
-                WHERE (date >= (DATE_SUB(NOW(),
+                WHERE (date >= (DATE_SUB('$now',
                         INTERVAL {$_CONF_BANR['newbannerinterval']} DAY)))
                 AND (publishstart < '$now')
                 AND (publishhend > '$now') " .
