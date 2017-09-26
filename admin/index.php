@@ -377,11 +377,11 @@ function BANR_adminMenu($view='')
             'text' => $LANG_BANNER['campaigns'],
             'active' => $act_campaigns,
         ),
-        $new_menu,
         array(
             'url'  => $_CONF['site_admin_url'],
             'text' => $LANG_ADMIN['admin_home'],
         ),
+        $new_menu,
     );
 
     $T = new \Template(BANR_PI_PATH . '/templates');
