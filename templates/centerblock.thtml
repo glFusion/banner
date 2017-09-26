@@ -1,5 +1,5 @@
 {# begin {templatelocation} #}
-<div class="banner_centerblock">
+<div class="banner_centerblock {campaign} {category} {banner_id}">
 {banner}
 </div>
 {# end {templatelocation} #}

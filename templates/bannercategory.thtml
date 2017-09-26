@@ -1,6 +1,6 @@
 {# begin {templatelocation} #}
 <!-- BEGIN bannerRow -->
-<div class="banner_list">
+<div class="banner_list {campaign} {category} {banner_id}">
 {banner}
 </div>
 <!-- END bannerRow -->

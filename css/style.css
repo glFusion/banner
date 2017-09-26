@@ -96,3 +96,7 @@ div.blockbanner {
 .banr-icon-info {
     color: #0077dd;
 }
+
+div.banner_centerblock {
+    text-align:center;
+}

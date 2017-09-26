@@ -92,7 +92,7 @@ function USES_banner_install_defaults()
 */
 function plugin_centerblock_banner($where=1,$page=1,$topic ='')
 {
-    global $_CONF_BANR;
+    global $_CONF_BANR, $_TABLES;
 
     // Flag whether we're on the homepage or not
     $on_homepage = ($page == 1 && $topic == '') ? true : false;
@@ -149,7 +149,12 @@ function plugin_centerblock_banner($where=1,$page=1,$topic ='')
 
         $T = new Template(BANR_PI_PATH . '/templates');
         $T->set_file('page', 'centerblock.thtml');
-        $T->set_var('banner', $B->BuildBanner());
+        $T->set_var(array(
+            'banner'    => $B->BuildBanner(),
+            'category'  => $B->cid,
+            'banner_id' => $B->bid,
+            'campaign'  => $B->camp_id,
+        ) );
         $T->parse('output','page');
 
         $banner = $T->finish($T->get_var('output'));
@@ -231,10 +236,14 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             $T = new Template(BANR_PI_PATH . '/templates');
             $T->set_file('block', 'bannercategory.thtml');
             $T->set_block('block', 'bannerRow', 'BRow');
-            $B = new Banner\Banner();
             while ($A = DB_fetchArray($result, false)) {
-                $B->Read($A['bid']);
-                $T->set_var('banner', $B->BuildBanner());
+                $B = new Banner\Banner($A['bid']);
+                $T->set_var(array(
+                    'banner'    => $B->BuildBanner(),
+                    'category'  => $B->cid,
+                    'banner_id' => $B->bid,
+                    'campaign'  => $B->camp_id,
+                ) );
                 $B->updateImpressions();
                 $T->parse('BRow', 'bannerRow', true);
             }
