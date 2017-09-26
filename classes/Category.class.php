@@ -280,6 +280,7 @@ class Category
             'max_img_width'     => $this->max_img_width,
             'max_img_height'    => $this->max_img_height,
             'delete_option'     => $delete_option,
+            'iconset'           => $_CONF_BANR['_iconset'],
         ) );
 
         if (!isset($this->tid)) {

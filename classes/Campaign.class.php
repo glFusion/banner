@@ -298,6 +298,7 @@ class Campaign
                                 $this->perm_members,$this->perm_anon),
             'topic_list'    => $topics,
             'cancel_url'    => BANR_ADMIN_URL . '/index.php?view=campaigns',
+            'iconset'       => $_CONF_BANR['_iconset'],
         ) );
 
         if (self::isUsed($this->camp_id)) {

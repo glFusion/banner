@@ -15,7 +15,7 @@
       <input required type="text" id="f_camp_id" name="camp_id"
             size="40" maxlength="40" value="{camp_id}" />
       <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <span id="camp_id" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_camp_id']}"></i>
     </div>
   </div>
 
@@ -25,7 +25,7 @@
       <input required type="text" id="f_description" name="description" size="60" maxlength="255" 
             value="{description}" />
       <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <span id="descrip" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_descr']}"></i>
     </div>
   </div>
 
@@ -34,7 +34,7 @@
     <div class="uk-form-controls">
       <input name="start" id="f_start" type="text" size="32" value="{dt_start}" />
       <i id="f_start_trigger" title="{$LANG_BANNER['select_date']}" class="uk-icon-calendar"></i>
-      <span id="start" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_start']}"></i>
     </div>
   </div>
 
@@ -44,7 +44,7 @@
       <input name="finish" id="f_finish" type="text" size="32" maxlength="32" 
         value="{dt_finish}" />
       <i id="f_finish_trigger" title="{$LANG_BANNER['select_date']}" class="uk-icon-calendar"></i>
-      <span id="finish" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_finish']}"></i>
     </div>
   </div>
 
@@ -54,7 +54,7 @@
       <select id="f_tid" name="tid">
         {topic_selection}
       </select>
-      <span id="tid" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_topic']}"></i>
     </div>
   </div>
 
@@ -62,7 +62,7 @@
     <label class="uk-form-label" for="f_enabled">{$LANG_BANNER['enabled']}?</label>
     <div class="uk-form-controls">
       <input id="f_enabled" name="enabled" type="checkbox" value="1" {enabled}>
-      <span id="enabled" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_enabled']}"></i>
     </div>
   </div>
 
@@ -71,7 +71,7 @@
     <div class="uk-form-controls">
       <input name="hits" id="f_hits" type="text" size="12" maxlength="12" 
         value="{total_hits}" />
-      <span id="hits" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_hits']}"></i>
     </div>
   </div>
 
@@ -80,7 +80,7 @@
     <div class="uk-form-controls">
       <input name="max_hits" id="f_max_hits" type="text" size="12" maxlength="12" 
         value="{max_hits}" />
-      <span id="max_hits" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_maxhits']}"></i>
     </div>
   </div>
 
@@ -89,7 +89,7 @@
     <div class="uk-form-controls">
       <input name="impressions" id="f_impressions" type="text" size="12" maxlength="12" 
         value="{impressions}" />
-      <span id="impressions" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_impr']}"></i>
     </div>
   </div>
 
@@ -98,7 +98,7 @@
     <div class="uk-form-controls">
       <input name="max_impressions" id="f_max_impressions" type="text" 
         size="12" maxlength="12" value="{max_impressions}" />
-      <span id="max_impressions" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_maximpr']}"></i>
     </div>
   </div>
 
@@ -107,7 +107,7 @@
     <div class="uk-form-controls">
       <input name="max_banners" id="f_max_banners" type="text" size="12" maxlength="12" 
         value="{max_banners}" />&nbsp;{$LANG_BANNER['zero_eq_unlimited']}
-      <span id="max_banners" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_maxbanner']}"></i>
     </div>
   </div>
 
@@ -117,7 +117,7 @@
       <select id="f_owner_id" name="owner_id">
         {owner_selection}
       </select>
-      <span id="owner_id" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_owner']}"></i>
     </div>
   </div>
 
@@ -125,7 +125,7 @@
     <label class="uk-form-label" for="f_group">{$LANG_ACCESS['group']}</label>
     <div class="uk-form-controls">
       {group_dropdown}
-      <span id="group" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_group']}"></i>
     </div>
   </div>
 
@@ -178,31 +178,5 @@
         timeFormat     :    "24",
         button          :   "f_finish_trigger"
     });
-
-var ConfigDocUrl = '{help_url}';
-$(document).ready(function() {
-    $('.tooltip_cfg').tooltipster({
-        contentAsHTML: true,
-        animation: 'fade',
-        trigger: 'click',
-        iconDesktop: true,
-        iconTouch: true,
-        functionBefore: function(origin, continueTooltip) {
-            continueTooltip();
-            var attrHref = ConfigDocUrl;
-            var ajobj = $(this);
-            $.get(attrHref, function(data) {
-                var confVar = ajobj.attr('id');
-                if (data.indexOf(confVar) > 0) {
-                    var desc = $(data).find('#desc_' + confVar + ' dd:first').text();
-                    origin.tooltipster('content', desc);
-                } else {
-                    origin.tooltipster('content', 'No Help Text Found');
-                    console.log('Unable to find help text for desc_%s',confVar);
-                }
-            });
-        }
-    });
-});
 </script>
 {# end {templatelocation} #}
