@@ -1242,6 +1242,7 @@ class Banner
 
     /**
     *   Determine if banners should be shown on this page or to this user.
+    *   This is based on global settings, not banner permissions.
     *
     *   @return boolean     True to show banners, False to not.
     */
@@ -1252,7 +1253,6 @@ class Banner
         // Set some static variables since this function can be called
         // multiple times per page load.
         static $in_admin_url = NULL;
-        static $is_admin = NULL;
         static $is_blocked_useragent = NULL;
         static $is_blocked_ip = NULL;
 
@@ -1269,12 +1269,11 @@ class Banner
             if ($in_admin_url) return false;
         }
 
-        // See if this is a banner admin, and we shouldn't show it
-        if ($_CONF_BANR['adshow_admins'] == 0) {
-            if ($is_admin === NULL) {
-                $is_admin = plugin_isadmin_banner ? true : false;
-            }
-            if ($is_admin) return false;
+        // See if this is a banner admin, and we shouldn't show it.
+        // plugin_isadmin_banner() stores a static var, so it's low overhead
+        if ($_CONF_BANR['adshow_admins'] == 0 &&
+                plugin_isadmin_banner()) {
+            return false;
         }
 
         // Now check if this user or IP address is in the blocked lists
@@ -1299,7 +1298,7 @@ class Banner
         }
 
         if (is_array($_CONF_BANR['uagent_dontshow'])) {
-            if ($is_blocked_useragent === 'X') {
+            if ($is_blocked_useragent === NULL) {
                 $is_blocked_useragent = false;
                 foreach ($_CONF_BANR['uagent_dontshow'] as $agent) {
                     if (empty($agent)) continue;

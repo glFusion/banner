@@ -39,8 +39,8 @@ $banner_def =
   `max_impressions` int(11) NOT NULL default '0',
   `hits` int(11) NOT NULL default '0',
   `max_hits` int(11) NOT NULL default '0',
-  `publishstart` datetime default NULL,
-  `publishend` datetime default NULL,
+  `publishstart` datetime default '0000-01-01 00:00:00',
+  `publishend` datetime default '9999-12-31 23:59:59',
   `date` datetime default NULL,
   `enabled` tinyint(1) default '1',
   `owner_id` mediumint(8) unsigned NOT NULL default '1',
@@ -133,9 +133,19 @@ $BANR_UPGRADE = array(
         DROP usercanadd",
     ),
 '0.2.1' => array(
+    "ALTER TABLE {$_TABLES['banner']}
+        CHANGE `publishstart `publishstart` datetime default '0000-01-01 00:00:00',
+        CHANGE `publishend` `publishend` datetime default '9999-12-31 23:59:59'",
+    "ALTER TABLE {$_TABLES['bannersubmission']}
+        CHANGE `publishstart `publishstart` datetime default '0000-01-01 00:00:00',
+        CHANGE `publishend` `publishend` datetime default '9999-12-31 23:59:59'",
     "UPDATE {$_TABLES['banner']} SET
         publishstart = '" . BANR_MIN_DATE . "' WHERE publishstart IS NULL",
     "UPDATE {$_TABLES['banner']} SET
+        publishend = '" . BANR_MAX_DATE . "' WHERE publishend IS NULL",
+    "UPDATE {$_TABLES['bannersubmission']} SET
+        publishstart = '" . BANR_MIN_DATE . "' WHERE publishstart IS NULL",
+    "UPDATE {$_TABLES['bannersubmission']} SET
         publishend = '" . BANR_MAX_DATE . "' WHERE publishend IS NULL",
     ),
 );

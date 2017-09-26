@@ -1,11 +1,11 @@
 # Changelog - Banner plugin for glFusion
 
 ## Version 0.2.1
-Release TBD
+Released 2017-09-29
 - Use class autoloader
 - Change admin list AJAX to use Jquery
 - Implement PHP namespace
-- Use icon sets from Uikit or FontAwesom, depending on theme
+- Use icon sets from Uikit or FontAwesome, depending on theme
 - Implement plugin_displayadblock_banner()
 - Disable banner caching in templateSetVars
 
