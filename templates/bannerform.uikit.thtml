@@ -1,14 +1,22 @@
 {# begin {templatelocation} #}
 <script type="text/javascript">
-{!if mootools}
-window.addEvent('load',
-{!else}
-$(document).ready(
-{!endif}
-  function() {
+var cats = {cats_json};
+
+$(document).ready(function() {
     var element = document.getElementById("f_adtype");
     BANR_changeType(element.options[element.selectedIndex].value);
 });
+
+function updateCat(cat_id)
+{
+    if (cats[cat_id]["img_width"] == 0 && cats[cat_id]["img_height"] == 0) {
+        document.getElementById("img_size_limit").style.display = "none";
+    } else {
+        document.getElementById("max_img_width").innerHTML = cats[cat_id]["img_width"];
+        document.getElementById("max_img_height").innerHTML = cats[cat_id]["img_height"];
+        document.getElementById("img_size_limit").style.display = "";
+    }
+}
 
 function toggleDateField(val, id)
 {
@@ -81,7 +89,7 @@ function BANR_changeType(value)
       <input required name="bid" id="f_bid" type="text" 
         size="40" maxlength="40" value="{banner_id}" />
       <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <span id="bid" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_bid']}"></i>
     </div>
   </div>
 
@@ -92,7 +100,7 @@ function BANR_changeType(value)
       <input required name="title" id="f_title" type="text" 
         size="48" maxlength="96" value="{banner_title}" />
       <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <span id="title" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_title']}"></i>
     </div>
   </div>
 
@@ -100,10 +108,10 @@ function BANR_changeType(value)
     <label class="uk-form-label" for="f_cid">{$LANG_BANNER['category']}
     </label>
     <div class="uk-form-controls">
-      <select name="cid" id="f_cid">
+      <select name="cid" id="f_cid" onchange="updateCat(this.value);">
         {category_options}
       </select>
-      <span id="cid" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cid']}"></i>
     </div>
   </div>
 
@@ -114,7 +122,7 @@ function BANR_changeType(value)
       <select id="f_camp_id" name="camp_id">
         {campaign_options}
       </select>
-      <span id="campaigndd" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_camp_id']}"></i>
     </div>
   </div>
 
@@ -125,7 +133,7 @@ function BANR_changeType(value)
       <select id="tid" name="tid">
         {topic_selection}
       </select>
-      <span id="topic" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_tid']}"></i>
     </div>
   </div>
 
@@ -133,6 +141,7 @@ function BANR_changeType(value)
     <label class="uk-form-label" for="publishstart">{$LANG_BANNER['pubstart']}
       <input type="checkbox" name="start_dt_limit" id="start_dt_limit" value="1"
         {start_dt_limit_chk} onclick="toggleDateField(this.checked, 'start_');"/>
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_pubstart']} {$LANG_BANNER['hlp_dt_override']}"></i>
     </label>
     <div class="uk-form-controls">
       <span id="start_date_nolimit" style="display:{startdt_txt_show};">
@@ -162,7 +171,6 @@ function BANR_changeType(value)
           {start_minute_options}
         </select>
         {start_ampm_selection}
-      <span id="pubstart" class="tooltip_cfg tooltipstered"></span> 
     </div>
   </div>
 
@@ -170,6 +178,7 @@ function BANR_changeType(value)
     <label class="uk-form-label" for="end_date">{$LANG_BANNER['pubend']}
       <input type="checkbox" name="end_dt_limit" id="end_dt_limit" value="1"
         {end_dt_limit_chk} onclick="toggleDateField(this.checked, 'end_');"/>
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_pubend']} {$LANG_BANNER['hlp_dt_override']}"></i>
     </label>
     <div class="uk-form-controls">
       <span id="end_date_nolimit" style="display:{enddt_txt_show};">
@@ -203,25 +212,13 @@ function BANR_changeType(value)
     </div>
   </div>
 
-  <div class="uk-form-row">
-    <label class="uk-form-label" for="f_adtype">{$LANG_BANNER['ad_type']}
-    </label>
-    <div class="uk-form-controls">
-      <select id="f_adtype" name="ad_type" 
-        onchange="BANR_changeType(this.value)" />
-        {adtype_select}
-      </select>
-      <span id="ad_type" class="tooltip_cfg tooltipstered"></span> 
-    </div>
-  </div>
-
 {!if isAdmin}
   <div class="uk-form-row">
     <label class="uk-form-label" for="f_enabled">{$LANG_BANNER['enabled']}?
     </label>
     <div class="uk-form-controls">
       <input name="enabled" id="f_enabled" type="checkbox" value="1" {ena_chk} /> 
-      <span id="enabled" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_enabled']}"></i>
     </div>
   </div>
 
@@ -231,7 +228,7 @@ function BANR_changeType(value)
     <div class="uk-form-controls">
       <input name="hits" id="f_hits" type="text" size="11" 
         value="{banner_hits}" />&nbsp;{$LANG_BANNER['warn_update_hits']}
-      <span id="hits" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_hits']}"></i>
     </div>
   </div>
 
@@ -241,7 +238,7 @@ function BANR_changeType(value)
     <div class="uk-form-controls">
       <input name="max_hits" id="f_max_hits" type="text" size="11" 
         value="{banner_maxhits}" />&nbsp;{$LANG_BANNER['zero_eq_unlimited']}
-      <span id="max_hits" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_max_hits']}"></i>
     </div>
   </div>
 
@@ -252,7 +249,7 @@ function BANR_changeType(value)
       <input name="impressions" id="f_impressions" type="text" size="11" 
         value="{impressions}" />
       &nbsp;{$LANG_BANNER['warn_update_hits']}
-      <span id="impressions" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_impressions']}"></i>
     </div>
   </div>
 
@@ -262,7 +259,7 @@ function BANR_changeType(value)
     <div class="uk-form-controls">
       <input name="max_impressions" id="f_max_impressions" type="text" 
         size="11" value="{max_impressions}" />&nbsp;{$LANG_BANNER['zero_eq_unlimited']}
-      <span id="max_impressions" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_max_impressions']}"></i>
     </div>
   </div>
 {!else}
@@ -279,7 +276,7 @@ function BANR_changeType(value)
         type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
         value="{target_url}" /> {$LANG_BANNER['includehttp']}
       <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <span id="url" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_target_url']}"></i>
     </div>
   </div>
 
@@ -291,7 +288,19 @@ function BANR_changeType(value)
         <option value="_blank" {sel_blank}>{$LANG_BANNER['new_window']}</option>
         <option value="_self" {sel_self}>{$LANG_BANNER['same_window']}</option>
       </select>
-      <span id="target" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_target_win']}"></i>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_adtype">{$LANG_BANNER['ad_type']}
+    </label>
+    <div class="uk-form-controls">
+      <select id="f_adtype" name="ad_type" 
+        onchange="BANR_changeType(this.value)" />
+        {adtype_select}
+      </select>
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_adtype']}"></i>
     </div>
   </div>
 
@@ -301,7 +310,10 @@ function BANR_changeType(value)
     <div class="uk-form-controls">
       <input id="f_upload" type="file" name="bannerimage">
       <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <span id="upload" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_upload']}"></i>
+      <span id="img_size_limit">
+      <span id="max_img_width"></span> {$LANG_BANNER['wide']} x <span id="max_img_height"></span> {$LANG_BANNER['high']} {$LANG_BANNER['max']}
+      </span>
     </div>
   </div>
 
@@ -313,7 +325,7 @@ function BANR_changeType(value)
         type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
         value="{image_url}" /> {$LANG_BANNER['includehttp']}
       <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <span id="image_url" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_remote_img']}"></i>
     </div>
   </div>
 
@@ -327,7 +339,7 @@ function BANR_changeType(value)
       <input name="height" id="f_height"
         type="text" dir="ltr" size="4" maxlength="4" 
         value="{height}" /> {$LANG_BANNER['high']}
-      <span id="dimensions" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_dimensions']}"></i>
     </div>
   </div>
 
@@ -338,7 +350,7 @@ function BANR_changeType(value)
       <input name="alt" id="f_alt" 
         type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
         value="{alt}" />
-      <span id="alt" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_alt_tag']}"></i>
     </div>
   </div>
 
@@ -350,7 +362,7 @@ function BANR_changeType(value)
       <select id="f_weight" name="weight">
         {weight_select}
       </select>
-      <span id="weight" class="tooltip_cfg tooltipstered"></span> 
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_weight']}"></i>
     </div>
   </div>
   {!endif}
@@ -371,6 +383,7 @@ function BANR_changeType(value)
     <div class="uk-form-controls">
       <textarea name="ad_code" id="f_imageurl" cols="60" rows="6" />{ad_code}</textarea>
       <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_adcode']}"></i>
     </div>
   </div>
 
@@ -387,6 +400,7 @@ function BANR_changeType(value)
       <select id="f_owner_id" name="owner_id">
         {owner_dropdown}
       </select>
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_owner']}"></i>
 {!else}
       {ownername}
 {!endif}
@@ -506,6 +520,7 @@ $(document).ready(function() {
     });
 });
 
+updateCat(document.getElementById("f_cid").value);
 </script>
 {# end {templatelocation} #}
 
