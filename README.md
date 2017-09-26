@@ -73,6 +73,65 @@ The third method of ad placement is to use a standard autotag in an article, sta
 
 This method should be used to create ad blocks.
 
+## Configuration Options
+### General
+#### Display in Templates?
+Select "Yes" to have the banner plugin set template variables based on the category name. See "Template Variables" above. You should ensure that the appropriate variables are created in your templates if this feature is enabled.
+E.g. If you have a category named "story" then you should have a template variable named `{banner_story}` in all your templates.
+Otherwise the plugin will increment the impression count for ads that are never actually displayed.
+
+#### Submissions from Site Members?
+Select "Yes" to allow site members to submit their own banners. Banners from non-admin users go into the submission queue for moderation.
+
+#### Send Notification Email?
+Select "Yes" to have an email sent to the site administrator when a non-admin user submits a banner.
+
+#### Delete Banner with Owner?
+Select "Yes" to have banners deleted when the owner's account is deleted.
+
+#### Show Target Links in New Window?
+Select "Yes" to have the target links open in a new window when clicked.
+
+#### Maximum Image Width and Height
+Enter the maximum image dimensions that will be accepted. Each category also has maximum dimension settings; this is a global sanity check.
+
+#### Default Weight
+Enter the default weight for banners. Each banner can have a higher or lower weight to increase or decrease the likelyhood of being displayed.
+
+#### Max Ads to show in Blocks
+Enter the maximum number of ads to be shown in sideblocks for "block"-type ads.
+
+### Display Control
+#### Show Ads in Admin Pages?
+Select "Yes" to have banners shown in admin pages (those under the /admin/ URL). Normally this should be set to "No".
+
+#### IP Addresses and User-Agents to not be shown ads
+To keep from inflating your impression counts you can enter multiple IP addresses and User-Agent strings here.
+Page requests from any of these addresses or containing any of these user-agent strings will not be shown ads.
+
+#### Show Ads to the Ad Owner or Ad Administrators?
+Select "Yes" if the ad owner or administrator should be shown their own ads.
+
+#### Count Clicks Made by the Ad Owner or Administrator?
+These should almost certainly be set to "No" except for initial testing.
+
+#### Count Impressions for the Ad Owner or Administrator?
+These should almost certainly be set to "No" except for initial testing.
+
+#### Centerblock Enabled?
+Select "Yes" to globally enable the centerblock function. In addition, there must be at least one category with the "Centerblock" flag set.
+
+#### Centerblock Position
+Select the position of the centerblock ad. This has no effect if the previous setting is "No".
+
+#### Centerblock Replaces the Home Page
+Select "Yes" to have a single banner ad displayed on the home page. This may be useful for a splash screen.
+No effect if the Centerblock Enabled setting is "No".
+
+#### Default Permissions
+These are the default permissions applied to Campaigns, and indicate who can view ads under the campaign and who can submit ads to it.
+Each Banner and Category also has a "group view" permission indicating what glFusion group may view ads.
+
 ## Credits
 This plugin is based on the Banner Plugin for Geeklog:
 * Auther: hiroshi sakuramoto    hiroron AT hiroron DOT com
