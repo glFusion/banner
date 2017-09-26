@@ -624,7 +624,8 @@ class Banner
                     "cid='{$cid}'");
             COM_rdfUpToDateCheck('banner', $category, $bid);
             if ($this->isNew && $_CONF_BANR['notification'] == 1) {
-                    $this->Notify();
+                // Notify the administrator
+                $this->Notify();
             }
             return '';
         } else {
@@ -1021,9 +1022,6 @@ class Banner
             return $retval;
         }
 
-        $retval .= COM_startBlock ($LANG_BANNER['banner_editor'], '',
-                               COM_getBlockTemplate ('_admin_block', 'header'));
-
         if (!$this->isNew) {
             // Calculate display dimensions
             $disp_img = $this->BuildBanner('', 0, 0, false);
@@ -1072,7 +1070,17 @@ class Banner
             'sel'.$this->options['target'] => 'selected="selected"',
             'req_item_msg' => $LANG_BANNER['req_item_msg'],
             'perm_msg' => $LANG_ACCESS['permmsg'],
+            'iconset' => $_CONF_BANR['_iconset'],
         ));
+
+        foreach (Category::getAll() as $C) {
+            if (!$C->enabled) continue;
+            $cats[$C->cid] = array(
+                'img_width' => $C->max_img_width,
+                'img_height' => $C->max_img_height,
+            );
+        }
+        $T->set_var('cats_json', json_encode($cats));
 
         if (!isset($this->tid)) {
             $this->tid = 'all';
@@ -1163,7 +1171,6 @@ class Banner
         ) );
         $T->parse('output', 'editor');
         $retval .= $T->finish($T->get_var('output'));
-        $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
         return $retval;
     }   // function Edit()
 

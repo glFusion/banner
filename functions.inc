@@ -55,6 +55,7 @@ if (file_exists(BANR_PI_PATH . '/config.php')) {
 // Mark whether this is a uikit theme. Save to global conf var
 // so it's available where needed.
 $_CONF_BANR['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
+$_CONF_BANR['_iconset'] = $_CONF_BANR['_is_uikit'] ? 'uk-icon' : 'fa fa';
 $_CONF_BANR['_now'] = new Date('now', $_CONF['timezone']);
 
 define ('BANR_ADMIN_URL',
@@ -1223,7 +1224,7 @@ function BANR_getIcon($name, $style='info')
         $style = ' banr-icon-' . $style;
 
     if ($_CONF_BANR['_is_uikit']) {
-        return ' uk-icon-' . $name . $style;
+        return 'uk-icon uk-icon-' . $name . $style;
     } else {
         return 'fa fa-' . $name . $style;
     }

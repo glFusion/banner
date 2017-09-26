@@ -408,28 +408,18 @@ class Category
     */
     public function DropDown($access = 3, $sel='')
     {
-        global $_TABLES;
-
         $retval = '';
         $sel = COM_sanitizeID($sel, false);
         $access = (int)$access;
 
-        // Retrieve the campaigns to which the current user has access
-        $sql = "SELECT c.cid, c.description
-                FROM {$_TABLES['bannercategories']} c ";
-        if ($access > 0) {
-            $sql .= COM_getPermSQL('WHERE', 0, $access, 'c');
-        }
-        //echo $sql;
-        $result = DB_query($sql);
-
-        while ($row = DB_fetchArray($result)) {
-            $selected = $row['cid'] === $sel ? ' selected="selected"' : '';
-            $retval .= "<option value=\"" .
-                        htmlspecialchars($row['cid']) .
-                        "\"$selected>" .
-                        htmlspecialchars($row['description']) .
-                        "</option>\n";
+        foreach (self::getAll() as $C) {
+            if (!$C->enabled) continue;
+            $selected = $C->cid === $sel ? ' selected="selected"' : '';
+            $retval .= '<option value="' .
+                        htmlspecialchars($C->cid) .
+                        '" ' . $selected . '>' .
+                        htmlspecialchars($C->description) .
+                        '</option>' . LB;
         }
         return $retval;
     }
@@ -516,17 +506,42 @@ class Category
     {
         global $_TABLES;
 
-        $sql = "SELECT cid, category, tid, type, grp_view, centerblock, enabled
-                FROM {$_TABLES['bannercategories']}
-                ORDER BY category";
+        $sql = "SELECT c.cid, c.category, c.tid, c.type, c.grp_view, c.centerblock, c.enabled,
+                        t.topic as topic_text
+                FROM {$_TABLES['bannercategories']} c
+                LEFT JOIN {$_TABLES['topics']} t
+                    ON t.tid = c.tid
+                ORDER BY c.category";
         //echo $sql;die;
         $result = DB_query($sql);
         while ($A = DB_fetchArray($result)) {
-            $topic = DB_getItem($_TABLES['topics'], 'topic', "tid='{$A['tid']}'");
-            $A['topic_text'] = $topic;
             $data_arr[] = $A;
         }
         return $data_arr;
+    }
+
+
+    /**
+    *   Gets all the categories into a static array
+    *
+    *   @return array   Array of category objects
+    */
+    public static function getAll()
+    {
+        global $_TABLES;
+        static $cats = NULL;
+
+        if ($cats === NULL) {
+            $cats = array();
+            $sql = "SELECT * FROM {$_TABLES['bannercategories']}";
+            $res = DB_query($sql);
+            while ($A = DB_fetchArray($res, false)) {
+                $C = new Category();
+                $C->setVars($A);
+                $cats[$A['cid']] = $C;
+            }
+        }
+        return $cats;
     }
 
 }   // class Category
@@ -622,7 +637,6 @@ function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         $retval = $fieldvalue;
         break;
     }
-
     return $retval;
 }
 
