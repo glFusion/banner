@@ -24,7 +24,8 @@ $_SQL['bannercategories'] = "CREATE TABLE {$_TABLES['bannercategories']} (
   `grp_view` mediumint(8) unsigned NOT NULL default '2',
   `max_img_width` int(4) unsigned default 0,
   `max_img_height` int(4) unsigned default 0,
-  PRIMARY KEY  (`cid`)
+  PRIMARY KEY  (`cid`),
+  KEY `type` (`type`),
 )";
 
 // Common table structure for both banners and submissions
@@ -134,10 +135,10 @@ $BANR_UPGRADE = array(
     ),
 '0.2.1' => array(
     "ALTER TABLE {$_TABLES['banner']}
-        CHANGE `publishstart `publishstart` datetime default '0000-01-01 00:00:00',
+        CHANGE `publishstart` `publishstart` datetime default '0000-01-01 00:00:00',
         CHANGE `publishend` `publishend` datetime default '9999-12-31 23:59:59'",
     "ALTER TABLE {$_TABLES['bannersubmission']}
-        CHANGE `publishstart `publishstart` datetime default '0000-01-01 00:00:00',
+        CHANGE `publishstart` `publishstart` datetime default '0000-01-01 00:00:00',
         CHANGE `publishend` `publishend` datetime default '9999-12-31 23:59:59'",
     "UPDATE {$_TABLES['banner']} SET
         publishstart = '" . BANR_MIN_DATE . "' WHERE publishstart IS NULL",
