@@ -311,6 +311,7 @@ class Category
     *   set in the current object before saving.
     *
     *   @param  array   $A      Optional array of values
+    *   @return string          Error message, empty string for success
     */
     public function Save($A='')
     {
@@ -354,7 +355,16 @@ class Category
                 grp_view = {$this->grp_view},
                 max_img_height={$this->max_img_height},
                 max_img_width={$this->max_img_width}";
+        //echo $sql1 . $sql2 . $sql3;die;
         DB_query($sql1 . $sql2 . $sql3);
+        if (DB_error()) {
+            return $LANG_BANNER['err_saving_item'];
+        }
+        if ($this->oldcid != $this->cid) {
+            // Update banners that were associated with the old ID
+            DB_change($_TABLES['banner'], 'cid', $this->cid, 'cid', $this->oldcid);
+        }
+        return '';
     }
 
 

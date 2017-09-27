@@ -362,14 +362,14 @@ class Campaign
 
             // Not modifying the campaign ID, but it shouldn't be empty
             if ($this->camp_id == '')
-                return false;
+                return $LANG_BANNER['err_missing_id'];
 
             $sql1 = "UPDATE {$_TABLES['bannercampaigns']}";
             $sql3 = " WHERE camp_id='" . DB_escapeString($this->oldID) . "'";
         }
 
         if (DB_count($_TABLES['bannercampaigns'], 'camp_id', $this->camp_id) > $allowed) {
-            return false;
+            return $LANG_BANNER['err_dup_id'];;
         }
 
         $sql2 = " SET
@@ -393,41 +393,14 @@ class Campaign
         $sql = $sql1 . $sql2 . $sql3;
         //echo $sql;die;
         DB_query($sql);
-        return DB_Error() ? false : true;
-    }
-
-
-    /**
-    *   Create the user list for assigning campaigns to users
-    *
-    *   @param  integer $uid    Optional user ID to show as selected.
-    *   @return string          HTML for options
-    */
-    public function XUserList($uid='')
-    {
-        echo "Campaign::UserList() DEPRECATED";die;
-        global $_TABLES;
-
-        // Set up the user id to show as selected
-        if ($uid == '' && is_object($this)) {
-            $uid = $this->owner_id;
-        } else {
-            $uid = (int)$uid;
+        if (DB_error()) {
+            return $LANG_BANNER['err_saving_item'];
         }
-
-        $sql = "SELECT uid,username
-                FROM {$_TABLES['users']}
-                ORDER BY username ASC";
-        $result = DB_query($sql);
-        if (!$result)
-            return '';
-
-        $retval = '';
-        while ($row = DB_fetcharray($result)) {
-            $selected = $row['uid'] == $uid ? 'selected="selected"' : '';
-            $retval .= "<option value=\"{$row['uid']}\" $selected>{$row['username']}</option>\n";
+        if ($this->camp_id != $this->oldID) {
+            // Update banners that were associated with the old ID
+            DB_change($_TABLES['banner'], 'camp_id', $this->camp_id, 'camp_id', $this->oldID);
         }
-        return $retval;
+        return '';
     }
 
 
