@@ -281,9 +281,10 @@ class Category
             'max_img_height'    => $this->max_img_height,
             'delete_option'     => $delete_option,
             'iconset'           => $_CONF_BANR['_iconset'],
+            'mapping_form'      => Mapping::Form($this->cid),
         ) );
 
-        if (!isset($this->tid)) {
+        if ($this->tid === NULL) {
             $this->tid = 'all';
         }
         $topics = COM_topicList('tid,topic', $this->tid, 1, true);
@@ -363,6 +364,9 @@ class Category
         if ($this->oldcid != $this->cid) {
             // Update banners that were associated with the old ID
             DB_change($_TABLES['banner'], 'cid', $this->cid, 'cid', $this->oldcid);
+        }
+        if (isset($_POST['map']) && is_array($_POST['map'])) {
+            Mapping::saveAll($_POST['map'], $this->cid);
         }
         return '';
     }

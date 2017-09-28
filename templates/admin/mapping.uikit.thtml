@@ -1,0 +1,36 @@
+{# begin {templatelocation} #}
+<table border="0">
+  <tr>
+    <th>{$LANG_BANNER['template']}
+    </th>
+    <th>
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_map_enabled']}"></i>
+      <br />{$LANG_BANNER['enabled']}
+    </th>
+    <th>
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_map_pos']}"></i>
+      <br />{$LANG_BANNER['position']}
+    </th>
+    <th>
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_map_once']}"></i>
+      <br />{$LANG_BANNER['show_once']}
+    </th>
+    <th>
+      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_map_content']}"></i>
+      <br />{$LANG_BANNER['show_in_content']}
+    </th>
+  </tr>
+<!-- BEGIN MappingItem -->
+  <tr>
+    <td>
+      <input type="hidden" name="map[{tpl}][cid]" value="{cid}" />
+      <input type="hidden" name="map[{tpl}][tpl]" value="{tpl}" />{tpl}
+    </td>
+    <td class="aligncenter"><input type="checkbox" name="map[{tpl}][enabled]" value="1" {ena_chk} /></td>
+    <td class="aligncenter"><input type="text" size="3" name="map[{tpl}][pos]" value="{pos}" /></td>
+    <td class="aligncenter"><input type="checkbox" name="map[{tpl}][once]" value="1" {once_chk} /></td>
+    <td class="aligncenter"><input type="checkbox" name="map[{tpl}][in_content]" value="1" {content_chk} /></td>
+  </tr>
+<!-- END MappingItem -->
+</table>
+{# end {templatelocation} #}

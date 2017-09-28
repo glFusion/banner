@@ -657,10 +657,24 @@ class Banner
         $limit_clause = '';
         $topic_sql = '';
         foreach ($fields as $field=>$value) {
-            $value = DB_escapeString($value);
+            if (!is_array($value)) {
+                $value = DB_escapeString($value);
+            }
             switch(strtolower($field)) {
             case 'type':
-                $sql_cond = " AND c.{$field} LIKE '$value'";
+            case 'cid':
+                if (is_array($value)) {
+                    $sql_vals = array();
+                    foreach ($value as $t) {
+                        $t = DB_escapeString($t);
+                        $sql_vals[] = "c.{$field} = '$t'";
+                    }
+                    $sql_vals = implode(' OR ', $sql_vals);
+                } else {
+                    $t = DB_escapeString($value);
+                    $sql_vals = "c.{$field} = '$t'";
+                }
+                $sql_cond = " AND ($sql_vals) ";
                 break;
             case 'category':
             case 'centerblock':
@@ -699,6 +713,8 @@ class Banner
             $topic_sql .= " AND c.tid IN ('$topic', 'all')
                         AND camp.tid IN ('$topic', 'all')
                         AND b.tid IN ('$topic', 'all')";
+        } else {
+            $topic_sql .= " AND c.tid = 'all'";
         }
 
         // Eliminate ads owned by the current user

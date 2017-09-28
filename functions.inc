@@ -821,15 +821,16 @@ function plugin_templateSetVars_banner($templatename, &$template)
 */
 function plugin_displayadblock_banner($plugin, $counter)
 {
-    if ($counter > 0) {
-        $type = $plugin . '_' . (int)$counter;
-    } else {
-        $type = $plugin . '%';
-    }
+    global $_CONF_BANR, $topic;
+
+    $Cats = Banner\Mapping::showCats($plugin, $counter);
+    if (empty($Cats)) return '';
+
     $options = array(
         'limit' => '1',
-        'type'  => $type,
+        'cid' => $Cats,
     );
+
     $bids = Banner\Banner::GetBanner($options);
     if (is_array($bids) && !empty($bids)) {
         $B = new Banner\Banner($bids[0]);
