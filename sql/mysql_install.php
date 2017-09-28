@@ -65,7 +65,7 @@ $_SQL['bannercampaigns'] = "CREATE TABLE {$_TABLES['bannercampaigns']} (
   `finish` datetime default NULL,
   `enabled` tinyint(1) UNSIGNED NOT NULL default '1',
   `hits` int(11) default '0',
-  `max_hits` int(11) default NULL,
+  `max_hits` int(11) NOT NULL default '0',
   `impressions` int(11) NOT NULL default '0',
   `max_impressions` int(11) NOT NULL default '0',
   `max_banners` int(11) NOT NULL default 0,
@@ -157,6 +157,8 @@ $BANR_UPGRADE = array(
       `once` tinyint(1) unsigned NOT NULL DEFAULT '0',
       `in_content` tinyint(1) unsigned NOT NULL DEFAULT '0',
       PRIMARY KEY (`tpl`,`cid`) )",
+    "UPDATE {$_TABLES['bannercampaigns']}
+        SET max_hits = 0 WHERE max_hits IS NULL",
     ),
 );
 // template-category mapping introduced in 0.3.0
