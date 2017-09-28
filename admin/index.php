@@ -85,8 +85,7 @@ case 'delete':
             $B = new Banner\Banner($_REQUEST['bid']);
             $view = 'banners';
         }
-        if ($B->canEdit())
-            $B->Delete();
+        $B->Delete();
         break;
     case 'category':
         $C = new Banner\Category($_REQUEST['cid']);
@@ -104,8 +103,7 @@ case 'delete':
 case 'delMultiBanner':
     foreach ($_POST['delitem'] as $item) {
         $B = new Banner\Banner($item);
-        if ($B->canEdit())
-            $B->Delete();
+        $B->Delete();
     }
     $view = 'banners';
     break;
