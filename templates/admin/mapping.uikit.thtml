@@ -27,7 +27,20 @@
       <input type="hidden" name="map[{tpl}][tpl]" value="{tpl}" />{tpl}
     </td>
     <td class="aligncenter"><input type="checkbox" name="map[{tpl}][enabled]" value="1" {ena_chk} /></td>
-    <td class="aligncenter"><input type="text" size="3" name="map[{tpl}][pos]" value="{pos}" /></td>
+    <td class="aligncenter">
+      <select name="map[{tpl}][pos]">
+        <option value="0" {pos_sel_0}>0</option>
+        <option value="1" {pos_sel_1}>1</option>
+        <option value="2" {pos_sel_2}>2</option>
+        <option value="3" {pos_sel_3}>3</option>
+        <option value="4" {pos_sel_4}>4</option>
+        <option value="5" {pos_sel_5}>5</option>
+        <option value="6" {pos_sel_6}>6</option>
+        <option value="7" {pos_sel_7}>7</option>
+        <option value="8" {pos_sel_8}>8</option>
+        <option value="9" {pos_sel_9}>9</option>
+      </select>
+    </td>
     <td class="aligncenter"><input type="checkbox" name="map[{tpl}][once]" value="1" {once_chk} /></td>
     <td class="aligncenter"><input type="checkbox" name="map[{tpl}][in_content]" value="1" {content_chk} /></td>
   </tr>

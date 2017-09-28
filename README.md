@@ -9,7 +9,11 @@ banner ads in the header, footer, blocks or within other content on their site.
 
 ## Definitions
 * Banner: An image or html/javascript snippet to display an ad on the site,
-including a link to the advertiser's site.
+including a link to the advertiser's site. Banners can be one of several types:
+  * Uploaded Image: Upload an image to your site.
+  * Remotely-Hosted Image: Just enter the URL to an image on another website. The banner will be displayed inline from that URL.
+  * HTML or Javascript: Enter the complete ad code, e.g. from Adsense. This banner type does not take a target URL value. You have complete control over all elements of the ad.
+  * Autotag: This banner may include autotags, or any other text or HTML. A target URL must be provided for the link.
 * Category: A way to group banners arbitrarily by type. Also determines the
 ad placement based on the "type" field in the category definition.
 * Campaign: An advertising campaign is used to control the number of banners
@@ -79,6 +83,8 @@ This method should be used to create ad blocks.
 Select "Yes" to have the banner plugin set template variables based on the category name. See "Template Variables" above. You should ensure that the appropriate variables are created in your templates if this feature is enabled.
 E.g. If you have a category named "story" then you should have a template variable named `{banner_story}` in all your templates.
 Otherwise the plugin will increment the impression count for ads that are never actually displayed.
+
+**Note for glFusion 1.7.0 and higher: There is a flexible template-to-category mapping option for each category to control ad placement. This is the recommended method and this option should be set to "No".**
 
 #### Submissions from Site Members?
 Select "Yes" to allow site members to submit their own banners. Banners from non-admin users go into the submission queue for moderation.

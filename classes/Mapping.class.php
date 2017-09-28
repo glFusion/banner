@@ -146,10 +146,6 @@ class Mapping
             $sql = "SELECT * FROM {$_TABLES['banner_mapping']}";
             $res = DB_query($sql);
             while ($A = DB_fetchArray($res, false)) {
-            //for ($i = 0; $i < DB_numRows($res); $i++) {
-                //$A = DB_fetchArray($res, false);
-                //$M[$A['tpl']] = new self();
-                //$M[$A['tpl']]->setVars($A);
                 $key = $A['tpl'] . '_' . $A['cid'];
                 $M[$key] = new self();
                 $M[$key]->setVars($A);
@@ -197,6 +193,7 @@ class Mapping
                 'content_chk' => $in_content ? 'checked="checked"' : '',
                 'once_chk' => $once ? 'checked="checked"' : '',
                 'ena_chk'   => $enabled ? 'checked="checked"' : '',
+                'pos_sel_' . $pos => 'selected="selected"',
             ) );
             $T->parse('item', 'MappingItem', true);
         }
@@ -269,9 +266,11 @@ class Mapping
             if ($Map->tpl != $tpl) continue;
             if ($counter == $Map->pos) {
                 // Whatever $count is, show the enabled category if it matches
+                // Handles fixed placement, e.g. position 2, non-repeating
                 $cats[] = $Map->cid;
             } elseif ($counter == 0 && $Map->in_content == 1) {
                 // Check if this is a content page vs. an index
+                // $counter == 0 implies show only once
                 $cats[] = $Map->cid;
             } elseif ($counter > 0 && !$Map->once && ($counter % $Map->pos) == 0) {
                 // If showing every X items, see if this is a matching item
