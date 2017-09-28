@@ -43,12 +43,6 @@ $_BANR_DEFAULT['templatevars'] = 1;
 $_BANR_DEFAULT['usersubmit'] = 0;
 
 /**
- * Submission Settings
- * enable (set to 1) or disable (set to 0) submission queues:
- */
-$_BANR_DEFAULT['submissionqueue']  = 1;
-
-/**
  * Set to 1 to hide the "Banner" entry from the top menu:
  */
 //$_BANR_DEFAULT['hidebannermenu']    = 0;
@@ -163,8 +157,6 @@ function plugin_initconfig_banner($admin_group)
                 'select', 0, 0, 0, 10, true, $me);
         $c->add('usersubmit', $_BANR_DEFAULT['usersubmit'], 
                 'select', 0, 0, 3, 20, true, $me);
-        $c->add('submissionqueue', $_BANR_DEFAULT['submissionqueue'], 
-                'select', 0, 0, 3, 30, true, $me);
         $c->add('notification', $_BANR_DEFAULT['notification'], 
                 'select', 0, 0, 0, 40, true, $me);
         $c->add('delete_banner', $_BANR_DEFAULT['delete_banner'], 

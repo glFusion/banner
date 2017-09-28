@@ -685,8 +685,7 @@ function plugin_savesubmission_banner($A)
     $B = new Banner\Banner();
     $retval = '';
 
-    if ($_CONF_BANR['submissionqueue'] == 1 &&
-            !SEC_hasRights('banner.submit')) {
+    if (!SEC_hasRights('banner.submit')) {
         $B->setTable('bannersubmission');
     }
 

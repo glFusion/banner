@@ -386,7 +386,6 @@ $LANG_configsections['banner'] = array(
 $LANG_confignames['banner'] = array(
     'templatevars' => 'The banner is displayed with the template',
     'usersubmit' => 'Allow submissions from site members',
-    'submissionqueue' => 'Enable Submission Queue?',
     'notification' => 'Notification Email?',
     'delete_banner' => 'Delete Banner with Owner?',
     'default_permissions' => 'Banner Default Permissions',

@@ -36,6 +36,8 @@ function banner_do_upgrade()
         return false;
     }
 
+    $conf = config::get_instance();
+
     if (!COM_checkVersion($current_ver, '0.1.0')) {
         $current_ver = '0.1.0';
         // upgrade from 0.0.x to 0.1.0
@@ -85,10 +87,15 @@ function banner_do_upgrade()
 
     if (!COM_checkVersion($current_ver, '0.3.0')) {
         $current_ver = '0.3.0';
+        $conf->del('submissionqueue', $_CONF_BANR['pi_name']);
         if (!banner_do_upgrade_sql($current_ver)) return false;
         if (!banner_do_update_version($current_ver)) return false;
     }
 
+    // Final extra check to catch code-only patch versions
+    if (!COM_checkVersion($current_ver, plugin_chkVersion_banner()) {
+        if (!banner_do_update_version($current_ver)) return false;
+    }
     return true;
 }
 
