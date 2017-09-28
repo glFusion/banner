@@ -433,7 +433,7 @@ class Category
             $retval .= '<option value="' .
                         htmlspecialchars($C->cid) .
                         '" ' . $selected . '>' .
-                        htmlspecialchars($C->description) .
+                        htmlspecialchars($C->category) .
                         '</option>' . LB;
         }
         return $retval;
