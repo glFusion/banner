@@ -25,6 +25,7 @@ global $_CONF_BANR;
 define ('BANR_TYPE_LOCAL',  0);    // Locally-uploaded image
 define ('BANR_TYPE_REMOTE', 1);    // Remote image url
 define ('BANR_TYPE_SCRIPT', 2);    // Script, e.g. Google Adsense
+define ('BANR_TYPE_AUTOTAG', 3);    // Autotag to be processed
 define ('BANR_PI_PATH', $_CONF['path'] . 'plugins/banner');
 define ('BANR_MAX_DATE', '9999-12-31 23:59:59');
 define ('BANR_MIN_DATE', '0000-01-01 00:00:00');

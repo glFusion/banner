@@ -564,13 +564,14 @@ class Banner
             break;
 
         case BANR_TYPE_SCRIPT:
+            if (empty($this->options['url']))
+                unset($this->options['url']);
+        case BANR_TYPE_AUTOTAG:
             unset($this->options['filename']);
             unset($this->options['image_url']);
             unset($this->options['width']);
             unset($this->options['height']);
             unset($this->options['alt']);
-            if (empty($this->options['url']))
-                unset($this->options['url']);
             break;
         }
 
@@ -889,6 +890,13 @@ class Banner
                 }
             } else {
                 $retval = $LANG_BANNER['ad_is_script'];
+            }
+            break;
+
+        case BANR_TYPE_AUTOTAG:
+            $retval = PLG_replaceTags($this->options['ad_code']);
+            if ($link && !empty($this->options['url'])) {
+                $retval = COM_createLink($retval, $url, $a_attr);
             }
             break;
         }

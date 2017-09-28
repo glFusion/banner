@@ -46,6 +46,7 @@ $LANG_BANNER = array(
                     BANR_TYPE_LOCAL     => 'Uploaded Image',
                     BANR_TYPE_REMOTE    => 'Remotely-Hosted Image',
                     BANR_TYPE_SCRIPT    => 'HTML or Javascript',
+                    BANR_TYPE_AUTOTAG   => 'Autotag',
                     ),
 'ok_to_delete'  => 'Are you sure you want to delete this item?',
 'banner_content' => 'Banner Content',

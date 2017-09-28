@@ -57,11 +57,12 @@ function BANR_changeType(value)
         break;
 
     case '2':   // Script
+        document.getElementById('targeturl').style.display = 'none';
+    case '3':   // Autotag
         document.getElementById('adcode').style.display = '';
         document.getElementById('dimensions').style.display = 'none';
         document.getElementById('upload').style.display = 'none';
         document.getElementById('imageurl').style.display = 'none';
-        document.getElementById('targeturl').style.display = 'none';
         document.getElementById('alttag').style.display = 'none';
         //document.getElementById('maxhits').style.display = 'none';
         //document.getElementById('hits').style.display = 'none';
