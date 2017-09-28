@@ -1,5 +1,10 @@
 # Changelog - Banner plugin for glFusion
 
+## Version 0.3.0
+Release TBD
+- Use PLG_displayAdblock() in glFusion 1.7.0
+- Add template configurations in categories to control ad display
+
 ## Version 0.2.1
 Released 2017-09-29
 - Use class autoloader

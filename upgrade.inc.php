@@ -83,6 +83,12 @@ function banner_do_upgrade()
         if (!banner_do_update_version($current_ver)) return false;
     }
 
+    if (!COM_checkVersion($current_ver, '0.3.0')) {
+        $current_ver = '0.3.0';
+        if (!banner_do_upgrade_sql($current_ver)) return false;
+        if (!banner_do_update_version($current_ver)) return false;
+    }
+
     return true;
 }
 

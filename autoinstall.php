@@ -3,9 +3,9 @@
 *   Provides automatic installation of the Banner plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2011 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    banner
-*   @version    0.0.1
+*   @version    0.3.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -17,8 +17,8 @@ if (!defined ('GVERSION')) {
 
 global $_DB_dbms;
 
-require_once $_CONF['path'].'plugins/banner/functions.inc';
-require_once $_CONF['path'].'plugins/banner/sql/'. $_DB_dbms. '_install.php';
+require_once __DIR__ . '/functions.inc';
+require_once __DIR__ . '/sql/'. $_DB_dbms. '_install.php';
 
 // Plugin installation options
 $INSTALL_plugin['banner'] = array(
@@ -53,6 +53,11 @@ $INSTALL_plugin['banner'] = array(
     array(  'type' => 'table', 
             'table'     => $_TABLES['bannercampaigns'], 
             'sql'       => $_SQL['bannercampaigns'],
+    ),
+
+    array(  'type' => 'table',
+            'table'     => $_TABLES['banner_mapping'],
+            'sql'       => $_SQL['banner_mapping'],
     ),
 
     array(  'type' => 'group', 
@@ -136,6 +141,10 @@ $INSTALL_plugin['banner'] = array(
     array(  'type' => 'sql',
             'sql' => $DEFVALUES['bannercampaigns'],
     ),
+
+    array(  'type' => 'sql',
+            'sql' => $DEFVALUES['banner_mapping'],
+    ),
 );
 
 
@@ -159,7 +168,6 @@ function plugin_install_banner()
     if ($ret > 0) {
         return false;
     }
-
     return true;
 }
 
@@ -171,9 +179,9 @@ function plugin_install_banner()
 */
 function plugin_load_configuration_banner()
 {
-    global $_CONF, $_CONF_BANR, $_TABLES;
+    global $_CONF_BANR, $_TABLES;
 
-    require_once $_CONF['path'].'plugins/'.$_CONF_BANR['pi_name'].'/install_defaults.php';
+    require_once __DIR__ . '/install_defaults.php';
 
     // Get the admin group ID that was saved previously.
     $group_id = (int)DB_getItem($_TABLES['groups'], 'grp_id', 

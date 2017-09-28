@@ -266,7 +266,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
 *
 *   @return string  version number
 */
-function plugin_chkVersion_banner ()
+function plugin_chkVersion_banner()
 {
     global $_CONF_BANR;
     return $_CONF_BANR['pi_version'];
@@ -823,6 +823,10 @@ function plugin_displayadblock_banner($plugin, $counter)
 {
     global $_CONF_BANR, $topic;
 
+    if (!BANR_isCurrentVersion()) {
+        return '';
+    }
+
     $Cats = Banner\Mapping::showCats($plugin, $counter);
     if (empty($Cats)) return '';
 
@@ -860,7 +864,9 @@ function plugin_autouninstall_banner ()
         'tables' => array('banner',
                     'bannersubmission',
                     'bannercategories',
-                    'bannercampaigns'),
+                    'bannercampaigns',
+                    'banner_mapping',
+        ),
 
         // give the full name of the group, as in the db
         'groups' => array('banner Admin'),
@@ -886,7 +892,6 @@ function plugin_autouninstall_banner ()
     if (isset($_CONF_BANR['templatevars'])) {
         $_CONF_BANR['templatevars'] = 0;
     }
-
     return $out;
 }
 
@@ -1229,6 +1234,28 @@ function BANR_getIcon($name, $style='info')
     } else {
         return 'fa fa-' . $name . $style;
     }
+}
+
+
+/**
+*   Check that the currently installed version matches the code version.
+*   This is to disable functions that might not work due to a mismatch.
+*   Just check the major.minor.revision values.  Any fourth element is ignored.
+*
+*   @return boolean     True if current == installed version, False if not
+*/
+function BANR_isCurrentVersion()
+{
+    global $_CONF_BANR, $_TABLES;
+
+    static $isCurrent = -1;     // static var to minimize DB calls
+
+    if ($isCurrent === -1) {
+        $installed = DB_getItem($_TABLES['plugins'], 'pi_version',
+                "pi_name = '{$_CONF_BANR['pi_name']}'");
+        $isCurrent = COM_checkVersion($installed, $_CONF_BANR['pi_version']);
+    }
+    return $isCurrent;
 }
 
 

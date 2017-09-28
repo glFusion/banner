@@ -154,6 +154,7 @@ class Mapping
                 $M[$key] = new self();
                 $M[$key]->setVars($A);
             }
+            if (empty($M)) $M = array();
         }
         return $M;
     }
