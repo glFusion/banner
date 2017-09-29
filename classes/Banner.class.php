@@ -187,17 +187,19 @@ class Banner
     /**
     *   Get an option value
     *
-    *   @param  string  $name   Option name
-    *   @return mixed           Option value, NULL if not set
+    *   @param  string  $name       Option name
+    *   @param  mixed   $default    Default value
+    *   @return mixed           Option value, $default if not set
     */
-    public function getOpt($name)
+    public function getOpt($name, $default=NULL)
     {
         if (isset($this->options[$name])) {
             return $this->options[$name];
         } else {
-            return NULL;
+            return $default;
         }
     }
+
 
     /**
     *   Read a banner record from the database
@@ -413,9 +415,10 @@ class Banner
     {
         global $_TABLES, $_CONF_BANR, $_USER;
 
-        if (!empty($this->options['filename']) &&
-            file_exists($_CONF_BANR['img_dir'] . '/' . $this->options['filename'])) {
-            @unlink($_CONF_BANR['img_dir'] . '/' . $this->options['filename']);
+        $filename = $this->getOpt('filename');
+        if (!empty($filename) &&
+            file_exists($_CONF_BANR['img_dir'] . '/' . $filename)) {
+            @unlink($_CONF_BANR['img_dir'] . '/' . $filename);
         }
 
         DB_delete($_TABLES[$this->table],
@@ -808,31 +811,32 @@ class Banner
 
         $retval = '';
 
-        if (empty($title)) {
-            $title = empty($this->options['alt']) ? $this->title : $this->options['alt'];
+        $alt = $this->getOpt('alt', '');
+        if (empty($title) && !empty($alt)) {
+            $title = $alt;
         }
-        $alt = htmlspecialchars($this->options['alt']);
-        if (!empty($this->options['url'])) {
+
+        // Set the ad URL to the portal page only if there is a dest. URL
+        $url = $this->getOpt('url', '');
+        if (!empty($url)) {
             $url = COM_buildUrl(BANR_URL . '/portal.php?id=' . $this->bid);
-        } else {
-            $url = '';
         }
-        $target = isset($this->options['target']) ?
-                    $this->options['target'] : '_blank';
         $a_attr = array(
-            'target' => $target,
+            'target' => $this->getOpt('target', '_blank'),
         );
         $img_attr = array(
-            'title' => htmlspecialchars($title),
             'class' => 'banner_img',
-            'data-uk-tooltip' => '',
         );
+        if (!empty($title)) {
+            $img_attr['title'] = htmlspecialchars($title);
+            $img_attr['data-uk-tooltip'] = '';
+        }
 
         $C = new Category($this->cid);
         if ($width == 0)
-            $width = min($this->options['width'], $C->max_img_width);
+            $width = min($this->getOpt('width', 0), $C->max_img_width);
         if ($height == 0)
-            $height = min($this->options['height'], $C->max_img_height);
+            $height = min($this->getOpt('height', 0), $C->max_img_height);
 
         switch ($this->ad_type) {
         case BANR_TYPE_LOCAL:
@@ -1201,11 +1205,6 @@ class Banner
 
         $this->errors = array();
 
-        // Must have a title
-        if (empty($A['title'])) {
-            $this->errors[] = $LANG_BANNER['err_missing_title'];
-        }
-
         // Check that appropriate ad content has been added
         switch ($A['ad_type']) {
         case BANR_TYPE_LOCAL:
@@ -1234,7 +1233,7 @@ class Banner
         global $_CONF, $_TABLES, $LANG_BANNER, $LANG08;
 
         $mailsubject = $_CONF['site_name'] . ' ' . $LANG_BANNER['banner_submissions'];
-        $mailbody = $LANG_BANNER['title'] . ": $title\n";
+        $mailbody = $LANG_BANNER['title'] . ": $this->title\n";
 
         if ($this->table == 'bannersubmission') {
             $mailbody .= "$LANG_BANNER[10] <{$_CONF['site_admin_url']}/moderation.php>\n\n";
