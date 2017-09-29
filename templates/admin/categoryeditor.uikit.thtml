@@ -59,7 +59,7 @@
     <div class="uk-form-controls">
       <input type="text" id="f_max_img_width" name="max_img_width"
         size="4" maxlength="4" value="{max_img_width}" />
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_maxwidth']}"></i>
+      <i class="{iconset}-question-circle tooltip" title="{hlp_maxwidth}"></i>
     </div>
   </div>
 
@@ -67,7 +67,7 @@
     <label class="uk-form-label" for="f_max_img_height">{$LANG_BANNER['max_img_height']}</label>
     <div class="uk-form-controls">
       <input type="text" id="f_max_img_height" name="max_img_height" size="4" maxlength="4" value="{max_img_height}" />
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_maxheight']}"></i>
+      <i class="{iconset}-question-circle tooltip" title="{hlp_maxheight}"></i>
     </div>
   </div>
 

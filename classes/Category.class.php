@@ -282,6 +282,8 @@ class Category
             'delete_option'     => $delete_option,
             'iconset'           => $_CONF_BANR['_iconset'],
             'mapping_form'      => Mapping::Form($this->cid),
+            'hlp_maxwidth'      => sprintf($LANG_BANNER['hlp_cat_maxdim'], $_CONF_BANR['img_max_width']),
+            'hlp_maxheight'     => sprintf($LANG_BANNER['hlp_cat_maxdim'], $_CONF_BANR['img_max_height']),
         ) );
 
         if ($this->tid === NULL) {
