@@ -190,7 +190,7 @@ $LANG_BANNER = array(
 'hlp_cat_group' => 'Select the user group that can view ads in this category. Normally this will be &quot;All Users&quot; but you may wish to limit ad visibility in some cases.',
 
 'hlp_map_enabled' => 'Check to send ads from this category to the specified template.',
-'hlp_map_pos' => 'Enter the position for the ad in index pages, e.g. after the first item, second item, etc. Leave at zero for non-list templates, or be sure to check &quot;show in content&quot;. If &quot;show once&quot; is not checked this is used as an interval.',
+'hlp_map_pos' => 'Enter the position for the ad in index pages, e.g. after the first item, second item, etc. Leave at zero to prevent ads from showing in this list. Be sure to check &quot;show in content&quot; if you want the ad shown in the main item content. If &quot;show once&quot; is not checked this is used as an interval.',
 'hlp_map_once' => 'Check this to have the ad displayed only once on an index page. If unchecked, the &quot;position&quot; is used as an interval to show ads every 2nd item, every 3rd item, etc.',
 'hlp_map_content' => 'Check this to show the ad in the main content area, for templates that support this.',
 
