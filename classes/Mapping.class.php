@@ -192,11 +192,12 @@ class Mapping
                 'tpl'       => $tpl,
                 'pos'       => $pos,
                 'content_chk' => $in_content ? 'checked="checked"' : '',
-                'once_chk' => $once ? 'checked="checked"' : '',
+                'once_chk'  => $once ? 'checked="checked"' : '',
                 'ena_chk'   => $enabled ? 'checked="checked"' : '',
                 'pos_sel_' . $pos => 'selected="selected"',
             ) );
             $T->parse('item', 'MappingItem', true);
+            $T->clear_var('pos_sel_' . $pos);
         }
         $T->parse ('output', 'mappingform');
         return $T->finish($T->get_var('output'));
