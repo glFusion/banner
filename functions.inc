@@ -1247,16 +1247,18 @@ function BANR_getIcon($name, $style='info')
 */
 function BANR_isCurrentVersion()
 {
-    global $_CONF_BANR, $_TABLES;
+    global $_CONF_BANR, $_PLUGIN_INFO;
 
-    static $isCurrent = -1;     // static var to minimize DB calls
-
-    if ($isCurrent === -1) {
-        $installed = DB_getItem($_TABLES['plugins'], 'pi_version',
-                "pi_name = '{$_CONF_BANR['pi_name']}'");
-        $isCurrent = COM_checkVersion($installed, $_CONF_BANR['pi_version']);
+    $pi_name = $_CONF_BANR['pi_name'];
+    if (isset($_PLUGIN_INFO[$pi_name])) {
+        if (is_array($_PLUGIN_INFO[$pi_name])) {
+            // glFusion > = 1.6.6
+            $installed = $_PLUGIN_INFO[$pi_name]['pi_version'];
+        } else {
+            $installed = $_PLUGIN_INFO[$pi_name];
+        }
     }
-    return $isCurrent;
+    return COM_checkVersion($installed, $_CONF_BANR['pi_version']);
 }
 
 
