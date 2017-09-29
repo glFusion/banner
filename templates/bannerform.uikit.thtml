@@ -38,7 +38,7 @@ function BANR_changeType(value)
     document.getElementById('maxhits').style.display = '';
     document.getElementById('currentimage').style.display = '';
     document.getElementById('hits').style.display = '';
-    document.getElementById('targeturl').style.display = '';
+    //document.getElementById('targeturl').style.display = '';
     document.getElementById('dimensions').style.display = '';
     document.getElementById('upload').style.display = 'none';
     document.getElementById('imageurl').style.display = 'none';
@@ -57,7 +57,7 @@ function BANR_changeType(value)
         break;
 
     case '2':   // Script
-        document.getElementById('targeturl').style.display = 'none';
+        //document.getElementById('targeturl').style.display = 'none';
     case '3':   // Autotag
         document.getElementById('adcode').style.display = '';
         document.getElementById('dimensions').style.display = 'none';
@@ -276,7 +276,6 @@ function BANR_changeType(value)
       <input name="url" id="f_targeturl"
         type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
         value="{target_url}" /> {$LANG_BANNER['includehttp']}
-      <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
       <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_target_url']}"></i>
     </div>
   </div>

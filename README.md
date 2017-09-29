@@ -23,22 +23,22 @@ for an advertiser, and the dates when ads will be displayed.
 Banners can be placed on your site by updating your layout templates, or by using a standard autotag.
 
 ### Template Changes
-There are two methods of getting banner ads into your templates, both using autotags: `banner_<topic>}` and `{adblock}`.
+There are two methods of getting banner ads into your templates, both using autotags: `{banner_<templatename>}` and `{adblock}`.
 Which you use depends on your own environment.
 
 #### Banner Template Variable
-Add an autotag to your template where you'd like the banner to appear. The autotag must be formatted as `banner_<templatename>`
-where templatname is the name of the template that gets passed to `PLG_setTemplateVars()`. Examples are "header", "footer",
-"story", and "staticpage".
+Add a tag to your template where you'd like the banner to appear. The autotag must be formatted as `banner_<templatename>`
+where templatname is the name of the template that gets passed to `PLG_setTemplateVars()`.
+Examples are "header", "footer", "story", and "staticpage".
 
-Next, associate one or more banner with a category that has a type matching the template name. Categories for headers, footers and
-blocks are provided by default.
+Next, associate one or more banners with a category that has a type matching the template name.
+Categories for headers, footers and blocks are provided by default.
 
 To display a banner in the header you can add a template variable `banner_header` to your layout's header.thtml file. Banners associated
 with a category of type "header" will be displayed in that area.
 
-The template name should be `banner_` + the template type, such as `header`, `footer`, `article`, etc. There must also be one or more
-banner categories of the same type containing the banners to display.
+The template name should be `banner_` + the template type, such as `header`, `footer`, `article`, etc.
+There must also be one or more banner categories of the same type containing the banners to display.
 
 For example, to display a banner in the upper right corner, replacing the default search box in the Nouveau theme, you can edit your header.html like so:
 ```

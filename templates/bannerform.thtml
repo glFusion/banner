@@ -302,13 +302,13 @@ function BANR_changeType(value)
 
   <tr id="targeturl">
     <td>
-      <label for="f_targeturl" class="required">
+      <label for="f_targeturl">
         {$LANG_BANNER['target_url']}:
         <a href="#" onclick="popupWindow('{help_url}#desc_target_url', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
       </label>
     </td>
     <td>
-      <input name="url" id="f_targeturl" class="fValidate['url']" 
+      <input name="url" id="f_targeturl"
         type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
         value="{target_url}" /> {$LANG_BANNER['includehttp']}
     </td>

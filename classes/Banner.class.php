@@ -812,7 +812,11 @@ class Banner
             $title = empty($this->options['alt']) ? $this->title : $this->options['alt'];
         }
         $alt = htmlspecialchars($this->options['alt']);
-        $url = COM_buildUrl(BANR_URL . '/portal.php?id=' . $this->bid);
+        if (!empty($this->options['url'])) {
+            $url = COM_buildUrl(BANR_URL . '/portal.php?id=' . $this->bid);
+        } else {
+            $url = '';
+        }
         $target = isset($this->options['target']) ?
                     $this->options['target'] : '_blank';
         $a_attr = array(
@@ -855,12 +859,7 @@ class Banner
                 $img_attr['height'] = $height;
             }
             if (!empty($img)) {
-                $img_url = COM_createImage($img, $alt, $img_attr);
-                if ($link) {
-                    $retval = COM_createLink($img_url, $url, $a_attr);
-                } else {
-                    $retval = $img_url;
-                }
+                $retval = COM_createImage($img, $alt, $img_attr);
             }
             break;
 
@@ -869,25 +868,13 @@ class Banner
             if ($img != '') {
                 $img_attr['height'] = $height;
                 $img_attr['width'] = $width;
-                $img_url = COM_createImage($img, $alt, $img_attr);
-                if ($link) {
-                    $retval = COM_createLink($img_url, $url, $a_attr);
-                } else {
-                    $retval = $img_url;
-                }
+                $retval = COM_createImage($img, $alt, $img_attr);
             }
             break;
 
         case BANR_TYPE_SCRIPT:
             if ($link == true) {
-                if (!empty($this->options['htmlTemplate'])) {
-                    $retval = str_replace(
-                            array('{clickurl}', '{target}'),
-                            array($url, $target),
-                            $this->options['htmlTemplate']);
-                } else {
-                    $retval = $this->options['ad_code'];
-                }
+                $retval = $this->options['ad_code'];
             } else {
                 $retval = $LANG_BANNER['ad_is_script'];
             }
@@ -899,6 +886,9 @@ class Banner
                 $retval = COM_createLink($retval, $url, $a_attr);
             }
             break;
+        }
+        if ($link && !empty($url) && !empty($retval)) {
+            $retval = COM_createLink($retval, $url, $a_attr);
         }
         return $retval;
     }
@@ -1219,18 +1209,15 @@ class Banner
         // Check that appropriate ad content has been added
         switch ($A['ad_type']) {
         case BANR_TYPE_LOCAL:
-            if (COM_sanitizeUrl($A['url'], array('http','https')) == '')
-                $this->errors[] = $LANG_BANNER['err_invalid_url'];
             if (empty($_FILES))
                 $this->errors[] = $LANG_BANNER['err_missing_upload'];
             break;
         case BANR_TYPE_REMOTE:
-            if (COM_sanitizeUrl($A['url'], array('http','https')) == '')
-                $this->errors[] = $LANG_BANNER['err_invalid_url'];
             if (COM_sanitizeUrl($A['image_url'], array('http','https')) == '')
                 $this->errors[] = $LANG_BANNER['err_invalid_image_url'];
             break;
         case BANR_TYPE_SCRIPT:
+        case BANR_TYPE_AUTOTAG:
             if (empty($A['ad_code']))
                 $this->errors[] = $LANG_BANNER['err_missing_adcode'];
             break;

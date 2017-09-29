@@ -815,6 +815,7 @@ function plugin_templateSetVars_banner($templatename, &$template)
 /**
 *   Provide a banner for PLG_displayAdBlock()
 *
+*   @since  0.3.0
 *   @param  string  $plugin     Calling plugin, e.g. 'story'
 *   @param  integer $counter    Item display counter
 *   @return string              Banner image and link code
