@@ -140,33 +140,23 @@ class BannerList
             $validate = '';
             $token = SEC_createToken();
 
-            if (isset($_GET['validate']) && $_GET['validate'] == 'validate') {
+            if (isset($_POST['validate'])) {
                 $header_arr[] = array(
                     'text' => $LANG_BANNER['html_status'],
                     'field' => 'dovalidate', 'sort' => false);
-                $validate = '&validate=validate&amp;'.CSRF_TOKEN.'='.$token;
-                 $validate_help = $LANG_BANNER['validate_instr'];
             } else {
-                $dovalidate_url = BANR_ADMIN_URL .
-                    '/index.php?validate=validate&amp;'. CSRF_TOKEN.'='.$token;
-                $dovalidate_text = '<button class="lgButton green">' .
+                $dovalidate_url = BANR_ADMIN_URL . '/index.php';
+                    //'/index.php?validate=validate&amp;'. CSRF_TOKEN.'='.$token;
+                $dovalidate_text = '<button class="lgButton green" name="validate">' .
                     $LANG_BANNER['validate_now'] . '</button>';
                 $form_arr['top'] = COM_createLink($dovalidate_text, $dovalidate_url);
-                    $header_arr[] = array(
+                $header_arr[] = array(
                         'text' => $LANG_BANNER['html_status'],
                         'field' => 'beforevalidate', 'sort' => false);
-                    $validate = '&validate=validate';
-                $text_arr = array(
-                    'has_extras' => true,
-                    'form_url' => BANR_ADMIN_URL . '/index.php?item=banner' .
-                                $validate,
-                );
-                $validate_help = '';
             }
             $text_arr = array(
                 'has_extras' => true,
-                'form_url' => BANR_ADMIN_URL . '/index.php?item=banner' .
-                                $validate,
+                'form_url' => BANR_ADMIN_URL . '/index.php?item=banner',
             );
         } else {
             $is_admin = 0;
