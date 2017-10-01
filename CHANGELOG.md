@@ -2,7 +2,7 @@
 
 ## Version 0.3.0
 Release TBD
-- Use PLG_displayAdblock() in glFusion 1.7.0
+- Use PLG_supportAdblock() in glFusion 1.7.0 to get template names
 - Add template configurations in categories to control ad display
 - Submission queue is always required due to potential malicious code in script ads
 - Add Autotag-type ad which will process autotags
