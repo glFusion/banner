@@ -274,7 +274,7 @@ class Mapping
                 // Check if this is a content page vs. an index
                 // $counter == 0 implies show only once
                 $cats[] = $Map->cid;
-            } elseif ($counter > 0 && !$Map->once && ($counter % $Map->pos) == 0) {
+            } elseif ($counter > 0 && !$Map->once && $Map->pos > 0 && ($counter % $Map->pos) == 0) {
                 // If showing every X items, see if this is a matching item
                 $cats[] = $Map->cid;
             }
