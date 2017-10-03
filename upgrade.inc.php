@@ -25,14 +25,20 @@ function banner_do_upgrade()
 
     $pi_name = $_CONF_BANR['pi_name'];
 
-    if (isset($_PLUGIN_INFO[$pi_name])) {
-        if (is_array($_PLUGIN_INFO[$pi_name])) {
-            // glFusion > = 1.6.6
-            $current_ver = $_PLUGIN_INFO[$pi_name]['pi_version'];
+    if (isset($_PLUGIN_INFO[$_CONF_BANR['pi_name']])) {
+        $code_ver = plugin_chkVersion_locator();
+        if (is_array($_PLUGIN_INFO[$_CONF_BANR['pi_name']])) {
+            // glFusion 1.6.6+
+            $current_ver = $_PLUGIN_INFO[$_CONF_BANR['pi_name']]['pi_version'];
         } else {
             $current_ver = $_PLUGIN_INFO[$_CONF_BANR['pi_name']];
         }
+        if (COM_checkVersion($current_ver, $code_ver)) {
+            // Already updated to the code version, nothing to do
+            return true;
+        }
     } else {
+        // Error determining the installed version
         return false;
     }
 
