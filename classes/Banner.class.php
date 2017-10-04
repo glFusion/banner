@@ -886,9 +886,6 @@ class Banner
 
         case BANR_TYPE_AUTOTAG:
             $retval = PLG_replaceTags($this->options['ad_code']);
-            if ($link && !empty($this->options['url'])) {
-                $retval = COM_createLink($retval, $url, $a_attr);
-            }
             break;
         }
         if ($link && !empty($url) && !empty($retval)) {
