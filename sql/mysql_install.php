@@ -25,7 +25,8 @@ $_SQL['bannercategories'] = "CREATE TABLE {$_TABLES['bannercategories']} (
   `max_img_width` int(4) unsigned default 0,
   `max_img_height` int(4) unsigned default 0,
   PRIMARY KEY  (`cid`),
-  KEY `type` (`type`) )";
+  KEY `type` (`type`)
+) ENGINE=MyISAM";
 
 // Common table structure for both banners and submissions
 $banner_def =
@@ -52,11 +53,13 @@ $_SQL['banner'] = "CREATE TABLE {$_TABLES['banner']} (
   $banner_def,
   PRIMARY KEY  (`bid`),
   KEY `banner_category` (`cid`),
-  KEY `banner_date` (`date`) )";
+  KEY `banner_date` (`date`)
+) ENGINE=MyISAM";
 
 $_SQL['bannersubmission'] = "CREATE TABLE {$_TABLES['bannersubmission']} (
   $banner_def,
-  PRIMARY KEY  (`bid`) )";
+  PRIMARY KEY  (`bid`)
+) ENGINE=MyISAM";
 
 $_SQL['bannercampaigns'] = "CREATE TABLE {$_TABLES['bannercampaigns']} (
   `camp_id` varchar(40) NOT NULL,
@@ -76,7 +79,8 @@ $_SQL['bannercampaigns'] = "CREATE TABLE {$_TABLES['bannercampaigns']} (
   `perm_members` tinyint(1) unsigned NOT NULL default '2',
   `perm_anon` tinyint(1) unsigned NOT NULL default '2',
   `tid` varchar(20) default 'all',
-  PRIMARY KEY  (`camp_id`) )";
+  PRIMARY KEY  (`camp_id`)
+) ENGINE=MyISAM";
 
 $DEFVALUES['bannercategories'] = "INSERT INTO `{$_TABLES['bannercategories']}`
         (cid, type, category, description, max_img_width, max_img_height)
@@ -156,7 +160,8 @@ $BANR_UPGRADE = array(
       `pos` tinyint(3) unsigned NOT NULL DEFAULT '0',
       `once` tinyint(1) unsigned NOT NULL DEFAULT '0',
       `in_content` tinyint(1) unsigned NOT NULL DEFAULT '0',
-      PRIMARY KEY (`tpl`,`cid`) )",
+      PRIMARY KEY (`tpl`,`cid`)
+    ) ENGINE=MyISAM",
     "UPDATE {$_TABLES['bannercampaigns']}
         SET max_hits = 0 WHERE max_hits IS NULL",
     ),
