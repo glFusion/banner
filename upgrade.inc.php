@@ -41,6 +41,7 @@ function banner_do_upgrade()
         // Error determining the installed version
         return false;
     }
+    $installed_ver = plugin_chkVersion_banner();
 
     $conf = config::get_instance();
 
@@ -99,8 +100,8 @@ function banner_do_upgrade()
     }
 
     // Final extra check to catch code-only patch versions
-    if (!COM_checkVersion($current_ver, plugin_chkVersion_banner()) {
-        if (!banner_do_update_version($current_ver)) return false;
+    if (!COM_checkVersion($current_ver, $installed_ver) {
+        if (!banner_do_update_version($installed_ver)) return false;
     }
     return true;
 }
