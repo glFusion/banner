@@ -1,7 +1,7 @@
 # Changelog - Banner plugin for glFusion
 
 ## Version 0.3.0
-Release TBD
+Release 2017-10-06
 - Use PLG_supportAdblock() in glFusion 1.7.0 to get template names
 - Add template configurations in categories to control ad display
 - Submission queue is always required due to potential malicious code in script ads
