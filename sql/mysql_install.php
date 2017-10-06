@@ -82,6 +82,16 @@ $_SQL['bannercampaigns'] = "CREATE TABLE {$_TABLES['bannercampaigns']} (
   PRIMARY KEY  (`camp_id`)
 ) ENGINE=MyISAM";
 
+// template-category mapping introduced in 0.3.0
+$_SQL['banner_mapping'] = "CREATE TABLE `{$_TABLES['banner_mapping']}` (
+  `tpl` varchar(50) NOT NULL,
+  `cid` varchar(25) NOT NULL DEFAULT '',
+  `pos` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `once` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `in_content` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`tpl`,`cid`)
+) ENGINE=MyISAM";
+
 $DEFVALUES['bannercategories'] = "INSERT INTO `{$_TABLES['bannercategories']}`
         (cid, type, category, description, max_img_width, max_img_height)
     VALUES
@@ -164,9 +174,19 @@ $BANR_UPGRADE = array(
     ) ENGINE=MyISAM",
     "UPDATE {$_TABLES['bannercampaigns']}
         SET max_hits = 0 WHERE max_hits IS NULL",
+    "UPDATE {$_TABLES['banner']}
+        SET publishstart = '0000-01-01 00:00:00'
+            WHERE publishstart IS NULL",
+    "UPDATE {$_TABLES['banner']}
+        SET publishend = '9999-12-31 23:59:59'
+            WHERE publishend IS NULL",
+    "UPDATE {$_TABLES['bannersubmission']}
+        SET publishstart = '0000-01-01 00:00:00'
+            WHERE publishstart IS NULL",
+    "UPDATE {$_TABLES['bannersubmission']}
+        SET publishend = '9999-12-31 23:59:59'
+            WHERE publishend IS NULL",
     ),
 );
-// template-category mapping introduced in 0.3.0
-$_SQL['banner_mapping'] = $BANR_UPGRADE['0.3.0'][0];
 
 ?>
