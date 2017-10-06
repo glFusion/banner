@@ -100,7 +100,7 @@ function banner_do_upgrade()
     }
 
     // Final extra check to catch code-only patch versions
-    if (!COM_checkVersion($current_ver, $installed_ver) {
+    if (!COM_checkVersion($current_ver, $installed_ver)) {
         if (!banner_do_update_version($installed_ver)) return false;
     }
     return true;
