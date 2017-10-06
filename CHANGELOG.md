@@ -7,9 +7,6 @@ Release TBD
 - Submission queue is always required due to potential malicious code in script ads
 - Add Autotag-type ad which will process autotags
 - Target URL is optional for display-only banners
-
-## Version 0.2.1
-Released 2017-09-29
 - Use class autoloader
 - Change admin list AJAX to use Jquery
 - Implement PHP namespace
