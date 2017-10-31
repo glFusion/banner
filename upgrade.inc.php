@@ -26,7 +26,7 @@ function banner_do_upgrade()
     $pi_name = $_CONF_BANR['pi_name'];
 
     if (isset($_PLUGIN_INFO[$_CONF_BANR['pi_name']])) {
-        $code_ver = plugin_chkVersion_locator();
+        $code_ver = plugin_chkVersion_banner();
         if (is_array($_PLUGIN_INFO[$_CONF_BANR['pi_name']])) {
             // glFusion 1.6.6+
             $current_ver = $_PLUGIN_INFO[$_CONF_BANR['pi_name']]['pi_version'];
@@ -100,7 +100,7 @@ function banner_do_upgrade()
     }
 
     // Final extra check to catch code-only patch versions
-    if (!COM_checkVersion($current_ver, $installed_ver) {
+    if (!COM_checkVersion($current_ver, $installed_ver)) {
         if (!banner_do_update_version($installed_ver)) return false;
     }
     return true;
