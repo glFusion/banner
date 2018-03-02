@@ -12,8 +12,6 @@
 */
 namespace Banner;
 
-USES_class_upload();
-
 /**
  *  Image-handling class
  *  @package banner

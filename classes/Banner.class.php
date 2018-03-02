@@ -91,7 +91,7 @@ class Banner
     */
     public function __set($key, $value)
     {
-        global $_CONF_BANR;
+        global $_CONF, $_CONF_BANR;
 
         switch ($key) {
         case 'owner_id':
@@ -124,7 +124,7 @@ class Banner
                 }
             }
         case 'date':
-            $this->properties[$key] = new \Date($value, $_CONF_BANR['timezone']);
+            $this->properties[$key] = new \Date($value, $_CONF['timezone']);
             break;
 
         case 'enabled':
@@ -650,13 +650,13 @@ class Banner
         global $_TABLES, $_CONF_BANR, $_CONF, $_USER, $topic;
 
         $banners = array();
-        if (!is_array($fields)) $fields = array();
 
         // Determine if any ads at all should be displayed to this user
         if (!self::canShow()) {
             return $banners;
         }
 
+        if (!is_array($fields)) $fields = array();
         $sql_cond = '';
         $limit_clause = '';
         $topic_sql = '';
@@ -843,9 +843,10 @@ class Banner
             // A bit of a kludge until LGLIB is updated for everyone.
             // The service function returns the image width and height as well
             // as the url.
+            $filename = isset($this->options['filename']) ? $this->options['filename'] : '';
             $status = LGLIB_invokeService('lglib', 'imageurl',
                 array(
-                    'filepath' => $_CONF_BANR['img_dir'] . '/' . $this->options['filename'],
+                    'filepath' => $_CONF_BANR['img_dir'] . '/' . $filename,
                     'width'     => $width,
                     'height'    => $height,
                 ),
@@ -857,7 +858,7 @@ class Banner
             } else {
                 // Newer lglib plugin not available, call the legacy function.
                 $img = LGLIB_ImageUrl(
-                    $_CONF_BANR['img_dir'] . '/' . $this->options['filename'],
+                    $_CONF_BANR['img_dir'] . '/' . $filename,
                     $width, $height);
                 $img_attr['width'] = $width;
                 $img_attr['height'] = $height;

@@ -31,26 +31,21 @@ define ('BANR_MAX_DATE', '9999-12-31 23:59:59');
 define ('BANR_MIN_DATE', '0000-01-01 00:00:00');
 
 $langfile = $_CONF['language'] . '.php';
-if (!file_exists(BANR_PI_PATH . '/language/' . $langfile)) {
+if (!file_exists(__DIR__ . '/language/' . $langfile)) {
     $langfile = 'english.php';
 }
 /** Import the plugin's language file */
-require_once BANR_PI_PATH . '/language/' . $langfile;
+require_once __DIR__ . '/language/' . $langfile;
 
-//  Check and see if we need to load the plugin configuration
-if (!isset($_CONF_BANR['templatevars'])) {
-    /** Import the configuration class, if needed */
-    require_once $_CONF['path_system'] . 'classes/config.class.php';
-
-    $ban_config = config::get_instance();
-    $_CONF_BANR = $ban_config->get_config('banner');
-}
+require_once $_CONF['path_system'] . 'classes/config.class.php';
+$ban_config = config::get_instance();
+$_CONF_BANR = $ban_config->get_config('banner');
 
 /** Import static config values */
-require_once BANR_PI_PATH . '/banner.php';
-if (file_exists(BANR_PI_PATH . '/config.php')) {
+require_once __DIR__ . '/banner.php';
+if (file_exists(__DIR__ . '/config.php')) {
     /** Import local configuration overrides, if any */
-    include_once BANR_PI_PATH . '/config.php';
+    include_once __DIR__ . '/config.php';
 }
 
 // Mark whether this is a uikit theme. Save to global conf var
@@ -196,7 +191,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             $bid = COM_sanitizeID($autotag['parm1'], false);
             $B = new Banner\Banner($bid);
             if (!$B->isNew) {
-                $banner = $B->BuildBanner($title);
+                $banner = $B->BuildBanner();
                 $B->updateImpressions();
             }
             break;
@@ -1007,7 +1002,7 @@ function plugin_getuseroption_banner()
     if ($banner_cnt > 0) {
         $retval = array($LANG_BANNER['banners'],
             BANR_URL . '/index.php?banners=x',
-            $camp_cnt);
+            $banner_cnt);
     }
     return $retval;
 }
