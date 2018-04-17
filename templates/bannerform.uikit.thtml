@@ -80,8 +80,8 @@ function BANR_changeType(value)
 
 <form id="submit" action="{action_url}"
     enctype="multipart/form-data"
-    method="post" class="uk-form-horizontal">
-<fieldset>
+    method="post" class="uk-form uk-form-horizontal">
+<fieldset style="margin-bottom:25px;">
   <legend>{$LANG_BANNER['banner_info']}</legend>
   <div class="uk-form-row">
     <label for="f_bid" class="uk-form-label">{$LANG_BANNER['bid']}
@@ -215,10 +215,10 @@ function BANR_changeType(value)
 
 {!if isAdmin}
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_enabled">{$LANG_BANNER['enabled']}?
+    <label class="uk-form-label">{$LANG_BANNER['enabled']}?
     </label>
-    <div class="uk-form-controls">
-      <input name="enabled" id="f_enabled" type="checkbox" value="1" {ena_chk} /> 
+    <div class="uk-form-controls slider_checkbox">
+      <input class="onoff" name="enabled" id="f_enabled" type="checkbox" value="1" {ena_chk} /> 
       <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_enabled']}"></i>
     </div>
   </div>
