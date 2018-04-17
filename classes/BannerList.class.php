@@ -215,7 +215,7 @@ class BannerList
 */
 function getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
 {
-    global $_CONF, $LANG_ACCESS, $_CONF_BANR;
+    global $_CONF, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
 
     $retval = '';
 

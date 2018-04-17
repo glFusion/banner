@@ -91,7 +91,7 @@ class CampaignList
 
         $text_arr = array(
             'has_extras' => true,
-            'form_url' => "$admin_url?view=campaigns$validate"
+            'form_url' => BANR_ADMIN_URL . "?view=campaigns"
         );
 
         $query_arr = array('table' => 'bannercampaigns',
@@ -104,7 +104,7 @@ class CampaignList
         if ($uid > 0) {
             $query_arr['sql'] .= ' AND c.owner_id = ' . (int)$uid;
         }
-
+        $form_arr = array();
         $retval .= ADMIN_list('bannercampaigns',
                 __NAMESPACE__ . '\getField_Campaign', $header_arr,
                 $text_arr, $query_arr, $defsort_arr, '', $this->isAdmin, '',

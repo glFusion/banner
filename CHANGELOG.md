@@ -1,5 +1,9 @@
 # Changelog - Banner plugin for glFusion
 
+## Version 0.3.1
+Release TBD
+- E_ALL fixes
+
 ## Version 0.3.0
 Release 2017-10-06
 - Use PLG_supportAdblock() in glFusion 1.7.0 to get template names

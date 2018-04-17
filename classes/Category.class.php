@@ -145,8 +145,8 @@ class Category
         $this->type = trim($A['type']);
         $this->category = trim($A['category']);
         $this->description = trim($A['description']);
-        $this->enabled = $A['enabled'] == 1 ? 1 : 0;
-        $this->centerblock = $A['centerblock'] == 1 ? 1 : 0;
+        $this->enabled = isset($A['enabled']) ? $A['enabled'] : 0;
+        $this->centerblock = isset($A['centerblock']) ? $A['centerblock'] : 0;
         $this->grp_view = (int)$A['grp_view'];
         $this->max_img_height = (int)$A['max_img_height'];
         $this->max_img_width = (int)$A['max_img_width'];
@@ -304,7 +304,7 @@ class Category
         $T->set_var('gltoken', SEC_createToken());
 
         $T->parse ('output', 'page');
-        return $retval . $T->finish($T->get_var('output'));
+        return $T->finish($T->get_var('output'));
     }
 
 
@@ -423,7 +423,7 @@ class Category
     *   @param  string  $sel    Category ID to show as selected
     *   @return string          HTML for option statements
     */
-    public function DropDown($access = 3, $sel='')
+    public static function DropDown($access = 3, $sel='')
     {
         $retval = '';
         $sel = COM_sanitizeID($sel, false);
@@ -468,7 +468,7 @@ class Category
     *   @return string  HTML for administration page
     *   @see lib-admin.php
     */
-    public function AdminList()
+    public static function AdminList()
     {
         global $LANG_ADMIN, $LANG_BANNER;
 
@@ -519,7 +519,7 @@ class Category
     *
     *   @return array   Array of category information for the admin list
     */
-    private function list_categories()
+    private static function list_categories()
     {
         global $_TABLES;
 
@@ -632,7 +632,8 @@ function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'bannercategory':
-        $indent = ($A['indent'] - 1) * 20;
+        $indent = isset($A['indent']) ? (int)$A['indent'] : 1;
+        $indent = ($indent - 1) * 20;
         $cat = COM_createLink($A['category'],
                         "$admin_url?banners=x&category=" . urlencode($A['cid']));
         $retval = "<span style=\"padding-left:{$indent}px;\">$cat</span>";

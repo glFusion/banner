@@ -232,19 +232,23 @@ case 'edit':
             $B->SetVars($_POST);
         }
         $B->setAdmin(true);
-        $content .= $B->Edit($mode);
+        $content .= $B->Edit($action);
         break;
     case 'campaign':
-        $C = new Banner\Campaign($_REQUEST['camp_id']);
+        $camp_id = isset($_REQUEST['camp_id']) ? $_REQUEST['camp_id'] : '';
+        $uid = isset($_REQUEST['uid']) ? $_REQUEST['uid'] : $_USER['uid'];
+        $C = new Banner\Campaign($camp_id);
         if (!empty($_POST)) {
             $C->SetVars($_POST);
         }
-        if ($C->camp_id == '')
-            $C->setUID($_REQUEST['uid']);
+        if ($C->camp_id == '') {
+            $C->setUID($uid);
+        }
         $content .= $C->Edit();
         break;
     case 'category':
-        $C = new Banner\Category($_REQUEST['cid']);
+        $cid = isset($_REQUEST['cid']) ? $_REQUEST['cid'] : '';
+        $C = new Banner\Category($cid);
         $content .= $C->Edit();
         break;
     }
@@ -321,14 +325,18 @@ function BANR_adminMenu($view='')
         !empty($LANG_BANNER['admin_hdr_' . $view])) {
         $hdr_txt = $LANG_BANNER['admin_hdr_' . $view];
     } else {
-        $hdr_txt = $LANG_BANNER['admin_hdr'];
+        //$hdr_txt = $LANG_BANNER['admin_hdr'];
+        $hdr_txt = '';
     }
+
+    $act_banners = false;
+    $act_categories = false;
+    $act_campaigns = false;
+    $new_menu = NULL;
 
     switch ($view) {
     case 'banners':
         $act_banners = true;
-        $act_categories = false;
-        $act_campaigns = false;
         $new_menu = array(
             'url'  => BANR_ADMIN_URL . '/index.php?edit=x',
             'text' => '<span class="banrNewAdminItem">' .
@@ -337,9 +345,7 @@ function BANR_adminMenu($view='')
         break;
 
     case 'categories':
-        $act_banners = false;
         $act_categories = true;
-        $act_campaigns = false;
         $new_menu = array(
             'url'  => BANR_ADMIN_URL . '/index.php?edit=x&item=category',
             'text' => '<span class="banrNewAdminItem">' .
@@ -348,8 +354,6 @@ function BANR_adminMenu($view='')
         break;
 
     case 'campaigns':
-        $act_banners = false;
-        $act_categories = false;
         $act_campaigns = true;
         $new_menu = array(
             'url'  => BANR_ADMIN_URL . '/index.php?edit=x&item=campaign',
@@ -379,8 +383,10 @@ function BANR_adminMenu($view='')
             'url'  => $_CONF['site_admin_url'],
             'text' => $LANG_ADMIN['admin_home'],
         ),
-        $new_menu,
     );
+    if ($new_menu !== NULL) {
+        $menu_arr[] = $new_menu;
+    }
 
     $T = new \Template(BANR_PI_PATH . '/templates');
     $T->set_file('title', 'banner_admin_title.thtml');

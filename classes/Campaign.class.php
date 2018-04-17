@@ -288,7 +288,7 @@ class Campaign
             'max_banners'   => $this->max_banners,
             'banner_ownerid'    => $this->owner_id,
             'owner_username' => DB_getItem($_TABLES['users'],
-                                'username', "uid = {$this->owner_id}"),
+                                'username', "uid = '{$this->owner_id}'"),
             'owner_selection' => COM_optionList($_TABLES['users'],'uid,username',
                                 $this->owner_id, 1, 'uid <> 1'),
             'group_dropdown' => SEC_getGroupDropdown(
@@ -498,7 +498,7 @@ class Campaign
             return false;
 
         $this->Banners = array();
-        while ($A = DB_fetchArray($result, MYSQL_FETCH_ASSOC)) {
+        while ($A = DB_fetchArray($result, false)) {
             $this->Banners[] = new Banner($A['bid']);
         }
     }

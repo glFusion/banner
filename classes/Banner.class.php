@@ -79,6 +79,9 @@ class Banner
             $this->impressions  = 0;
             $this->max_impressions = 0;
             $this->tid          = 'all';
+            $this->options = array(
+                'target' => '_blank',
+            );
         }
     }
 
@@ -1064,7 +1067,7 @@ class Banner
         }
 
         $T->set_var(array(
-            'mootools'      => $_SYSTEM['disable_jquery'] ? 'true' : '',
+            //'mootools'      => $_SYSTEM['disable_jquery'] ? 'true' : '',
             'banner_title' => htmlspecialchars($this->title),
             'max_url_length' => 255,
             'category_options' => Category::Dropdown(0, $this->cid),
@@ -1074,14 +1077,14 @@ class Banner
             'impressions'   => $this->impressions,
             'max_impressions'   => $this->max_impressions,
             'ena_chk' => $this->enabled == 1 ? ' checked="checked"' : '',
-            'image_url' => $this->options['image_url'],
-            'alt'   => $this->options['alt'],
-            'width' => $this->options['width'],
-            'height' => $this->options['height'],
-            'target_url' => $this->options['url'],
-            'ad_code'   => $this->options['ad_code'],
+            'image_url' => isset($this->options['image_url']) ? $this->options['image_url'] : '',
+            'alt'   => isset($this->options['alt']) ? $this->options['alt'] : '',
+            'width' => isset($this->options['width']) ? $this->options['width'] : '',
+            'height' => isset($this->options['height']) ? $this->options['height'] : '',
+            'target_url' => isset($this->options['url']) ? $this->options['url'] : '',
+            'ad_code'   => isset($this->options['ad_code']) ? $this->options['ad_code'] : '',
             'adtype_select' => $adtype_select,
-            'filename' => $this->options['filename'],
+            'filename' => isset($this->options['filename']) ? $this->options['filename'] : '',
             'weight_select' => $weight_select,
             'sel'.$this->options['target'] => 'selected="selected"',
             'req_item_msg' => $LANG_BANNER['req_item_msg'],
@@ -1170,8 +1173,8 @@ class Banner
         $T->set_var(array(
             'start_hour_options' =>
                         COM_getHourFormOptions($st_hour, $_CONF['hour_mode']),
-            'start_ampm_selection' =>
-                        self::getAmPmFormSelection('start_ampm', $st_ampm),
+//            'start_ampm_selection' =>
+//                        self::getAmPmFormSelection('start_ampm', $st_ampm),
             'start_month_options' => COM_getMonthFormOptions($startdt->format('m', true)),
             'start_day_options' => COM_getDayFormOptions($startdt->format('d', true)),
             'start_year_options' => COM_getYearFormOptions($startdt->format('Y', true)),
@@ -1179,11 +1182,11 @@ class Banner
                         COM_getMinuteFormOptions($startdt->format('i', true)),
             'end_hour_options' =>
                         COM_getHourFormOptions($end_hour, $_CONF['hour_mode']),
-            'end_ampm_selection' => self::getAmPmFormSelection('end_ampm', $end_ampm),
+//            'end_ampm_selection' => self::getAmPmFormSelection('end_ampm', $end_ampm),
             'end_month_options' => COM_getMonthFormOptions($enddt->format('m', true)),
             'end_day_options' => COM_getDayFormOptions($enddt->format('d', true)),
             'end_year_options' => COM_getYearFormOptions($enddt->format('Y', true)),
-            'end_minute_options' => COM_getMinuteFormOptions($enddt->format('i', $true)),
+            'end_minute_options' => COM_getMinuteFormOptions($enddt->format('i', true)),
         ) );
         $T->parse('output', 'editor');
         $retval .= $T->finish($T->get_var('output'));
