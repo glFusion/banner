@@ -821,7 +821,7 @@ function plugin_displayadblock_banner($plugin, $counter)
 {
     global $_CONF_BANR, $topic;
 
-    if (!BANR_isCurrentVersion()) {
+    if (!BANR_isMinVersion('0.3.0')) {
         return '';
     }
 
@@ -1240,11 +1240,15 @@ function BANR_getIcon($name, $style='info')
 *   This is to disable functions that might not work due to a mismatch.
 *   Just check the major.minor.revision values.  Any fourth element is ignored.
 *
-*   @return boolean     True if current == installed version, False if not
+*   @param  string  $required   Required version, default to code version
+*   @return boolean     True if current >= installed version, False if not
 */
-function BANR_isCurrentVersion()
+function BANR_isMinVersion($required = '')
 {
     global $_CONF_BANR, $_PLUGIN_INFO;
+
+    // If not specified, use the current code version as required.
+    if ($required == '') $required = $_CONF_BANR['pi_version'];
 
     $pi_name = $_CONF_BANR['pi_name'];
     if (isset($_PLUGIN_INFO[$pi_name])) {
@@ -1255,7 +1259,7 @@ function BANR_isCurrentVersion()
             $installed = $_PLUGIN_INFO[$pi_name];
         }
     }
-    return COM_checkVersion($installed, $_CONF_BANR['pi_version']);
+    return COM_checkVersion($installed, $required);
 }
 
 
