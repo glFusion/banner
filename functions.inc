@@ -155,6 +155,8 @@ function plugin_centerblock_banner($where=1,$page=1,$topic ='')
         $T->parse('output','page');
 
         $banner = $T->finish($T->get_var('output'));
+    } else {
+        $banner = '';
     }
 
     if ($_CONF_BANR['cb_replhome'] == 1 && $on_homepage) {

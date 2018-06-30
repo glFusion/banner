@@ -266,9 +266,9 @@ class Banner
                 $this->options['ad_code'] = $A['ad_code'];
             }
             $this->options['alt'] = COM_checkHTML(COM_checkWords($A['alt']));
-            $this->options['width'] = (int)$A['width'];
-            $this->options['height'] = (int)$A['height'];
-            $this->options['target'] = $A['target'];
+            $this->options['width'] = isset($A['width']) ? (int)$A['width'] : '';
+            $this->options['height'] = isset($A['height']) ? (int)$A['height'] : '';
+            $this->options['target'] = isset($A['target']) ? $A['target'] : '';
 
             // Assemble the dates from component parts
             if (!isset($A['start_dt_limit']) || $A['start_dt_limit'] != 1) {
@@ -326,9 +326,9 @@ class Banner
         $this->camp_id = $A['camp_id'];
         $this->ad_type = $A['ad_type'];
 
-        $this->notes = $A['notes'];
+        $this->notes = isset($A['notes']) ? $A['notes'] : '';
         $this->title = $A['title'];
-        $this->enabled = $A['enabled'] == 1 ? 1 : 0;
+        $this->enabled = isset($A['enabled']) ? $A['enabled'] : 0;
         $this->impressions = $A['impressions'];
         $this->max_impressions = $A['max_impressions'];
         $this->hits = $A['hits'];
@@ -628,8 +628,8 @@ class Banner
         DB_query($sql1 . $sql2 . $sql3);
         if (!DB_error()) {
             $category = DB_getItem($_TABLES['bannercategories'], "category",
-                    "cid='{$cid}'");
-            COM_rdfUpToDateCheck('banner', $category, $bid);
+                    "cid='{$this->cid}'");
+            COM_rdfUpToDateCheck('banner', $category, $this->bid);
             if ($this->isNew && $_CONF_BANR['notification'] == 1) {
                 // Notify the administrator
                 $this->Notify();
@@ -1150,7 +1150,11 @@ class Banner
             ) );
             $startdt = $this->publishstart;
         }
-
+        if ($startdt->format('H') > 11) {
+            $st_ampm = 'pm';
+        } else {
+            $st_ampm = 'am';
+        }
         if ($this->publishend == BANR_MAX_DATE) {
             $T->set_var(array(
                 'end_dt_limit_chk'      => '',
@@ -1166,6 +1170,11 @@ class Banner
             ) );
             $enddt = $this->publishend;
         }
+        if ($enddt->format('H') > 11) {
+            $end_ampm = 'pm';
+        } else {
+            $end_ampm = 'am';
+        }
         $h_fmt = $_CONF['hour_mode'] == 12 ? 'h' : 'H';
         $st_hour = $startdt->format($h_fmt, true);
         $end_hour = $enddt->format($h_fmt, true);
@@ -1173,8 +1182,8 @@ class Banner
         $T->set_var(array(
             'start_hour_options' =>
                         COM_getHourFormOptions($st_hour, $_CONF['hour_mode']),
-//            'start_ampm_selection' =>
-//                        self::getAmPmFormSelection('start_ampm', $st_ampm),
+            'start_ampm_selection' =>
+                        self::getAmPmFormSelection('start_ampm', $st_ampm),
             'start_month_options' => COM_getMonthFormOptions($startdt->format('m', true)),
             'start_day_options' => COM_getDayFormOptions($startdt->format('d', true)),
             'start_year_options' => COM_getYearFormOptions($startdt->format('Y', true)),
@@ -1182,7 +1191,7 @@ class Banner
                         COM_getMinuteFormOptions($startdt->format('i', true)),
             'end_hour_options' =>
                         COM_getHourFormOptions($end_hour, $_CONF['hour_mode']),
-//            'end_ampm_selection' => self::getAmPmFormSelection('end_ampm', $end_ampm),
+            'end_ampm_selection' => self::getAmPmFormSelection('end_ampm', $end_ampm),
             'end_month_options' => COM_getMonthFormOptions($enddt->format('m', true)),
             'end_day_options' => COM_getDayFormOptions($enddt->format('d', true)),
             'end_year_options' => COM_getYearFormOptions($enddt->format('Y', true)),
