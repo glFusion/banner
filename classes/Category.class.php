@@ -168,7 +168,12 @@ class Category
         DB_query("UPDATE {$_TABLES['bannercategories']}
                 SET `$field` = $newval
                 WHERE cid = '" . DB_escapeString($id) . "'");
-        return DB_error() ? $oldval : $newval;
+        if (!DB_error()) {
+            Cache::clear('cats');
+            return $newval;
+        } else {
+            return $oldval;
+        }
     }
 
 
@@ -213,6 +218,7 @@ class Category
         if (!self::isUsed($this->cid)) {
             DB_delete($_TABLES['bannercategories'],
                 'cid', DB_escapeString($this->cid));
+            Cache::clear('cats');
         }
     }
 
@@ -370,6 +376,7 @@ class Category
         if (isset($_POST['map']) && is_array($_POST['map'])) {
             Mapping::saveAll($_POST['map'], $this->cid);
         }
+        Cache::clear('cats');
         return '';
     }
 
@@ -507,7 +514,7 @@ class Category
         $defsort_arr = array('field' => 'category', 'direction' => 'asc');
         $text_arr = array();
         $dummy = array();
-        $data_arr = self::list_categories();
+        $data_arr = self::_listCategories();
         $retval .= ADMIN_simpleList(__NAMESPACE__ . '\getField_Category', $header_arr,
                                 $text_arr, $data_arr);
         return $retval;
@@ -519,7 +526,7 @@ class Category
     *
     *   @return array   Array of category information for the admin list
     */
-    private static function list_categories()
+    private static function _listCategories()
     {
         global $_TABLES;
 
@@ -546,18 +553,20 @@ class Category
     public static function getAll()
     {
         global $_TABLES;
-        static $cats = NULL;
-
+        $cache_key = 'cat_all';
+        $cats = Cache::get($cache_key);
         if ($cats === NULL) {
             $cats = array();
             $sql = "SELECT * FROM {$_TABLES['bannercategories']}";
             $res = DB_query($sql);
             while ($A = DB_fetchArray($res, false)) {
-                $C = new Category();
+                $C = new self();
                 $C->setVars($A);
                 $cats[$A['cid']] = $C;
             }
+            Cache::set($cache_key, $cats, 'cats');
         }
+        if (!is_array($cats)) $cats = array();
         return $cats;
     }
 

@@ -103,11 +103,16 @@ class Mapping
     {
         global $_TABLES;
 
-        $sql = "SELECT * FROM {$_TABLES['banner_mapping']}
-                WHERE tpl = '" . DB_escapeString($tpl) . "'
-                AND cid = '" . DB_escapeString($cid) . "'";
-        $res = DB_query($sql);
-        $A = DB_fetchArray($res, false);
+        $key = 'map_' . $tpl . '_' . $cid;
+        $A = Cache::get($key);
+        if ($A === NULL) {
+            $sql = "SELECT * FROM {$_TABLES['banner_mapping']}
+                    WHERE tpl = '" . DB_escapeString($tpl) . "'
+                    AND cid = '" . DB_escapeString($cid) . "'";
+            $res = DB_query($sql);
+            $A = DB_fetchArray($res, false);
+            Cache::set($key, $A, 'maps');
+        }
         if (!empty($A)) {
             $this->setVars($A);
         }
@@ -141,8 +146,9 @@ class Mapping
     public static function loadAll()
     {
         global $_TABLES;
-        static $M = NULL;
 
+        $cache_key = 'maps_all';
+        $M = Cache::get($cache_key);
         if ($M === NULL) {
             $sql = "SELECT * FROM {$_TABLES['banner_mapping']}";
             $res = DB_query($sql);
@@ -152,6 +158,7 @@ class Mapping
                 $M[$key]->setVars($A);
             }
             if (empty($M)) $M = array();
+            Cache::set($cache_key, $M, 'maps');
         }
         return $M;
     }
@@ -209,8 +216,9 @@ class Mapping
     *   Deletes mappings that are not enabled
     *
     *   @param  array   $A      Array of mapping elements
+    *   @param  boolean $clear_cache    Flag to immediately clear cache
     */
-    public static function Save($A)
+    public static function Save($A, $clear_cache = true)
     {
         global $_TABLES;
 
@@ -236,6 +244,9 @@ class Mapping
         }
         //echo $sql;die;
         DB_query($sql);
+        if ($clear_cache) {
+            Cache::clear('maps');
+        }
     }
 
 
@@ -249,8 +260,10 @@ class Mapping
     {
         foreach ($A as $tpl=>$data) {
             $data['cid'] = $cat_id;
-            self::Save($data);
+            // delay clearing cache until after all are saved.
+            self::Save($data, false);
         }
+        Cache::clear('maps');
     }
 
 

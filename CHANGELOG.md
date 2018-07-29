@@ -3,6 +3,7 @@
 ## Version 0.3.1
 Release TBD
 - E_ALL fixes
+- Implement glFusion caching
 
 ## Version 0.3.0
 Release 2017-10-06
