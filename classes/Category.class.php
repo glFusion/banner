@@ -502,7 +502,7 @@ class Category
                     'field' => 'type',
                     'sort' => 'true'),
                 array('text' => $LANG_BANNER['cat_name'],
-                    'field' => 'bannercategory',
+                    'field' => 'category',
                     'sort' => true),
                 array('text' => $LANG_BANNER['topic'],
                     'field' => 'tid',
@@ -513,9 +513,9 @@ class Category
                     'align' => 'center'),
         );
 
-        $defsort_arr = array('field' => 'category', 'direction' => 'asc');
-        $text_arr = array();
-        $dummy = array();
+        $text_arr = array(
+            'form_url' => BANR_ADMIN_URL . '/index.php?categories=x',
+        );
         $data_arr = self::_listCategories();
         $retval .= ADMIN_simpleList(__NAMESPACE__ . '\getField_Category', $header_arr,
                                 $text_arr, $data_arr);
@@ -642,7 +642,7 @@ function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         }
         break;
 
-    case 'bannercategory':
+    case 'category':
         $indent = isset($A['indent']) ? (int)$A['indent'] : 1;
         $indent = ($indent - 1) * 20;
         $cat = COM_createLink($A['category'],
