@@ -261,9 +261,12 @@ class Campaign
         global $_CONF, $_CONF_BANR, $_TABLES, $LANG_ACCESS, $LANG_BANNER, $_SYSTEM;
 
         $T = new \Template($_CONF['path'] . 'plugins/' .
-                        $_CONF_BANR['pi_name'].'/templates/admin/');
+                        $_CONF_BANR['pi_name'].'/templates');
         $tpltype = $_SYSTEM['framework'] == 'uikit' ? '.uikit' : '';
-        $T->set_file (array('editform' => "campaignedit$tpltype.thtml"));
+        $T->set_file (array(
+            'editform' => "admin/campaignedit$tpltype.thtml",
+            'tips' => 'tooltipster.thtml',
+        ) );
 
         $ownername = COM_getDisplayName ($this->owner_id);
         $topics = COM_topicList('tid,topic', $this->tid, 1, true);
@@ -324,6 +327,7 @@ class Campaign
                 $T->parse('ad', 'AdRow', true);
             }
         }
+        $T->parse('tooltipster', 'tips');
         $T->parse ('output', 'editform');
         //$menu = BANNER_menu_adminCampaigns();
         return $T->finish($T->get_var('output'));

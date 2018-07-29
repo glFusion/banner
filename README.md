@@ -61,7 +61,7 @@ You can add a similar variable named `banner_footer`. For other display location
 glFusion 1.6.0 and above includes a function that is called from lib-story.php to display an ad within story content.
 To use this, edit your storytext.thtml file and place `{adblock}` where you'd like the ad to appear.
 
-The AdBlock function recieves the plugin name and a counter of items displayed on the page. For the full story view, the counter is zero.
+The AdBlock function receives the plugin name and a counter of items displayed on the page. For the full story view, the counter is zero.
 You can use this to have as appear only under the first, second, third, etc. article on the index page.
 
 Create categories with the type set to `story_1`, `story_2`, `story_3`, or whichever ones you like. Ads in `story_1` will appear

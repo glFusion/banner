@@ -255,9 +255,12 @@ class Category
             return COM_showMessage(6, 'banner');
         }
 
-        $T = new \Template(BANR_PI_PATH . '/templates/admin');
+        $T = new \Template(BANR_PI_PATH . '/templates');
         $tpltype = $_CONF_BANR['_is_uikit'] ? '.uikit' : '';
-        $T->set_file(array('page' => "categoryeditor$tpltype.thtml"));
+        $T->set_file(array(
+            'page' => "admin/categoryeditor$tpltype.thtml",
+            'tips' => 'tooltipster.thtml',
+        ) );
 
         $T->set_var(array(
             'help_url'      => BANNER_docURL('categoryform.html'),
@@ -288,8 +291,6 @@ class Category
             'delete_option'     => $delete_option,
             'iconset'           => $_CONF_BANR['_iconset'],
             'mapping_form'      => Mapping::Form($this->cid),
-            'hlp_maxwidth'      => sprintf($LANG_BANNER['hlp_cat_maxdim'], $_CONF_BANR['img_max_width']),
-            'hlp_maxheight'     => sprintf($LANG_BANNER['hlp_cat_maxdim'], $_CONF_BANR['img_max_height']),
         ) );
 
         if ($this->tid === NULL) {
@@ -309,6 +310,7 @@ class Category
         $T->set_var('gltoken_name', CSRF_TOKEN);
         $T->set_var('gltoken', SEC_createToken());
 
+        $T->parse('tooltipster', 'tips');
         $T->parse ('output', 'page');
         return $T->finish($T->get_var('output'));
     }

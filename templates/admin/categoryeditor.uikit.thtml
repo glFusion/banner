@@ -8,82 +8,91 @@
   <input type="hidden" name="item" value="category" />
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_cid">{$LANG_BANNER['cid']}</label>
+    <label class="uk-form-label">{$LANG_BANNER['cid']}:
+      <span id="cid" class="tooltip_cfg tooltipstered"></span>
+    </label>
     <div class="uk-form-controls">
       <input type="text" id="f_cid" name="cid" size="40" maxlength="40" 
             value="{cid}" />
-      <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_cid']}"></i>
+      <i class="{iconset}-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_category">{$LANG_BANNER['category']}</label>
+    <label class="uk-form-label">{$LANG_BANNER['category']}:
+      <span id="category" class="tooltip_cfg tooltipstered"></span>
+    </label>
     <div class="uk-form-controls">
       <input required type="text" id="f_category" name="category" size="32" maxlength="32" 
             value="{category}" />
-      <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_name']}"></i>
+      <i class="{iconset}-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_type">{$LANG_BANNER['type']}</label>
+    <label class="uk-form-label">{$LANG_BANNER['type']}:
+      <span id="type" class="tooltip_cfg tooltipstered"></span>
+    </label>
     <div class="uk-form-controls">
       <input required type="text" id="f_type" name="type" size="32" maxlength="32" value="{type}" />
-      <i class="uk-icon-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_type']}"></i>
+      <i class="{iconset}-warning banr-icon-danger tooltip" title="{$LANG_BANNER['required']}"></i>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_description">{$LANG_BANNER['description']}</label>
+    <label class="uk-form-label">{$LANG_BANNER['description']}:
+      <span id="dscp" class="tooltip_cfg tooltipstered"></span>
+    </label>
   <div class="uk-form-controls">
       <input type="text" id="f_description" name="description" size="50" maxlength="255" value="{description}" />
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_descr']}"></i>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_tid">{$LANG_BANNER['topic']}</label>
+    <label class="uk-form-label">{$LANG_BANNER['topic']}:
+      <span id="topic" class="tooltip_cfg tooltipstered"></span>
+    </label>
     <div class="uk-form-controls">
       <select id="f_tid" name="tid">
         {topic_selection}
       </select>
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_topic']}"></i>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_max_img_width">{$LANG_BANNER['max_img_width']}</label>
+    <label class="uk-form-label">{$LANG_BANNER['max_img_width']}:
+      <span id="max_img_width" class="tooltip_cfg tooltipstered"></span>
+    </label>
     <div class="uk-form-controls">
       <input type="text" id="f_max_img_width" name="max_img_width"
         size="4" maxlength="4" value="{max_img_width}" />
-      <i class="{iconset}-question-circle tooltip" title="{hlp_maxwidth}"></i>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_max_img_height">{$LANG_BANNER['max_img_height']}</label>
+    <label class="uk-form-label">{$LANG_BANNER['max_img_height']}:
+      <span id="max_img_height" class="tooltip_cfg tooltipstered"></span>
+    </label>
     <div class="uk-form-controls">
       <input type="text" id="f_max_img_height" name="max_img_height" size="4" maxlength="4" value="{max_img_height}" />
-      <i class="{iconset}-question-circle tooltip" title="{hlp_maxheight}"></i>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_enabled">{$LANG_BANNER['enabled']}</label>
+    <label class="uk-form-label">{$LANG_BANNER['enabled']}:
+      <span id="enabled" class="tooltip_cfg tooltipstered"></span>
+    </label>
     <div class="uk-form-controls">
       <input id="f_enabled" name="enabled" type="checkbox" value="1" {chk_enabled} />
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_enabled']}"></i>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_centerblock">{$LANG_BANNER['centerblock']}</label>
+    <label class="uk-form-label">{$LANG_BANNER['centerblock']}:
+      <span id="centerblock" class="tooltip_cfg tooltipstered"></span>
+    </label>
     <div class="uk-form-controls">
       <input id="f_centerblock" name="centerblock" type="checkbox" value="1" {chk_centerblock} />
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_centerblock']}"></i>
     </div>
   </div>
 
@@ -97,12 +106,11 @@
   <fieldset>
   <legend>{$LANG_BANNER['access_control']}</legend>
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_grp_view">{$LANG_BANNER['visible_to']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_group', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </label>
+    <label class="uk-form-label">{$LANG_BANNER['visible_to']}:
+      <span id="group" class="tooltip_cfg tooltipstered"></span>
+    </label>
     <div class="uk-form-controls">
       {group_dropdown}
-      <i class="{iconset}-question-circle tooltip" title="{$LANG_BANNER['hlp_cat_group']}"></i>
     </div>
   </div>
 
@@ -120,4 +128,5 @@
   </div>
 
 </form>
+{tooltipster}
 {# end {templatelocation} #}

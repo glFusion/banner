@@ -44,7 +44,7 @@
 For template variables, use the name of the template itself. For example, to have a category place your ad in the Featured Story, set the "type" to "featuredarticle". Then, in &lt;layout_dir&gt;/featuredstorytext.thtml, add a new template variable "{banner_featuredarticle}". This variable will be replaced with the banner content.</dd>
       </dl>
 
-      <dl id="desc_description">
+      <dl id="desc_dscp">
         <dt>Description</dt>
         <dd>Enter a description for this category.</dd>
       </dl>
@@ -72,6 +72,26 @@ For template variables, use the name of the template itself. For example, to hav
       <dl id="desc_centerblock">
         <dt>Centerblock?</dt>
         <dd>Check this box to have this category&apos;s ads show in a centerblock</dd>
+      </dl>
+
+      <dl id="desc_map_enabled">
+        <dt>Mapping Enabled?</dt>
+        <dd>Check to send ads from this category to the specified template.</dd>
+      </dl>
+
+      <dl id="desc_map_position">
+        <dt>Mapping Position</dt>
+        <dd>Enter the position for the ad in index pages, e.g. after the first item, second item, etc. Leave at zero to prevent ads from showing in this list. Be sure to check &quot;show in content&quot; if you want the ad shown in the main item content. If &quot;show once&quot; is not checked this is used as an interval.</dd>
+      </dl>
+
+      <dl id="desc_map_once">
+        <dt>Show Mapping Item Once?</dt>
+        <dd>Check this to have the ad displayed only once on an index page. If unchecked, the &quot;position&quot; is used as an interval to show ads every 2nd item, every 3rd item, etc.</dd>
+      </dl>
+
+      <dl id="desc_map_content">
+        <dt>Mapping Content Area</dt>
+        <dd>Check this to show the ad in the main content area, for templates that support this.</dd>
       </dl>
 
       <dl id="desc_group">

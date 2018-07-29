@@ -1007,7 +1007,10 @@ class Banner
 
         $T = new \Template(BANR_PI_PATH . '/templates/');
         $tpltype = $_CONF_BANR['_is_uikit'] ? '.uikit' : '';
-        $T->set_file('editor',"bannerform$tpltype.thtml");
+        $T->set_file(array(
+            'editor' => "bannerform$tpltype.thtml",
+            'tips' => 'tooltipster.thtml',
+        ) );
 
         $T->set_var(array(
             'help_url'      => BANNER_docUrl('bannerform'),
@@ -1197,6 +1200,7 @@ class Banner
             'end_year_options' => COM_getYearFormOptions($enddt->format('Y', true)),
             'end_minute_options' => COM_getMinuteFormOptions($enddt->format('i', true)),
         ) );
+        $T->parse('tooltipster', 'tips');
         $T->parse('output', 'editor');
         $retval .= $T->finish($T->get_var('output'));
         return $retval;
