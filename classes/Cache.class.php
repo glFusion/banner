@@ -44,8 +44,6 @@ class Cache
             $tags = array_merge($tags, $tag);
         }
         $key = self::makeKey($key);
-        COM_errorLog("setting $key");
-        COM_errorLog(" data is " . print_r($data,true));
         \glFusion\Cache::getInstance()
             ->set($key, $data, $tags, $ttl);
     }
@@ -113,7 +111,6 @@ class Cache
             return NULL;     // glFusion version doesn't support caching
         }
         $key = self::makeKey($key);
-        COM_errorLog("getting $key");
         if (\glFusion\Cache::getInstance()->has($key)) {
             return \glFusion\Cache::getInstance()->get($key);
         } else {
@@ -121,6 +118,6 @@ class Cache
         }
     }
 
-}   // class Paypal\Cache
+}   // class Banner\Cache
 
 ?>
