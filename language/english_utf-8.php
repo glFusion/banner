@@ -18,6 +18,7 @@ global $LANG32;
 * @global array $LANG_BANNER
 */
 $LANG_BANNER = array(
+'pi_name'       => 'Banner',
 'bid'           => 'Banner ID',
 'cid'           => 'Category ID',
 'camp_id'       => 'Campaign ID',
@@ -146,75 +147,16 @@ $LANG_BANNER = array(
 'hlp_map_pos' => 'Enter the position for the ad in index pages, e.g. after the first item, second item, etc. Leave at zero to prevent ads from showing in this list. Be sure to check &quot;show in content&quot; if you want the ad shown in the main item content. If &quot;show once&quot; is not checked this is used as an interval.',
 'hlp_map_once' => 'Check this to have the ad displayed only once on an index page. If unchecked, the &quot;position&quot; is used as an interval to show ads every 2nd item, every 3rd item, etc.',
 'hlp_map_content' => 'Check this to show the ad in the main content area, for templates that support this.',
-
-
-    10 => 'Submissions',
-    14 => 'Banner',
-    84 => 'Banner',
-    88 => 'No recent new banner',
-    114 => 'Banner',
-    116 => 'Add A Banner',
-    117 => 'Report Broken Banner',
-    118 => 'Broken Banner Report',
-    119 => 'The following banner has been reported to be broken: ',
-    120 => 'To edit the banner, click here: ',
-    121 => 'The broken Banner was reported by: ',
-    122 => 'Thank you for reporting this broken banner. The administrator will correct the problem as soon as possible',
-    123 => 'Thank you',
-    124 => 'Go',
-    125 => 'Categories',
-    126 => 'You are here:',
-    'root' => 'Root',   // title used for top level category
-    'warn_update_hits' => 'Updating the counter may hurt campaign reporting',
-    'zero_eq_unlimited' => 'Zero = Unlimited',
-);
-
-###############################################################################
-# for stats
-/**
-* The plugin's lang stats array
-*
-* @global array $LANG_BANNER_STATS
-*/
-$X_LANG_BANNER_STATS = array(
-    'banner' => 'Banner (Clicks) in the System',
-    'stats_hits' => 'Hits',
-);
-
-###############################################################################
-# for the search
-/**
-* the banner plugin's lang search array
-*
-* @global array $LANG_BANNER_SEARCH
-*/
-$X_LANG_BANNER_SEARCH = array(
- 'results' => 'Banner Results',
- 'title' => 'Title',
- 'date' => 'Date Added',
- 'author' => 'Submitted by',
- 'hits' => 'Clicks'
-);
-
-###############################################################################
-# for the submission form
-/**
-* the banner plugin's lang submit form array
-*
-* @global array $LANG_BANNER_SUBMIT
-*/
-$X_LANG_BANNER_SUBMIT = array(
-    2 => 'Banner',
-    3 => 'Category',
-    4 => 'Other',
-    5 => 'If other, please specify',
-    6 => 'Error: Missing Category',
-    7 => 'When selecting "Other" please also provide a category name',
-    8 => 'Title',
-    9 => 'URL',
-    10 => 'Category',
-    11 => 'Banner Submissions',
-    12 => 'Enter the complete image tag as the description.  For example:  "&lt;img src=http://mysite.com/banner.png&gt;".  Do not include the link tag as the value from the Banner field will be used.',
+'homeonly' => 'Homepage',
+'broken_txt1' => 'The following banner has been reported to be broken: ',
+'broken_report_by' => 'The broken Banner was reported by: ',
+'click_to_edit' => 'To edit the banner, click here: ',
+'thanks_for_report' => 'Thank you for reporting this broken banner. The administrator will correct the problem as soon as possible',
+'thanks' => 'Thank You',
+'broken_report' => 'Broken Banner Report',
+'root' => 'Root',   // title used for top level category
+'warn_update_hits' => 'Updating the counter may hurt campaign reporting',
+'zero_eq_unlimited' => 'Zero = Unlimited',
 );
 
 ###############################################################################

@@ -146,75 +146,16 @@ $LANG_BANNER = array(
 'hlp_map_pos' => 'Position der Banner in Plugin-Seiten. 0 = Keine Banner, 1 = nach dem ersten Artikel, 2 = nach dem zweiten Artikel, usw.',
 'hlp_map_once' => 'Wenn &quot;Einmalig&quot; aktiviert ist, wird nur ein Banner pro Seite angezeigt. Andernfalls werden die Banner -wie unter &quot;Position&quot; ausgewählt- im Intervall angezeigt. 2 = nach jedem zweiten Artikel, 3 = nach jedem dritten Artikel, usw.',
 'hlp_map_content' => 'Wenn Banner im Hauptinhalt angezeigt werden sollen muss &quot;Im Inhalt&quot; aktiviert sein.',
-
-
-    10 => 'Einsendungen',
-    14 => 'Banner',
-    84 => 'Banner',
-    88 => 'Kein neuer Banner',
-    114 => 'Banner',
-    116 => 'Banner hinzufügen',
-    117 => 'Fehlerhaftes Banner melden',
-    118 => 'Fehlerhafte Banner',
-    119 => 'Folgende Banner wurden als fehlerhaft gemeldet: ',
-    120 => 'Klicke hier um das Banner zu bearbeiten: ',
-    121 => 'Fehlerhaftes Banner wurde gemeldet von: ',
-    122 => 'Danke, dass Du dieses fehlerhafte Banner gemeldet hast. Der Administrator wird das Problem so schnell wie möglich beheben.',
-    123 => 'Danke',
-    124 => 'Los',
-    125 => 'Kategorien',
-    126 => 'Du bist hier:',
-    'root' => 'Root',   // title used for top level category
-    'warn_update_hits' => 'Aktualisieren kann die Kampagnenberichterstattung beschädigen',
-    'zero_eq_unlimited' => '0 = Unlimitiert',
-);
-
-###############################################################################
-# for stats
-/**
-* The plugin's lang stats array
-*
-* @global array $LANG_BANNER_STATS
-*/
-$X_LANG_BANNER_STATS = array(
-    'banner' => 'Banner (Klicks) im System',
-    'stats_hits' => 'Klicks',
-);
-
-###############################################################################
-# for the search
-/**
-* the banner plugin's lang search array
-*
-* @global array $LANG_BANNER_SEARCH
-*/
-$X_LANG_BANNER_SEARCH = array(
- 'results' => 'Banner-Ergebnisse',
- 'title' => 'Titel',
- 'date' => 'Hinzugefügt',
- 'author' => 'Ersteller',
- 'hits' => 'Klicks'
-);
-
-###############################################################################
-# for the submission form
-/**
-* the banner plugin's lang submit form array
-*
-* @global array $LANG_BANNER_SUBMIT
-*/
-$X_LANG_BANNER_SUBMIT = array(
-    2 => 'Banner',
-    3 => 'Kategorie',
-    4 => 'Sonstiges',
-    5 => 'Wenn &quot;Sonstiges&quot;, bitte angeben',
-    6 => 'FEHLER: Kategorie fehlt',
-    7 => 'Wenn Du &quot;Sonstiges&quot; auswählst, gib bitte einen Kategorie-Namen an',
-    8 => 'Titel',
-    9 => 'URL',
-    10 => 'Kategorie',
-    11 => 'Banner-Einsendungen',
-    12 => 'Gib das vollständige Bild-Tag als Beschreibung ein.  Beispiel:  &quot;&lt;img src=http://mysite.com/banner.png&gt;&quot;.  Schließe das Link-Tag nicht ein, da der Wert aus dem Banner-Feld verwendet wird.',
+'homeonly' => 'Homepage',
+'broken_txt1' => 'Folgende Banner wurden als fehlerhaft gemeldet: ',
+'broken_report_by' => 'Fehlerhaftes Banner wurde gemeldet von: ',
+'click_to_edit' => 'Klicke hier um das Banner zu bearbeiten: ',
+'thanks_for_report' => 'Danke, dass Du dieses fehlerhafte Banner gemeldet hast. Der Administrator wird das Problem so schnell wie möglich beheben.',
+'thanks' => 'Danke',
+'broken_report' => 'Fehlerhaftes Banner melden',
+'root' => 'Wurzel',   // title used for top level category
+'warn_update_hits' => 'Aktualisieren kann die Kampagnenberichterstattung beschädigen',
+'zero_eq_unlimited' => '0 = Unlimitiert',
 );
 
 ###############################################################################

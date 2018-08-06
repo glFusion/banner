@@ -70,12 +70,12 @@ case 'report':
 
         $editurl = $_CONF['site_admin_url']
                  . '/plugins/banner/index.php?edit=x&bid=' . $bid;
-        $msg = $LANG_BANNER[119] . LB . LB . "$title, <$url>". LB . LB
-                 .  $LANG_BANNER[120] . LB . '<' . $editurl . '>' . LB . LB
-                 .  $LANG_BANNER[121] . $_USER['username'] . ', IP: '
+        $msg = $LANG_BANNER['broken_txt1'] . LB . LB . "$title, <$url>". LB . LB
+                 .  $LANG_BANNER['click_to_edit'] . LB . '<' . $editurl . '>' . LB . LB
+                 .  $LANG_BANNER['broken_report_by'] . $_USER['username'] . ', IP: '
                  . $_SERVER['REMOTE_ADDR'];
-        COM_mail($_CONF['site_mail'], $LANG_BANNER[118], $msg);
-        $message = array($LANG_BANNER[123], $LANG_BANNER[122]);
+        COM_mail($_CONF['site_mail'], $LANG_BANNER['broken_report'], $msg);
+        $message = array($LANG_BANNER['thanks'], $LANG_BANNER['thanks_for_report']);
     }
     break;
 case 'toggleEnabled':
@@ -111,7 +111,7 @@ default:
 switch ($view) {
 case 'banners':
 default:
-    $view_title = $LANG_BANNER[114];
+    $view_title = $LANG_BANNER[['pi_name']];
     $camp_id = '';
     $L = new Banner\BannerList();
     if (isset($_REQUEST['camp_id']))

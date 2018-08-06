@@ -1250,9 +1250,9 @@ class Banner
         $mailbody = $LANG_BANNER['title'] . ": $this->title\n";
 
         if ($this->table == 'bannersubmission') {
-            $mailbody .= "$LANG_BANNER[10] <{$_CONF['site_admin_url']}/moderation.php>\n\n";
+            $mailbody .= "{$LANG_BANNER['banner_submissions']} <{$_CONF['site_admin_url']}/moderation.php>\n\n";
         } else {
-            $mailbody .= "$LANG_BANNER[114] <" . BANR_URL .
+            $mailbody .= "{$LANG_BANNER['pi_name']} <" . BANR_URL .
                 '/index.php?category=' . urlencode ($A['category']) . ">\n\n";
         }
 

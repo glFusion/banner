@@ -370,7 +370,7 @@ function plugin_cclabel_banner()
     global $LANG_BANNER;
 
     if (SEC_hasRights ('banner.edit')) {
-        return array ($LANG_BANNER[14],
+        return array ($LANG_BANNER['pi_name'],
                       BANR_ADMIN_URL . '/index.php',
                       plugin_geticon_banner ());
     }
@@ -391,7 +391,7 @@ function plugin_getadminoption_banner()
         $total_banner = DB_getItem ($_TABLES['banner'], 'COUNT(*)',
                                    COM_getPermSql (''));
 
-        return array ($LANG_BANNER[14],
+        return array ($LANG_BANNER['pi_name'],
                       BANR_ADMIN_URL . '/index.php',
                       $total_banner);
     }
