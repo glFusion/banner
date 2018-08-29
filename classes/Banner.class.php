@@ -650,7 +650,7 @@ class Banner
     */
     public static function GetBanner($fields=array())
     {
-        global $_TABLES, $_CONF_BANR, $_CONF, $_USER, $topic;
+        global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
 
         $banners = array();
 
@@ -663,6 +663,10 @@ class Banner
         $sql_cond = '';
         $limit_clause = '';
         $topic_sql = '';
+        if (!isset($fields['topic'])) {
+            // If not set, add the current topic for topic_sql
+            $fields['topic'] = \Topic::currentID();
+        }
         foreach ($fields as $field=>$value) {
             if (!is_array($value)) {
                 $value = DB_escapeString($value);
@@ -689,15 +693,18 @@ class Banner
                 break;
             case 'tid':
             case 'topic':
+                $tids = array('all');
                 if ($value != '' && $value != 'all') {
-                    $topic_sql .= " AND c.tid IN ('$value', 'all')
-                            AND camp.tid IN ('$value', 'all')
-                            AND b.tid IN ('$value', 'all')";
-                } else {
-                    $topic_sql .= " AND c.tid = 'all'
-                            AND camp.tid = 'all'
-                            AND b.tid = 'all'";
+                    // "All" is already included, and $value is already escaped
+                    $tids[] = $value;
                 }
+                if (COM_onFrontpage()) {
+                    $tids[] = 'homeonly';
+                }
+                $tids = "'" . implode("','", $tids) . "'";
+                $topic_sql .= " AND c.tid IN ($tids)
+                        AND camp.tid IN ($tids)
+                        AND b.tid IN ($tids)";
                 break;
             case 'campaign':
                 if ($value != '') {
@@ -713,15 +720,6 @@ class Banner
                 $sql_cond .= " AND b.{$field} = '$value'";
                 break;
             }
-        }
-
-        if ($topic_sql == '' && !empty($topic)) {
-            $topic = DB_escapeString($topic);
-            $topic_sql .= " AND c.tid IN ('$topic', 'all')
-                        AND camp.tid IN ('$topic', 'all')
-                        AND b.tid IN ('$topic', 'all')";
-        } else {
-            $topic_sql .= " AND c.tid = 'all'";
         }
 
         // Eliminate ads owned by the current user

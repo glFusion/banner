@@ -298,11 +298,14 @@ class Category
         }
         $topics = COM_topicList('tid,topic', $this->tid, 1, true);
         $T->set_var('topic_list', $topics);
-        $alltopics = '<option value="all"';
-        if ($this->tid == 'all') {
-            $alltopics .= ' selected="selected"';
+        $alltopics = '';
+        foreach (array('all', 'homeonly') as $tid) {
+            $alltopics .= '<option value="' . $tid . '"';
+            if ($this->tid == $tid) {
+                $alltopics .= ' selected="selected"';
+            }
+            $alltopics .= '>' . $LANG_BANNER[$tid] . '</option>' . LB;
         }
-        $alltopics .= '>' . $LANG_BANNER['all'] . '</option>' . LB;
         $T->set_var('topic_selection',  $alltopics . $topics);
 
         // user access info
@@ -650,15 +653,16 @@ function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
         $retval = "<span style=\"padding-left:{$indent}px;\">$cat</span>";
         break;
 
-    case 'tid';
-        if ($A['tid'] == 'all' || $A['tid'] == NULL) {
+    case 'tid':
+        if ($A['tid'] == 'homeonly') {
+            $retval = $LANG_BANNER['homeonly'];
+        } elseif ($A['tid'] == 'all' || $A['tid'] == NULL) {
             $retval = $LANG_BANNER['all'];
-        } else {
-            $retval = DB_getItem($_TABLES['topics'], 'topic',
-                                         "tid = '{$A['tid']}'");
-        }
-        if (empty($retval)) {
+        } elseif (array_key_exists($A['tid'], \Topic::All())) {
             $retval = $A['tid'];
+        } else {
+            // Bad topic selected.
+            $retval = $LANG_BANNER['unknown'];
         }
         break;
 
