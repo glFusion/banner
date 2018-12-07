@@ -75,10 +75,6 @@ spl_autoload_register(function ($class)
 function USES_banner_userfunctions()
 {   require_once BANR_PI_PATH . '/userfunctions.php';    }
 
-/** Import installation defaults, typically for upgrades */
-function USES_banner_install_defaults()
-{   require_once BANR_PI_PATH . '/install_defaults.php';    }
-
 
 /**
 *   Create the centerblock, if needed
@@ -385,13 +381,13 @@ function plugin_cclabel_banner()
 */
 function plugin_getadminoption_banner()
 {
-    global $_TABLES, $LANG_BANNER;
+    global $_TABLES, $_CONF_BANR;
 
     if (SEC_hasRights('banner.edit,banner.delete', 'OR')) {
         $total_banner = DB_getItem ($_TABLES['banner'], 'COUNT(*)',
                                    COM_getPermSql (''));
 
-        return array ($LANG_BANNER['pi_name'],
+        return array ($_CONF_BANR['pi_name'],
                       BANR_ADMIN_URL . '/index.php',
                       $total_banner);
     }
@@ -459,10 +455,10 @@ function plugin_user_move_banner($origUID, $destUID)
 
 
 /**
-*   Update the Banner plugin
-*
-*   @return integer Message number to display (true = generic success msg)
-*/
+ * Update the Banner plugin.
+ *
+ * @return  boolean     True on success, False on failure
+ */
 function plugin_upgrade_banner()
 {
     require_once __DIR__ . '/upgrade.inc.php';

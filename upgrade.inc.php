@@ -1,25 +1,23 @@
 <?php
 /**
-*   Upgrade routines for the Banner plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
-
-USES_banner_install_defaults();
+ * Upgrade routines for the Banner plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.3.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /**
-*   Perform the upgrade starting at the current version.
-*
-*   @param  string  $current_ver    Current installed version to be upgraded
-*   @return integer                 Error code, 0 for success
-*/
-function banner_do_upgrade()
+ * Perform the upgrade starting at the current version.
+ *
+ * @param   boolean $dvlp   True to ignore erorrs and continue
+ * @return  boolean     True on success, False on failure
+ */
+function banner_do_upgrade($dvlp=false)
 {
     global $_TABLES, $_CONF_BANR, $_PLUGIN_INFO;
 
@@ -43,18 +41,17 @@ function banner_do_upgrade()
     }
     $installed_ver = plugin_chkVersion_banner();
 
-    $conf = config::get_instance();
-
     if (!COM_checkVersion($current_ver, '0.1.0')) {
         $current_ver = '0.1.0';
         // upgrade from 0.0.x to 0.1.0
-        if (!banner_upgrade_0_1_0()) return false;
+        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!banner_do_update_version($current_ver)) return false;
     }
 
     if (!COM_checkVersion($current_ver, '0.1.1')) {
         // upgrade from 0.1.0 to 0.1.1
         $current_ver = '0.1.1';
-        if (!banner_do_upgrade_sql($current_ver)) return false;
+        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
         if (!banner_do_update_version($current_ver)) return false;
     }
 
@@ -78,26 +75,33 @@ function banner_do_upgrade()
 
     if (!COM_checkVersion($current_ver, '0.1.7')) {
         $current_ver = '0.1.7';
-        if (!banner_upgrade_0_1_7()) return false;
+        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!banner_do_update_version($current_ver)) return false;
     }
 
     if (!COM_checkVersion($current_ver, '0.2.0')) {
         $current_ver = '0.2.0';
-        if (!banner_upgrade_0_2_0()) return false;
+        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!banner_do_update_version($current_ver)) return false;
     }
 
     if (!COM_checkVersion($current_ver, '0.2.1')) {
         $current_ver = '0.2.1';
-        if (!banner_do_upgrade_sql($current_ver)) return false;
+        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
         if (!banner_do_update_version($current_ver)) return false;
     }
 
     if (!COM_checkVersion($current_ver, '0.3.0')) {
         $current_ver = '0.3.0';
-        $conf->del('submissionqueue', $_CONF_BANR['pi_name']);
-        if (!banner_do_upgrade_sql($current_ver)) return false;
+        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
         if (!banner_do_update_version($current_ver)) return false;
     }
+
+    // Update with any configuration changes
+    USES_lib_install();
+    global $paypalConfigData;
+    require_once __DIR__ . '/install_defaults.php';
+    _update_config('paypal', $paypalConfigData);
 
     // Final extra check to catch code-only patch versions
     if (!COM_checkVersion($current_ver, $installed_ver)) {
@@ -108,12 +112,11 @@ function banner_do_upgrade()
 
 
 /**
-*   Update the plugin version.
-*   Done at each update step to keep the version up to date
-*
-*   @param  string  $version    Version to set
-*   @return boolean     True on success, False on failure
-*/
+ * Update the plugin version at each step to keep the version up to date.
+ *
+ * @param   string  $version    Version to set
+ * @return  boolean     True on success, False on failure
+ */
 function banner_do_update_version($version)
 {
     global $_TABLES, $_CONF_BANR;
@@ -136,11 +139,13 @@ function banner_do_update_version($version)
 
 
 /**
-*   Actually perform any sql updates
-*   @param string $version  Version being upgraded TO
-*   @param array  $sql      Array of SQL statement(s) to execute
-*/
-function banner_do_upgrade_sql($version)
+ * Actually perform any sql updates.
+ *
+ * @param   string  $version    Version being upgraded TO
+ * @param   boolean $dvlp       True to ignore errors during dvlpupdate
+ * @return  boolean     True on success, False on failure
+ */
+function banner_do_upgrade_sql($version, $dvlp=false)
 {
     global $_TABLES, $_CONF_BANR, $BANR_UPGRADE, $_DB_dbms;
 
@@ -157,81 +162,10 @@ function banner_do_upgrade_sql($version)
         DB_query($sql, '1');
         if (DB_error()) {
             COM_errorLog("SQL Error during Banner Plugin update",1);
-            return false;
-            break;
+            if (!$dvlp) return false;
         }
     }
     return true;
-}
-
-
-/**
-*   Upgrade to version 0.1.0.
-*   Adds configuration item for centerblock replacing home page.
-*/
-function banner_upgrade_0_1_0()
-{
-    global $_CONF_BANR, $BANR_DEFAULT;
-
-    // Add new configuration items
-    $c = config::get_instance();
-    if ($c->group_exists($_CONF_BANR['pi_name'])) {
-        $c->add('cb_replhome', $_BANR_DEFAULT['cb_replhome'],
-                'select',0, 1, 3, 120, true, $_CONF_BANR['pi_name']);
-        $c->add('block_limit', $_BANR_DEFAULT['block_limit'],
-                'text',0, 0, 3, 130, true, $me);
-    }
-
-    if (!banner_do_upgrade_sql('0.1.0')) return false;
-    return banner_do_update_version('0.1.0');
-}
-
-
-/**
-*   Upgrade to version 0.1.7.
-*   Adds configuration item for centerblock replacing home page.
-*/
-function banner_upgrade_0_1_7()
-{
-    global $_CONF_BANR, $BANR_DEFAULT, $UPGRADE;
-
-    // Add new configuration items
-    $c = config::get_instance();
-    if ($c->group_exists($_CONF_BANR['pi_name'])) {
-        $c->add('uagent_dontshow', $_BANR_DEFAULT['uagent_dontshow'],
-                '%text', 0, 1, 0, 25, true, $_CONF_BANR['pi_name']);
-    }
-
-    if (!banner_do_upgrade_sql('0.1.7')) return false;
-    return banner_do_update_version('0.1.7');
-}
-
-
-/**
-*   Update to version 0.2.0
-*   Removes permission matrix for banners and categories
-*
-*   @return boolean     True on success, false on failure
-*/
-function banner_upgrade_0_2_0()
-{
-    global $_CONF_BANR, $_TABLES, $_BANR_DEFAULT;
-
-    // Add new configuration items
-    $c = config::get_instance();
-    if ($c->group_exists($_CONF_BANR['pi_name'])) {
-        // Get the admin group ID that was saved previously and put it in the
-        // default "submitter group" config item
-        $group_id = (int)DB_getItem($_TABLES['groups'], 'grp_id',
-            "grp_name='{$_CONF_BANR['pi_name']} Admin'");
-        if ($group_id < 1) $group_id = $_BANR_DEFAULT['defgrpsubmit'];
-
-        $c->add('defgrpsubmit', $group_id,
-                'select', 0, 2, 0, 5, true, $_CONF_BANR['pi_name']);
-    }
-
-    if (!banner_do_upgrade_sql('0.2.0')) return false;
-    return banner_do_update_version('0.2.0');
 }
 
 ?>
