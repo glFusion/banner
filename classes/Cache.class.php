@@ -1,36 +1,42 @@
 <?php
 /**
-*   Class to cache DB and web lookup results
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2018 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.3.1
-*   @since      0.3.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Class to cache DB and web lookup results.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2018 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.3.1
+ * @since       v0.3.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Banner;
 
 /**
-*   Class for Paypal Cache
-*   @package paypal
-*/
+ * Class for Banner DB Cache.
+ * @package paypal
+ */
 class Cache
 {
+    /** Tag applied to every cached item.
+     * @const string */
     const TAG = 'banner';
+
+    /** Minimum glFusion that supports caching.
+     * @const string */
     const MIN_GVERSION = '2.0.0';
 
     /**
-    *   Update the cache.
-    *   Adds an array of tags including the plugin name
-    *
-    *   @param  string  $key    Item key
-    *   @param  mixed   $data   Data, typically an array
-    *   @param  mixed   $tag    Tag, or array of tags.
-    *   @param  integer $cache_mins Cache minutes
-    */
+     * Update the cache.
+     * Adds an array of tags including the plugin name.
+     *
+     * @param   string  $key    Item key
+     * @param   mixed   $data   Data, typically an array
+     * @param   mixed   $tag    Tag, or array of tags.
+     * @param   integer $cache_mins Cache minutes
+     * @return  boolean     True on success, False on failure
+     */
     public static function set($key, $data, $tag='', $cache_mins=1440)
     {
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
@@ -44,32 +50,32 @@ class Cache
             $tags = array_merge($tags, $tag);
         }
         $key = self::makeKey($key);
-        \glFusion\Cache::getInstance()
-            ->set($key, $data, $tags, $ttl);
+        return \glFusion\Cache::getInstance()->set($key, $data, $tags, $ttl);
     }
 
 
     /**
-    *   Delete a single item from the cache by key
-    *
-    *   @param  string  $key    Base key, e.g. item ID
-    */
+     * Delete a single item from the cache by key.
+     *
+     * @param   string  $key    Base key, e.g. item ID
+     * @return  boolean     True on success, False on failure
+     */
     public static function delete($key)
     {
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
             return;     // glFusion version doesn't support caching
         }
         $key = self::makeKey($key);
-        \glFusion\Cache::getInstance()->delete($key);
+        return \glFusion\Cache::getInstance()->delete($key);
     }
 
 
     /**
-    *   Completely clear the cache.
-    *   Called after upgrade.
-    *
-    *   @param  array   $tag    Optional array of tags, base tag used if undefined
-    */
+     * Clear the cache.
+     *
+     * @param   array   $tag    Optional array of tags, base tag used if undefined
+     * @return  boolean     True on success, False on failure
+     */
     public static function clear($tag = array())
     {
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {
@@ -80,31 +86,29 @@ class Cache
             if (!is_array($tag)) $tag = array($tag);
             $tags = array_merge($tags, $tag);
         }
-        \glFusion\Cache::getInstance()->deleteItemsByTagsAll($tags);
+        return \glFusion\Cache::getInstance()->deleteItemsByTagsAll($tags);
     }
 
 
     /**
-    *   Create a unique cache key.
-    *   Intended for internal use, but public in case it is needed.
-    *
-    *   @param  string  $key    Base key, e.g. Item ID
-    *   @param  boolean $incl_sechash   True to include the security hash
-    *   @return string          Encoded key string to use as a cache ID
-    */
+     * Create a unique cache key.
+     * Intended for internal use, but public in case it is needed.
+     *
+     * @param   string  $key    Base key, e.g. Item ID
+     * @return  string          Encoded key string to use as a cache ID
+     */
     public static function makeKey($key)
     {
-        $key = \glFusion\Cache::getInstance()->createKey(self::TAG . '_' . $key);
-        return $key;
+        return \glFusion\Cache::getInstance()->createKey(self::TAG . '_' . $key);
     }
 
 
     /**
-    *   Get an item from cache.
-    *
-    *   @param  string  $key    Key to retrieve
-    *   @return mixed       Value of key, or NULL if not found
-    */
+     * Get an item from cache.
+     *
+     * @param   string  $key    Key to retrieve
+     * @return  mixed       Value of key, or NULL if not found
+     */
     public static function get($key)
     {
         if (version_compare(GVERSION, self::MIN_GVERSION, '<')) {

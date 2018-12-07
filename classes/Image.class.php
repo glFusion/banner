@@ -1,45 +1,45 @@
 <?php
 /**
-*  Class to handle images
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Class to handle banner images.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Banner;
 
 /**
- *  Image-handling class
- *  @package banner
+ * Image-handling class.
+ * @package banner
  */
 class Image extends \upload
 {
-    /** Path to actual image (without filename)
-     *  @var string */
+    /** Path to actual image (without filename).
+     * @var string */
     var $pathImage;
 
-    /** ID of the current ad
-     *  @var string */
+    /** ID of the current banner.
+     * @var string */
     var $bid;
 
-    /** Array of the names of successfully uploaded files
-     *  @var array */
+    /** Array of the names of successfully uploaded files.
+     * @var array */
     var $goodfiles = array();
 
     /** File extension
-        @var string */
+     * @var string */
     var $ext;
 
     /**
-    *   Constructor
-    *
-    *   @param string   $bid        Banner ID
-    *   @param string   $varname    Form variable name, optional
-    */
+     * Constructor.
+     *
+     * @param   string   $bid        Banner ID
+     * @param   string   $varname    Form variable name, optional
+     */
     public function __construct($bid, $varname='bannerimage')
     {
         global $_CONF_BANR, $_CONF;
@@ -102,15 +102,16 @@ class Image extends \upload
 
 
     /**
-     *  Calculate the new dimensions needed to keep the image within
-     *  the provided width & height while preserving the aspect ratio.
-     *  @param string  $srcfile     Source filepath/name
-     *  @param integer $width       New width, in pixels
-     *  @param integer $height      New height, in pixels
-     *  @return array  $newwidth, $newheight
-     *  @deprecated Using LGLIB now
+     * Calculate the new dimensions needed to keep the image within
+     * the provided width & height while preserving the aspect ratio.
+     *
+     * @deprecated Using LGLIB now
+     * @param   integer $s_width    Source width, in pixels
+     * @param   integer $s_height   Source height, in pixels
+     * @param   integer $maxdim     Maximum width/height
+     * @return  array  $newwidth, $newheight
      */
-    public function reDim($s_width, $s_height, $maxdim=0)
+    public function XreDim($s_width, $s_height, $maxdim=0)
     {
         // get both sizefactors that would resize one dimension correctly
         if ($maxdim > 0 && $s_width > $maxdim)

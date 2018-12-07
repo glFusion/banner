@@ -1,22 +1,20 @@
 <?php
 /**
-*   Default English Language file for the Banner plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Default English Language file for the Banner plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php 
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 global $LANG32;
 
-/**
-* The plugin's lang array
-* @global array $LANG_BANNER
-*/
+/** The plugin's lang array
+ * @global array $LANG_BANNER */
 $LANG_BANNER = array(
 'pi_name'       => 'Banner',
 'bid'           => 'Banner ID',

@@ -1,35 +1,37 @@
 <?php
 /**
-*   Class to handle banner categories
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Class to handle banner categories.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Banner;
 
 /**
-*   Class to handle category data
-*   @package    banner
-*/
+ * Class to handle category data.
+ * @package banner
+ */
 class Category
 {
-    /** Properties of the category
-        @var array() */
+    /** Properties of the category.
+     * @var array() */
     var $properties;
 
     /** Indicate whether this is a new submission or existing item.
-        @var boolean */
+     * @var boolean */
     var $isNew;
 
     /**
-    *   Constructor.
-    *   Create empty object, or read a single category.
-    *   @param  string  $id     Category ID to load
-    */
+     * Constructor.
+     * Create empty object, or read a single category.
+     *
+     * @param   string  $id     Category ID to load
+     */
     public function __construct($id='')
     {
         global $_USER, $_TABLES;
@@ -57,11 +59,11 @@ class Category
 
 
     /**
-    *   Read the data for a single category into the current object
-    *
-    *   @param  string  $id     Database ID of category to retrieve
-    *   @see    $this->setVars()
-    */
+     * Read the data for a single category into the current object.
+     *
+     * @see     $this->setVars()
+     * @param   string  $id     Database ID of category to retrieve
+     */
     public function Read($id)
     {
         global $_TABLES;
@@ -78,11 +80,11 @@ class Category
 
 
     /**
-    *   Set a property value
-    *
-    *   @param  string  $key    Name of property
-    *   @param  mixed   $valu   Value to set
-    */
+     * Set a property value.
+     *
+     * @param   string  $key    Name of property
+     * @param   mixed   $value  Value to set
+     */
     public function __set($key, $value)
     {
         switch ($key) {
@@ -113,11 +115,11 @@ class Category
 
 
     /**
-    *   Retrieve the value of a property
-    *
-    *   @param  string  $key    Name of property
-    *   @return mixed           Value of property
-    */
+     * Retrieve the value of a property.
+     *
+     * @param   string  $key    Name of property
+     * @return  mixed           Value of property
+     */
     public function __get($key)
     {
         if (array_key_exists($key, $this->properties))
@@ -128,13 +130,13 @@ class Category
 
 
     /**
-    *   Sets this object's values from the supplied array.
-    *   The array may be a database record or a $_POST array.
-    *   All values will be set, so missing values will result in empty
-    *   variables.
-    *
-    *   @param  array   $A      Array of values to set
-    */
+     * Sets this object's values from the supplied array.
+     * The array may be a database record or a $_POST array.
+     * All values will be set, so missing values will result in empty
+     * variables.
+     *
+     * @param   array   $A      Array of values to set
+     */
     public function setVars($A)
     {
         if (!is_array($A))
@@ -154,12 +156,13 @@ class Category
 
 
     /**
-    *   Toggle boolean database fields
-    *
-    *   @param  string  $field  Databsae field to update
-    *   @param  integer $oldval     Current value of item
-    *   @param  string  $id     Category ID
-    */
+     * Toggle boolean database fields.
+     *
+     * @param   string  $field  Databsae field to update
+     * @param   integer $oldval Current value of item
+     * @param   string  $id     Category ID
+     * @return  integer     New item value, old value on error
+     */
     private static function _toggle($field, $oldval, $id)
     {
         global $_TABLES;
@@ -178,13 +181,13 @@ class Category
 
 
     /**
-    *   Update the "cenberblock" flag for a category
-    *
-    *   @uses   Category::_toggle()
-    *   @param  integer $oldval     Current value of item
-    *   @param  string  $id         Category ID.
-    *   @return integer     New value, or old value upon error
-    */
+     * Update the "cenberblock" flag for a category.
+     *
+     * @uses    self::_toggle()
+     * @param   integer $oldval     Current value of item
+     * @param   string  $id         Category ID.
+     * @return  integer     New value, or old value upon error
+     */
     public static function toggleCenterblock($oldval, $id)
     {
         return self::_toggle('centerblock', $oldval, $id);
@@ -192,13 +195,13 @@ class Category
 
 
     /**
-    *   Update the 'enabled' value for a category
-    *
-    *   @uses   Category::_toggle()
-    *   @param  integer $oldval     Current value of item
-    *   @param  string  $id         Category ID
-    *   @return integer     New value, or old value upon error
-    */
+     * Update the 'enabled' value for a category.
+     *
+     * @uses    self::_toggle()
+     * @param   integer $oldval     Current value of item
+     * @param   string  $id         Category ID
+     * @return  integer     New value, or old value upon error
+     */
     public function toggleEnabled($oldval, $id)
     {
         return self::_toggle('enabled', $oldval, $id);
@@ -206,8 +209,8 @@ class Category
 
 
     /**
-    *   Delete a single category.
-    */
+     * Delete a single category.
+     */
     public function Delete()
     {
         global $_TABLES;
@@ -224,12 +227,11 @@ class Category
 
 
     /**
-    *   Determine if the current category, or supplied category ID, is used
-    *   by any banners
-    *
-    *   @param  string  $id     Category ID to check
-    *   @return boolean         True if the category is in use, fales otherwise.
-    */
+     * Determine if the supplied category ID, is used by any banners.
+     *
+     * @param   string  $id     Category ID to check
+     * @return  boolean         True if the category is in use, fales otherwise.
+     */
     public static function isUsed($id)
     {
         global $_TABLES;
@@ -243,10 +245,10 @@ class Category
 
 
     /**
-    *   Display the edit form for the current category
-    *
-    *   @return string  HTML for the edit form
-    */
+     * Display the edit form for the current category.
+     *
+     * @return  string  HTML for the edit form
+     */
     public function Edit()
     {
         global $_CONF_BANR, $LANG_BANNER;
@@ -320,13 +322,13 @@ class Category
 
 
     /**
-    *   Save the current category to the database.
-    *   If an array is passed in, then the values from that array will be
-    *   set in the current object before saving.
-    *
-    *   @param  array   $A      Optional array of values
-    *   @return string          Error message, empty string for success
-    */
+     * Save the current category to the database.
+     * If an array is passed in, then the values from that array will be
+     * set in the current object before saving.
+     *
+     * @param   array   $A      Optional array of values
+     * @return  string          Error message, empty string for success
+     */
     public function Save($A='')
     {
         global $_TABLES, $LANG_BANNER;
@@ -387,11 +389,11 @@ class Category
 
 
     /**
-    *   Determine if the current user can edit categories.
-    *   Currently plugin admin rights required.
-    *
-    *   @return boolean     True if user can edit, False if not.
-    */
+     * Determine if the current user can edit categories.
+     * Currently plugin admin rights required.
+     *
+     * @return  boolean     True if user can edit, False if not.
+     */
     public function canEdit()
     {
         return plugin_isadmin_banner();
@@ -399,10 +401,10 @@ class Category
 
 
     /**
-    *   Determine if the current user can view ads under this category.
-    *
-    *   @return boolean     True for view access, False if denied
-    */
+     * Determine if the current user can view ads under this category.
+     *
+     * @return  boolean     True for view access, False if denied
+     */
     public function canView()
     {
         return SEC_inGroup($this->grp_view);
@@ -410,11 +412,13 @@ class Category
 
 
     /**
-    *   Get the access level that the current user has to this category
-    *
-    *   @return integer Access level
-    */
-    public function XhasAccess($requred = 3)
+     * Determine if the current user has the required access level.
+     *
+     * @deprecated
+     * @param   integer $required   Required access
+     * @return  boolean     True if the current user has the required access
+     */
+    public function XhasAccess($required = 3)
     {
         static $access = NULL;
 
@@ -430,11 +434,12 @@ class Category
 
 
     /**
-    *   Return the option elements for a category selection dropdown
-    *
-    *   @param  string  $sel    Category ID to show as selected
-    *   @return string          HTML for option statements
-    */
+     * Return the option elements for a category selection dropdown.
+     *
+     * @param   integer $access Required access
+     * @param   string  $sel    Category ID to show as selected
+     * @return  string          HTML for option statements
+     */
     public static function DropDown($access = 3, $sel='')
     {
         $retval = '';
@@ -455,11 +460,11 @@ class Category
 
 
     /**
-    *   Returns True if this category is one of the required ones.
-    *
-    *   @param  string  $id     Optional category ID.  Current id if empty.
-    *   @return boolean         True if category is required, False otherwise.
-    */
+     * Returns True if this category is one of the required ones.
+     *
+     * @param   string  $type   Optional category ID.  Current id if empty.
+     * @return  boolean         True if category is required, False otherwise.
+     */
     public static function isRequired($type)
     {
         global $_TABLES;
@@ -475,11 +480,11 @@ class Category
 
 
     /**
-    *   Create the category administration home page.
-    *
-    *   @return string  HTML for administration page
-    *   @see lib-admin.php
-    */
+     * Create the category administration home page.
+     *
+     * @see     lib-admin.php
+     * @return  string  HTML for administration page
+     */
     public static function AdminList()
     {
         global $LANG_ADMIN, $LANG_BANNER;
@@ -527,10 +532,10 @@ class Category
 
 
     /**
-    *   Get the data array of categories
-    *
-    *   @return array   Array of category information for the admin list
-    */
+     * Get the data array of categories.
+     *
+     * @return  array   Array of category information for the admin list
+     */
     private static function _listCategories()
     {
         global $_TABLES;
@@ -551,10 +556,10 @@ class Category
 
 
     /**
-    *   Gets all the categories into a static array
-    *
-    *   @return array   Array of category objects
-    */
+     * Gets all the categories into a static array.
+     *
+     * @return  array   Array of category objects
+     */
     public static function getAll()
     {
         global $_TABLES;
@@ -579,14 +584,14 @@ class Category
 
 
 /**
-*   Return the display value for a single field in the admin list
-*
-*   @param  string  $fieldname      Name of field in the array
-*   @param  mixed   $fieldvalue     Value of the field
-*   @param  array   $A              Complete array of fields
-*   @param  array   $icon_arr       Array of system icons
-*   @return string                  HTML to display the field
-*/
+ * Return the display value for a single field in the admin list.
+ *
+ * @param   string  $fieldname      Name of field in the array
+ * @param   mixed   $fieldvalue     Value of the field
+ * @param   array   $A              Complete array of fields
+ * @param   array   $icon_arr       Array of system icons
+ * @return  string                  HTML to display the field
+ */
 function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $_TABLES, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;

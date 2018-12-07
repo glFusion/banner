@@ -1,59 +1,59 @@
 <?php
 /**
-*   Class to handle banner ads.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Class to handle banner ads.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Banner;
 
 /**
-*   Define a class to deal with banners
-*   @package banner
-*/
+ * Define a class to deal with banners.
+ * @package banner
+ */
 class Banner
 {
-    /** Holder for the original ID, used when saving edits
-    *   @var string */
+    /** Holder for the original ID, used when saving edits.
+     * @var string */
     var $oldID;
 
-    /** Indicate whether this is a new banner or not
-     *  @var boolean */
+    /** Indicate whether this is a new banner or not.
+     * @var boolean */
     var $isNew;
 
-    /** Indicate whether this is an admin or regular user
-     *  @var boolean */
+    /** Indicate whether this is an admin or regular user.
+     * @var boolean */
     var $isAdmin;
 
-    /** Holder for the banner record properties
-    *   @var array */
+    /** Holder for the banner record properties.
+    * @var array */
     var $properties = array();
 
     /**
-    *   Options from the serialized "options" DB field.
-    *   These depend on the banner type.
-    *   @var array */
+    * Options from the serialized "options" DB field.
+    * These depend on the banner type.
+    * @var array */
     var $options = array();
 
-    /** Database table name currently in use, submission vs. prod
-    *   @var string */
+    /** Database table name currently in use, submission vs. prod.
+    * @var string */
     var $table;
 
-    /** Holder for error messages to be returned to callers
-    *   @var array */
+    /** Holder for error messages to be returned to callers.
+    * @var array */
     var $errors = array();
 
     /**
-    *   Constructor
-    *
-    *   @param  string  $bid    Banner ID to retrieve, blank for empty class
-    *   @param  string  $table  Table, e.g. Submission or prod
-    */
+     * Constructor.
+     *
+     * @param   string  $bid    Banner ID to retrieve, blank for empty class
+     * @param   string  $table  Table, e.g. Submission or prod
+     */
     public function __construct($bid='', $table='')
     {
         global $_USER, $_GROUPS, $_CONF_BANR;
@@ -87,11 +87,11 @@ class Banner
 
 
     /**
-    *   Setter function. Set a value in the properties array.
-    *
-    *   @param  string  $key    Name of property to set
-    *   @param  mixed   $value  Value to set
-    */
+     * Setter function. Set a value in the properties array.
+     *
+     * @param   string  $key    Name of property to set
+     * @param   mixed   $value  Value to set
+     */
     public function __set($key, $value)
     {
         global $_CONF, $_CONF_BANR;
@@ -152,11 +152,11 @@ class Banner
 
 
     /**
-    *   Getter function. Returns a property value
-    *
-    *   @param  string  $key    Name of property to retrieve
-    *   @return mixed           Value of property
-    */
+     * Getter function. Returns a property value, or NULL if not found.
+     *
+     * @param   string  $key    Name of property to retrieve
+     * @return  mixed           Value of property
+     */
     public function __get($key)
     {
         if (isset($this->properties[$key])) {
@@ -168,32 +168,32 @@ class Banner
 
 
     /**
-    *   Set the admin flag
-    *
-    *   @param  boolean $isadmin    True or False
-    */
+     * Set the admin flag.
+     *
+     * @param   boolean $isadmin    True or False
+     */
     public function setAdmin($isadmin)
     {   $this->isAdmin = $isadmin ? true : false;   }
 
 
     /**
-    *   Sets the table in use, either submission or production.
-    *   Ensures that a valid table name is set
-    *
-    *   @param  string  $table  Table key
-    */
+     * Sets the table in use, either submission or production.
+     * Ensures that a valid table name is set
+     *
+     * @param   string  $table  Table key
+     */
     public function setTable($table)
     {   $this->table = $table == 'bannersubmission' ? 'bannersubmission' : 'banner';
     }
 
 
     /**
-    *   Get an option value
-    *
-    *   @param  string  $name       Option name
-    *   @param  mixed   $default    Default value
-    *   @return mixed           Option value, $default if not set
-    */
+     * Get an option value.
+     *
+     * @param   string  $name       Option name
+     * @param   mixed   $default    Default value
+     * @return  mixed           Option value, $default if not set
+     */
     public function getOpt($name, $default=NULL)
     {
         if (isset($this->options[$name])) {
@@ -205,10 +205,10 @@ class Banner
 
 
     /**
-    *   Read a banner record from the database
-    *
-    *   @param  string  $bid    Banner ID to read (required)
-    */
+     * Read a banner record from the database.
+     *
+     * @param   string  $bid    Banner ID to read (required)
+     */
     public function Read($bid)
     {
         global $_TABLES;
@@ -229,13 +229,13 @@ class Banner
 
 
     /**
-    *   Set the banner variables from the supplied array.
-    *   The array may be from a form ($_POST) or database record
-    *
-    *   @see    _CreateHTMLTemplate()
-    *   @param  array   $A          Array of values
-    *   @param  boolean $fromDB     Indicates if reading from DB or submission
-    */
+     * Set the banner variables from the supplied array.
+     * The array may be from a form ($_POST) or database record
+     *
+     * @see     self::_CreateHTMLTemplate()
+     * @param   array   $A          Array of values
+     * @param   boolean $fromDB     Indicates if reading from DB or submission
+     */
     public function setVars($A='', $fromDB=false)
     {
         global $_CONF_BANR, $_CONF;
@@ -339,10 +339,10 @@ class Banner
 
 
     /**
-     *  Update the 'enabled' value for a banner ad.
-     *  @param  integer $newval New value to set (1 or 0)
-     *  @param  string  $bid    Optional ad ID.  Current object if blank
-     *  @return integer     New value, or old value if an error occurred
+     * Update the 'enabled' value for this banner.
+     *
+     * @param   integer $oldval Original value being changed
+     * @return  integer     New value, or old value if an error occurred
      */
     public function toggleEnabled($oldval)
     {
@@ -361,8 +361,8 @@ class Banner
 
 
     /**
-    *   Update the impression (display) count.
-    */
+     * Update the impression (display) count.
+     */
     public function updateImpressions()
     {
         global $_TABLES, $_CONF_BANR, $_USER;
@@ -387,8 +387,8 @@ class Banner
 
 
     /**
-    *   Increment the hit count.
-    */
+     * Increment the hit count.
+     */
     public function updateHits()
     {
         global $_TABLES, $_CONF_BANR, $_USER;
@@ -412,8 +412,8 @@ class Banner
 
 
     /**
-    *   Delete the current banner.
-    */
+     * Delete the current banner.
+     */
     public function Delete()
     {
         global $_TABLES, $_CONF_BANR, $_USER;
@@ -431,10 +431,10 @@ class Banner
 
 
     /**
-    *   Returns the current user's access level to this banner
-    *
-    *   @return integer     User's access level (1 - 3)
-    */
+     * Returns the current user's access level to this banner.
+     *
+     * @return  integer     User's access level (1 - 3)
+     */
     public function Access()
     {
         global $_USER;
@@ -450,13 +450,13 @@ class Banner
 
 
     /**
-    *   Determines whether the current user has a given level of access
-    *   to this banner object.
-    *
-    *   @see    Access()
-    *   @param  integer $level  Minimum access level required
-    *   @return boolean     True if user has access >= level, false otherwise
-    */
+     * Determines whether the current user has a given level of access
+     * to this banner object.
+     *
+     * @see     Access()
+     * @param   integer $level  Minimum access level required
+     * @return  boolean     True if user has access >= level, false otherwise
+     */
     public function hasAccess($level=3)
     {
         if ($this->Access() < $level) {
@@ -468,11 +468,11 @@ class Banner
 
 
     /**
-    *   Save the current banner object using the supplied values.
-    *
-    *   @param  array   $A  Array of values from $_POST or database
-    *   @return string      Error message, empty if successful
-    */
+     * Save the current banner object using the supplied values.
+     *
+     * @param   array   $A  Array of values from $_POST or database
+     * @return  string      Error message, empty if successful
+     */
     public function Save($A = array())
     {
         global $_CONF, $_GROUPS, $_TABLES, $_USER, $MESSAGE,
@@ -642,12 +642,11 @@ class Banner
 
 
     /**
-    *   Returns the banner id for a banner or group of banners
-    *   Called as a standalone function: Banner::GetBanner($options)
-    *
-    *   @param  array   $fields Fields to use in where clause
-    *   @return array           Array of Banner ids, empty for none available
-    */
+     * Returns the banner id for a banner or group of banners.
+     *
+     * @param   array   $fields Fields to use in where clause
+     * @return  array           Array of Banner ids, empty for none available
+     */
     public static function GetBanner($fields=array())
     {
         global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
@@ -764,10 +763,10 @@ class Banner
 
 
     /**
-    *   Returns an array of the newest banners for the "What's New" block
-    *
-    *   @return array   Array of banner records
-    */
+     * Returns an array of the newest banners for the "What's New" block.
+     *
+     * @return  array   Array of banner records
+     */
     public static function GetNewest()
     {
         global $_TABLES, $_CONF_BANR;
@@ -794,18 +793,18 @@ class Banner
 
 
     /**
-    *   Creates the banner image and href link for display.
-    *   The $link parameter is true to create the full banner ad including
-    *   the link. False will show only the image, e.g. for admin listings.
-    *   Local and remotely-hosted images are sized based on the category size
-    *   settings.
-    *
-    *   @param  string  $title      Banner Title, optional
-    *   @param  integer $width      Image width, optional
-    *   @param  integer $height     Image height, optional
-    *   @param  boolean $link       True to create link, false for only image
-    *   @return string              Banner image URL, with or without link
-    */
+     * Creates the banner image and href link for display.
+     * The $link parameter is true to create the full banner ad including
+     * the link. False will show only the image, e.g. for admin listings.
+     * Local and remotely-hosted images are sized based on the category size
+     * settings.
+     *
+     * @param   string  $title      Banner Title, optional
+     * @param   integer $width      Image width, optional
+     * @param   integer $height     Image height, optional
+     * @param   boolean $link       True to create link, false for only image
+     * @return  string              Banner image URL, with or without link
+     */
     public function BuildBanner($title = '', $width=0, $height=0, $link = true)
     {
         global $_CONF, $LANG_DIRECTION, $_CONF_BANR, $LANG_BANNER;
@@ -898,13 +897,13 @@ class Banner
 
 
     /**
-    *   Determine the maximum number of days that a user may run an ad.
-    *   Based on the account balance, unless either purchasing is disabled
-    *   or the user is exempt (like administrators).
-    *
-    *   @param  integer $uid    User ID, current user if zero
-    *   @return integer         Max ad days available, -1 if unlimited
-    */
+     * Determine the maximum number of days that a user may run an ad.
+     * Based on the account balance, unless either purchasing is disabled
+     * or the user is exempt (like administrators).
+     *
+     * @param   integer $uid    User ID, current user if zero
+     * @return  integer         Max ad days available, -1 if unlimited
+     */
     public function MaxDaysAvailable($uid=0)
     {
         global $_TABLES, $_CONF_BANR, $_USER, $_GROUPS;
@@ -929,10 +928,10 @@ class Banner
 
 
     /**
-    *   Validate this banner's url
-    *
-    *   @return string  Response, or empty if no test performed.
-    */
+     * Validate this banner's url.
+     *
+     * @return  string  Response, or empty if no test performed.
+     */
     public function validateUrl()
     {
         global $LANG_BANNER_STATUS, $LANG_BANNER;
@@ -966,11 +965,11 @@ class Banner
 
 
     /**
-    *   Creates the edit form.
-    *
-    *   @param  string  $mode   Type of editing being done
-    *   @return string          HTML for edit form
-    */
+     * Creates the edit form.
+     *
+     * @param   string  $mode   Type of editing being done
+     * @return  string          HTML for edit form
+     */
     public function Edit($mode = 'edit')
     {
         global $_CONF, $_GROUPS, $_TABLES, $_USER, $_CONF_BANR, $_PLUGINS,
@@ -1206,11 +1205,11 @@ class Banner
 
 
     /**
-    *   Validate that the required fields are filled in.
-    *
-    *   @param  array   $A  All form variables
-    *   @return boolean     True if valid, False otherwise
-    */
+     * Validate that the required fields are filled in.
+     *
+     * @param   array   $A  All form variables
+     * @return  boolean     True if valid, False otherwise
+     */
     public function Validate($A)
     {
         global $LANG_BANNER;
@@ -1238,8 +1237,8 @@ class Banner
 
 
     /**
-    *   Send an email notification for a new submission.
-    */
+     * Send an email notification for a new submission.
+     */
     public function Notify()
     {
         global $_CONF, $_TABLES, $LANG_BANNER, $LANG08;
@@ -1263,11 +1262,11 @@ class Banner
 
 
     /**
-    *   Determine if banners should be shown on this page or to this user.
-    *   This is based on global settings, not banner permissions.
-    *
-    *   @return boolean     True to show banners, False to not.
-    */
+     * Determine if banners should be shown on this page or to this user.
+     * This is based on global settings, not banner permissions.
+     *
+     * @return  boolean     True to show banners, False to not.
+     */
     public static function canShow()
     {
         global $_CONF_BANR, $_CONF, $_USER;
@@ -1346,10 +1345,10 @@ class Banner
 
 
     /**
-    *  Create the HTML template for javascript-based banners
-    *
-    *   @return string  HTML for the banner
-    */
+     * Create the HTML template for javascript-based banners.
+     *
+     * @return  string  HTML for the banner
+     */
     private function _CreateHTMLTemplate()
     {
         $buffer = $this->options['ad_code'];
@@ -1380,10 +1379,10 @@ class Banner
 
 
     /**
-    *   See if this is a banner submission or using the prod table
-    *
-    *   @return boolean     True if submission, False if prod
-    */
+     * See if this is a banner submission or using the prod table.
+     *
+     * @return  boolean     True if submission, False if prod
+     */
     private function _isSubmission()
     {
         return $this->table == 'bannersubmission' ? true : false;
@@ -1391,15 +1390,15 @@ class Banner
 
 
     /**
-    *   Get the AM/PM time selector for publication start/end fields.
-    *   Same function as COM_getAmPmFormSelection(), but sets the "id"
-    *   attribute of the field the same as the "name" to allow
-    *   the datepicker to update the field.
-    *
-    *   @param  string  $name   Name of field, also used for the ID
-    *   @param  string  $seleted    "am" or "pm"
-    *   @return string      HTML for selection
-    */
+     * Get the AM/PM time selector for publication start/end fields.
+     * Same function as COM_getAmPmFormSelection(), but sets the "id"
+     * attribute of the field the same as the "name" to allow
+     * the datepicker to update the field.
+     *
+     * @param   string  $name       Name of field, also used for the ID
+     * @param   string  $selected   "am" or "pm"
+     * @return  string      HTML for selection
+     */
     private static function getAmPmFormSelection($name, $selected = '')
     {
         global $_CONF;

@@ -1,23 +1,22 @@
 <?php
 /**
-*   glFusion API functions for the Banner plugin
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * glFusion API functions for the Banner plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 if (!defined ('GVERSION')) {
     die ('This file can not be used on its own.');
 }
 
 /** Global configuration array, in case this is included within a function
-*   @global array
-*/
+ *   @global array */
 global $_CONF_BANR;
 
 // Define banner types.  This is done very early because they're used
@@ -62,12 +61,30 @@ define ('BANR_CLASSPATH', BANR_PI_PATH . '/classes');
 
 spl_autoload_register(function ($class)
 {
-    if (strpos($class, 'Banner\\') === 0) {
-        $class = str_replace('Banner\\', '', $class);
-        $path = __DIR__ . '/classes/' . $class . '.class.php';
-        if (file_exists($path)) {
-            include $path;
-        }
+    // project-specific namespace prefix
+    $prefix = 'Banner\\';
+
+    // does the class use the namespace prefix?
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        // no, move to the next registered autoloader
+        return;
+    }
+
+    // base directory for the namespace prefix
+    $base_dir = __DIR__ . '/classes/';
+
+    // get the relative class name
+    $relative_class = substr($class, $len);
+
+    // replace the namespace prefix with the base directory, replace namespace
+    // separators with directory separators in the relative class name, append
+    // with .php
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.class.php';
+
+    // if the file exists, require it
+    if (file_exists($file)) {
+        require $file;
     }
 });
 
@@ -77,13 +94,14 @@ function USES_banner_userfunctions()
 
 
 /**
-*   Create the centerblock, if needed
-*   @param  integer $where  Which area is being displayed now
-*   @param  integer $page   Page number
-*   @param  string  $topic  Topic ID, or empty string
-*   @return string          HTML for centerblock
-*/
-function plugin_centerblock_banner($where=1,$page=1,$topic ='')
+ * Create the centerblock, if needed.
+ *
+ * @param   integer $where  Which area is being displayed now
+ * @param   integer $page   Page number
+ * @param   string  $topic  Topic ID, or empty string
+ * @return  string          HTML for centerblock
+ */
+function plugin_centerblock_banner($where=1, $page=1, $topic ='')
 {
     global $_CONF_BANR, $_TABLES;
 
@@ -167,13 +185,13 @@ function plugin_centerblock_banner($where=1,$page=1,$topic ='')
 
 
 /**
-* Implements the [banner:] [randombanner:] autotag.
-*
-* @param    string  $op         operation to perform
-* @param    string  $content    item (e.g. story text), including the autotag
-* @param    array   $autotag    parameters used in the autotag
-* @param    mixed               tag names (for $op='tagname') or formatted content
-*/
+ * Implements the [banner:] [randombanner:] autotag.
+ *
+ * @param   string  $op         operation to perform
+ * @param   string  $content    item (e.g. story text), including the autotag
+ * @param   array   $autotag    parameters used in the autotag
+ * @param   mixed               tag names (for $op='tagname') or formatted content
+ */
 function plugin_autotags_banner($op, $content = '', $autotag = '')
 {
     global $_CONF, $_TABLES, $LANG_DIRECTION;
@@ -254,12 +272,12 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
 
 
 /**
-*   Called by the plugin Editor to display the current plugin code version
-*   This may be different than the version installed and registered currently.
-*   If newer then you may want to run the update
-*
-*   @return string  version number
-*/
+ * Called by the plugin Editor to display the current plugin code version.
+ * This may be different than the version installed and registered currently.
+ * If newer then you may want to run the update
+ *
+ * @return  string  version number
+ */
 function plugin_chkVersion_banner()
 {
     global $_CONF_BANR;
@@ -268,13 +286,13 @@ function plugin_chkVersion_banner()
 
 
 /**
-*   Shows the statistics for the banner plugin on stats.php.
-*   If $showsitestats is 1 then we are to only print the overall stats in the
-*   'site statistics box' otherwise we show the detailed stats
-*
-*   @param    int     $showsitestats  Flag to let us know which stats to get
-*   @param    string                  HTML for the stats section
-*/
+ * Shows the statistics for the banner plugin on stats.php.
+ * If $showsitestats is 1 then we are to only print the overall stats in the
+ * 'site statistics box' otherwise we show the detailed stats
+ *
+ * @param   integer $showsitestats  Flag to let us know which stats to get
+ * @param   string                  HTML for the stats section
+ */
 /*function plugin_showstats_banner ($showsitestats)
 {
     global $_CONF, $_TABLES, $LANG_BANNER;
@@ -333,10 +351,10 @@ function plugin_chkVersion_banner()
 
 
 /**
-*   New stats plugin API function for proper integration with the site stats
-*
-*   @return array   item text, item count
-*/
+ * New stats plugin API function for proper integration with the site stats.
+ *
+ * @return  array   Array(item text, item count)
+ */
 function plugin_statssummary_banner ()
 {
     global $LANG_BANNER_STATS, $_TABLES;
@@ -356,11 +374,10 @@ function plugin_statssummary_banner ()
 
 
 /**
-*   This will put an option for banner in the command and control block on
-*   moderation.php
-*
-*   @return mixed   array(title, url, icon), or boolean false when not allowed
-*/
+ * This will put an option for banner in the command and control block on moderation.php.
+ *
+ * @return  array|boolean   array(title, url, icon), or boolean false when not allowed
+ */
 function plugin_cclabel_banner()
 {
     global $LANG_BANNER;
@@ -375,10 +392,10 @@ function plugin_cclabel_banner()
 
 
 /**
-*   Returns the administrative option for this plugin
-*
-*   @return mixed   array(title, url, num. banner), or false when not allowed
-*/
+ * Returns the administrative option for this plugin.
+ *
+ * @return  array|boolean   array(title, url, num. banner), or false when not allowed
+ */
 function plugin_getadminoption_banner()
 {
     global $_TABLES, $_CONF_BANR;
@@ -396,11 +413,10 @@ function plugin_getadminoption_banner()
 
 
 /**
-*   A user is about to be deleted. Update ownership of any banners owned
-*   by that user or delete them.
-*
-*   @param  integer $uid    User id of deleted user
-*/
+ * Update banners when the owning user is deleted.
+ *
+ * @param   integer $uid    User id of deleted user
+ */
 function plugin_user_delete_banner ($uid)
 {
     global $_TABLES, $_CONF_BANR;
@@ -429,11 +445,11 @@ function plugin_user_delete_banner ($uid)
 
 
 /**
-*   Support merging local accounts into remote accounts
-*
-*   @param  integer $origUID    Original (remote) user ID
-*   @param  integer $destUID    Merged (local) user ID
-*/
+ * Support merging local accounts into remote accounts.
+ *
+ * @param   integer $origUID    Original (remote) user ID
+ * @param   integer $destUID    Merged (local) user ID
+ */
 function plugin_user_move_banner($origUID, $destUID)
 {
     global $_TABLES;
@@ -467,13 +483,13 @@ function plugin_upgrade_banner()
 
 
 /**
-*   Make changes needed when the plugin is enabled or disabled.
-*
-*   Uses the PHP block function name instead of the block name to
-*   catch user-created blocks that rely on this plugin.
-*
-*   @param  boolean $enable     True if we're being enabled, False otherwise
-*/
+ * Make changes needed when the plugin is enabled or disabled.
+ *
+ * Uses the PHP block function name instead of the block name to
+ * catch user-created blocks that rely on this plugin.
+ *
+ * @param   boolean $enabled    True if we're being enabled, False otherwise
+ */
 function plugin_enablestatechange_banner($enabled)
 {
     global $_TABLES, $_PLUGINS;
@@ -502,11 +518,12 @@ function plugin_enablestatechange_banner($enabled)
 
 
 /**
-*   Receives notification of anothe plugin's deletion
-*
-*   @param  mixed   $id     Item ID
-*   @param  string  $type   Plugin Name
-*/
+ * Receives notification of anothe plugin's deletion.
+ * This plugin relies on the LGLIB plugin.
+ *
+ * @param   mixed   $id     Item ID
+ * @param   string  $type   Plugin Name
+ */
 function plugin_itemdeleted_banner($id, $type)
 {
     global $_TABLES;
@@ -520,29 +537,27 @@ function plugin_itemdeleted_banner($id, $type)
 
 
 /**
-*   Counts the items in the submission queue.
-*
-*   @return integer Number of items
-*/
+ * Counts the items in the submission queue.
+ *
+ * @return  integer Number of items
+ */
 function plugin_submissioncount_banner()
 {
     global $_TABLES;
 
     $retval = 0;
-
     if (plugin_ismoderator_banner ()) {
         $retval = DB_count($_TABLES['bannersubmission']);
     }
-
     return $retval;
 }
 
 
 /**
-*   Checks that the current user has plugin moderator rights.
-*
-*   @return boolean     Returns true if moderator
-*/
+ * Checks that the current user has plugin moderator rights.
+ *
+ * @return  boolean     Returns true if moderator
+ */
 function plugin_ismoderator_banner()
 {
     static $isMod = NULL;
@@ -555,11 +570,11 @@ function plugin_ismoderator_banner()
 
 
 /**
-*   Checks that the current user has plugin admin rights.
-*   Not a glFusion core function, but similar
-*
-*   @return boolean     Returns true if administrator
-*/
+ * Checks that the current user has plugin admin rights.
+ * Not a glFusion core function, but similar.
+ *
+ * @return  boolean     Returns true if administrator
+ */
 function plugin_isadmin_banner()
 {
     static $isAdmin = NULL;
@@ -572,10 +587,10 @@ function plugin_isadmin_banner()
 
 
 /**
-*   Returns SQL & Language texts to moderation.php
-*
-*   @return mixed   Plugin object or void if not allowed
-*/
+ * Returns SQL & Language texts to moderation.php.
+ *
+ * @return  mixed   Plugin object or void if not allowed
+ */
 function plugin_itemlist_banner()
 {
     global $_TABLES, $LANG_BANNER;
@@ -604,12 +619,12 @@ function plugin_itemlist_banner()
 
 
 /**
-*   Returns list of moderation values.
-*   The array returned contains (in order): the row 'id' label, main plugin
-*   table, moderation fields (comma seperated), and plugin submission table
-*
-*   @return array   Returns array of useful moderation values
-*/
+ * Returns list of moderation values.
+ * The array returned contains (in order): the row 'id' label, main plugin
+ * table, moderation fields (comma seperated), and plugin submission table
+ *
+ * @return  array   Returns array of useful moderation values
+ */
 function plugin_moderationvalues_banner()
 {
     global $_TABLES;
@@ -624,15 +639,15 @@ function plugin_moderationvalues_banner()
 
 
 /**
-*   Performs plugin exclusive work for items approved by moderation.
-*
-*   While moderation.php handles the actual move from bannersubmission
-*   to banner tables, within the function we handle all other approval
-*   relate tasks.
-*
-*   @param  string  $id     Banner ID
-*   @return string          Any wanted HTML output
-*/
+ * Performs plugin exclusive work for items approved by moderation.
+ *
+ * While moderation.php handles the actual move from bannersubmission
+ * to banner tables, within the function we handle all other approval
+ * relate tasks.
+ *
+ * @param   string  $id     Banner ID
+ * @return  string          Any wanted HTML output
+ */
 function plugin_moderationapprove_banner($id)
 {
     // No changes needed since removing the permission matrix in 0.2.0
@@ -641,15 +656,15 @@ function plugin_moderationapprove_banner($id)
 
 
 /**
-*   Performs plugin exclusive work for items deleted by moderation.
-*
-*   While moderation.php handles the actual removal from <plugin>submission
-*   table, within this function we handle all other deletion
-*   related tasks.
-*
-*   @param  string  $id     Identifying string
-*   @return string          Any wanted HTML output
-*/
+ * Performs plugin exclusive work for items deleted by moderation.
+ *
+ * While moderation.php handles the actual removal from <plugin>submission
+ * table, within this function we handle all other deletion
+ * related tasks.
+ *
+ * @param   string  $id     Identifying string
+ * @return  string          Any wanted HTML output
+ */
 function plugin_moderationdelete_banner($id)
 {
     global $_CONF_BANR;
@@ -666,11 +681,11 @@ function plugin_moderationdelete_banner($id)
 
 
 /**
-*   Check submission form values and save if OK. Else show form again.
-*
-*   @param  array   $A  The banner record
-*   @return string      Any wanted HTML output
-*/
+ * Check submission form values and save if OK. Else show form again.
+ *
+ * @param   array   $A  The banner record
+ * @return  string      Any wanted HTML output
+ */
 function plugin_savesubmission_banner($A)
 {
     global $_CONF, $_CONF_BANR, $LANG12;
@@ -711,10 +726,13 @@ function plugin_savesubmission_banner($A)
 
 
 /**
-*   Shows banner submission form.
-*
-*   @return string  HTML for the banner submission form
-*/
+ * Shows banner submission form.
+ * If this is being shown as the result of a submission form error,
+ * $A will contain all the fields to repopulate the form.
+ *
+ * @param   array   $A      Array of form fields.
+ * @return  string  HTML for the banner submission form
+ */
 function plugin_submit_banner($A=array())
 {
     global $_CONF_BANR, $LANG_BANNER, $_USER;
@@ -741,10 +759,10 @@ function plugin_submit_banner($A=array())
 
 
 /**
-* Returns the URL of the plugin's icon
-*
-* @return   string      URL of the icon
-*/
+ * Returns the URL of the plugin's icon.
+ *
+ * @return  string      URL of the icon
+ */
 function plugin_geticon_banner()
 {
     return BANR_URL . '/images/banner.png';
@@ -752,20 +770,20 @@ function plugin_geticon_banner()
 
 
 /**
-*   Set template variables.
-*
-*   A plugin should use its name as a prefix for the names of its
-*   template variables, e.g. 'banner_xxx' and 'lang_banner_xxx'.
-*
-*   Note that there is no way to tell if a template variable is
-*   actually defined.  Therefore, the impression count will be incremented
-*   for each banner that this function attempts to display.  If the
-*   banner_ template vars are not defined in your templates, then set
-*   $_CONF_BANR['templatevars'] to false.
-*
-*   @param  string  $templatename   Name of template, e.g. 'header'
-*   @param  ref     $template       Reference to actual template
-*/
+ * Set template variables.
+ *
+ * A plugin should use its name as a prefix for the names of its
+ * template variables, e.g. 'banner_xxx' and 'lang_banner_xxx'.
+ *
+ * Note that there is no way to tell if a template variable is
+ * actually defined.  Therefore, the impression count will be incremented
+ * for each banner that this function attempts to display.  If the
+ * banner_ template vars are not defined in your templates, then set
+ * $_CONF_BANR['templatevars'] to false.
+ *
+ * @param   string  $templatename   Name of template, e.g. 'header'
+ * @param   ref     $template       Reference to actual template
+ */
 function plugin_templateSetVars_banner($templatename, &$template)
 {
     global $_TABLES, $_CONF_BANR, $topic;
@@ -806,13 +824,13 @@ function plugin_templateSetVars_banner($templatename, &$template)
 
 
 /**
-*   Provide a banner for PLG_displayAdBlock()
-*
-*   @since  0.3.0
-*   @param  string  $plugin     Calling plugin, e.g. 'story'
-*   @param  integer $counter    Item display counter
-*   @return string              Banner image and link code
-*/
+ * Provide a banner for PLG_displayAdBlock().
+ *
+ * @since   v0.3.0
+ * @param   string  $plugin     Calling plugin, e.g. 'story'
+ * @param   integer $counter    Item display counter
+ * @return  string              Banner image and link code
+ */
 function plugin_displayadblock_banner($plugin, $counter)
 {
     global $_CONF_BANR, $topic;
@@ -839,51 +857,55 @@ function plugin_displayadblock_banner($plugin, $counter)
 
 
 /**
-*   Automatic uninstall function for plugins
-*
-*   This code is automatically uninstalling the plugin.
-*   It passes an array to the core code function that removes
-*   tables, groups, features and php blocks from the tables.
-*   Additionally, this code can perform special actions that cannot be
-*   foreseen by the core code (interactions with other plugins for example)
-*
-*   @return   array     Elements to be removed
-*/
+ * Automatic uninstall function for plugins.
+ *
+ * This code is automatically uninstalling the plugin.
+ * It passes an array to the core code function that removes
+ * tables, groups, features and php blocks from the tables.
+ * Additionally, this code can perform special actions that cannot be
+ * foreseen by the core code (interactions with other plugins for example)
+ *
+ * @return  array     Elements to be removed
+ */
 function plugin_autouninstall_banner ()
 {
     global $_CONF_BANR;
 
     $out = array (
         // give the name of the tables, without $_TABLES
-        'tables' => array('banner',
-                    'bannersubmission',
-                    'bannercategories',
-                    'bannercampaigns',
-                    'banner_mapping',
+        'tables' => array(
+            'banner',
+            'bannersubmission',
+            'bannercategories',
+            'bannercampaigns',
+            'banner_mapping',
         ),
 
         // give the full name of the group, as in the db
-        'groups' => array('banner Admin'),
+        'groups' => array(
+            'banner Admin',
+        ),
 
         // give the full name of the feature, as in the db
         'features' => array(
-                'banner.admin',
-                'banner.edit',
-                'banner.moderate',
-                'banner.submit',
+            'banner.admin',
+            'banner.edit',
+            'banner.moderate',
+            'banner.submit',
         ),
 
         // give the full name of the block, including 'phpblock_', etc
         'php_blocks' => array(
-                'phpblock_banner_topic',
-                'phpblock_banner_topic_random'
+            'phpblock_banner_topic',
+            'phpblock_banner_topic_random',
         ),
 
         // give all vars with their name
-        'vars'=> array()
+        'vars'=> array(),
     );
 
     if (isset($_CONF_BANR['templatevars'])) {
+        // Reset this value to avoid trying to display a banner on the final page.
         $_CONF_BANR['templatevars'] = 0;
     }
     return $out;
@@ -891,11 +913,13 @@ function plugin_autouninstall_banner ()
 
 
 /**
- *  Returns a list of banners that belong to categories associated with
- *  the current topic
+ * Returns a list of banners that belong to categories associated with
+ * the current topic.
  *
- *  @see    BANNER_block_banner()
- *  @return string      HTML for banner display.
+ * @see     BANNER_block_banner()
+ * @param   array   $A  Array of parameters for the block (not used)
+ * @param   string  $param  Block information (not used)
+ * @return  string      HTML for banner display.
  */
 function phpblock_banner_topic($A=array(), $param='')
 {
@@ -917,11 +941,13 @@ function phpblock_banner_topic($A=array(), $param='')
 
 
 /**
- *  Returns a random banner that belongs to categories associated with
- *  the current topic
+ * Returns a random banner that belongs to categories associated with
+ * the current topic.
  *
- *  @see    BANNER_block_banner()
- *  @return string      HTML for banner display.
+ * @see     BANNER_block_banner()
+ * @param   array   $A  Array of parameters for the block (not used)
+ * @param   string  $param  Block information
+ * @return  string      HTML for banner display.
  */
 function phpblock_banner_topic_random($A= array(), $param='')
 {
@@ -937,9 +963,9 @@ function phpblock_banner_topic_random($A= array(), $param='')
 
 
 /**
- *  Get additional Javascript into the site header.
+ * Get additional Javascript into the site header.
  *
- *  @return array List of paths to Javascript files
+ * @return  array   List of paths to Javascript files
  */
 function plugin_getheaderjs_banner()
 {
@@ -954,9 +980,9 @@ function plugin_getheaderjs_banner()
 
 
 /**
- *  Get additional CSS into the site header.
+ * Get additional CSS into the site header.
  *
- *  @return array List of paths to Javascript files
+ * @return  array   List of paths to Javascript files
  */
 function plugin_getheadercss_banner()
 {
@@ -983,10 +1009,10 @@ function plugin_getheadercss_banner()
 
 
 /**
-*   Get the user menu option for this plugin.
-*
-*   @return array   Array of menu items.
-*/
+ * Get the user menu option for this plugin.
+ *
+ * @return  array   Array of menu items.
+ */
 function plugin_getuseroption_banner()
 {
     global $LANG_BANNER, $_CONF, $_CONF_BANR, $_USER, $_TABLES;
@@ -1007,11 +1033,12 @@ function plugin_getuseroption_banner()
 
 
 /**
-*   Get the URL to the configuration help file
-*
-*   @param  string  $doclang    Document language
-*   @return string              URL to document
-*/
+ * Get the URL to the configuration help file.
+ *
+ * @param   string  $option     ID of help element to display
+ * @param   string  $doclang    Document language
+ * @return  string              URL to document
+ */
 function plugin_getconfigelementhelp_banner($option, $doclang='english')
 {
     global $_CONF_BANR;
@@ -1027,13 +1054,12 @@ function plugin_getconfigelementhelp_banner($option, $doclang='english')
 
 
 /**
-*   Gets all the groups in the glFusion groups table to prepare a
-*   selection list.
-*
-*   @param  string  $grplist    Optional list of groups to include or exclude
-*   @param  string  $NOT        Set to "NOT" to exclude $grplist, blank to include it.
-*   @return array       Array of (grp_name=>grp_id)
-*/
+ * Gets all the groups in the glFusion groups table to prepare a selection list.
+ *
+ * @param   string  $grplist    Optional list of groups to include or exclude
+ * @param   string  $NOT        Set to "NOT" to exclude $grplist, blank to include it.
+ * @return  array       Array of (grp_name=>grp_id)
+ */
 function plugin_configmanager_select_defgrpsubmit_banner()
 {
     global $_TABLES;
@@ -1058,15 +1084,16 @@ function plugin_configmanager_select_defgrpsubmit_banner()
 
 
 /**
-*   Create a user dropdown list, optionally including or excluding
-*   a specific comma-separated list of user ids.  Returns the <option>
-*   clauses only.
-*
-*   @param  integer $sel    ID of selected user, 0 for none.
-*   @param  string  $users  Comma separated list of users to include/exclude
-*   @param  string  $not    'NOT' to exclude the users in $sel, blank to include
-*   @return string          HTML for options in a select list.
-*/
+ * Create a user dropdown list, optionally including or excluding
+ * a specific comma-separated list of user ids.
+ * Returns the <option> clauses only.
+ *
+ * @deprecated
+ * @param  integer $sel    ID of selected user, 0 for none.
+ * @param  string  $users  Comma separated list of users to include/exclude
+ * @param  string  $not    'NOT' to exclude the users in $sel, blank to include
+ * @return string          HTML for options in a select list.
+ */
 function XBANNER_UserDropdown($sel=0, $users='', $not='')
 {
     global $_TABLES;
@@ -1096,12 +1123,12 @@ function XBANNER_UserDropdown($sel=0, $users='', $not='')
 
 
 /**
- *  Display a formatted error message
+ * Display a formatted error message
  *
- *  @param string $msg Error message to display
- *  @param string $type Type of message, used for style and header
- *  @param string $header Optional header text.
- *  @return string Formatted error message
+ * @param   string  $msg    Error message to display
+ * @param   string  $type   Type of message, used for style and header
+ * @param   string  $header Optional header text.
+ * @return  string      Formatted error message
  */
 function BANNER_errorMessage($msg, $type = '', $header = '')
 {
@@ -1145,12 +1172,12 @@ function BANNER_errorMessage($msg, $type = '', $header = '')
 
 
 /**
-*   Backend function for phpblock functions.
-*   Returns one or more banners which fit the request.
-*
-*   @param  string  $extra  Optional extra SQL.
-*   @return string          HTML for banner display
-*/
+ * Backend function for phpblock functions.
+ * Returns one or more banners which fit the request.
+ *
+ * @param   string  $extra  Optional extra SQL.
+ * @return  string          HTML for banner display
+ */
 function BANNER_block_banner($extra='')
 {
     global $_CONF, $_TABLES, $LANG_BANNER, $topic;
@@ -1191,15 +1218,15 @@ function BANNER_block_banner($extra='')
 
 
 /**
-*   Return the url to a documentation file.
-*   Looks for the file under the user's language directory, or returns
-*   the English version by default.
-*   NOTE: Does not check whether the English version exists.
-*
-*   @param  string  $file   Filename only, e.g. 'config.thtml'
-*   @param  string  $lang   Language string.  Optional.
-*   @return string          Full URL to the file.
-*/
+ * Return the url to a documentation file.
+ * Looks for the file under the user's language directory, or returns
+ * the English version by default.
+ * NOTE: Does not check whether the English version exists.
+ *
+ * @param   string  $file   Filename only, e.g. 'config.thtml'
+ * @param   string  $lang   Language string.  Optional.
+ * @return  string          Full URL to the file.
+ */
 function BANNER_docURL($file, $lang='')
 {
     global $_CONF, $_CONF_BANR;
@@ -1210,12 +1237,12 @@ function BANNER_docURL($file, $lang='')
 
 
 /**
-*   Get an icon from the CSS icon set, either UIkit or FontAwesome
-*
-*   @param  string  $name   Base name of icon, e.g. "edit" for "uk-icon-edit"
-*   @param  string  $style  Style name from local CSS
-*   @return string      Class names for icon
-*/
+ * Get an icon from the CSS icon set, either UIkit or FontAwesome.
+ *
+ * @param   string  $name   Base name of icon, e.g. "edit" for "uk-icon-edit"
+ * @param   string  $style  Style name from local CSS
+ * @return  string      Class names for icon
+ */
 function BANR_getIcon($name, $style='info')
 {
     global $_CONF_BANR;
@@ -1232,13 +1259,13 @@ function BANR_getIcon($name, $style='info')
 
 
 /**
-*   Check that the currently installed version matches the code version.
-*   This is to disable functions that might not work due to a mismatch.
-*   Just check the major.minor.revision values.  Any fourth element is ignored.
-*
-*   @param  string  $required   Required version, default to code version
-*   @return boolean     True if current >= installed version, False if not
-*/
+ * Check that the currently installed version matches the code version.
+ * This is to disable functions that might not work due to a mismatch.
+ * Just check the major.minor.revision values.  Any fourth element is ignored.
+ *
+ * @param   string  $required   Required version, default to code version
+ * @return  boolean     True if current >= installed version, False if not
+ */
 function BANR_isMinVersion($required = '')
 {
     global $_CONF_BANR, $_PLUGIN_INFO;
@@ -1260,9 +1287,9 @@ function BANR_isMinVersion($required = '')
 
 
 /**
- *  Log activity to a plugin-specific log file
+ * Log activity to a plugin-specific log file.
  *
- *  @param string $logentry Text to log
+ * @param   string  $logentry   Text to log
  */
 function BANNER_auditLog($logentry = '')
 {

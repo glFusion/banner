@@ -1,15 +1,15 @@
 <?php
 /**
-*   Banner admin entry point.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Banner admin entry point.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /** Import core glFusion libraries */
 require_once '../../../lib-common.php';
@@ -201,7 +201,7 @@ default:
 
 switch ($view) {
 case 'campaigns':
-    $L = new Banner\CampaignList(true);
+    $L = new Banner\Lists\Campaign(true);
     $content .= $L->ShowList();
     //$content .= BANNER_adminCampaigns();
     break;
@@ -296,7 +296,7 @@ default:
             $content .= COM_showMessage($msg, 'banner');
         }
     }
-    $L = new Banner\BannerList(true);
+    $L = new Banner\Lists\Banner(true);
     if (isset($_REQUEST['category']))
         $L->setCatID($_REQUEST['category']);
     if (isset($_REQUEST['camp_id']))
@@ -312,11 +312,11 @@ echo COM_siteFooter();
 exit;
 
 /**
-*   Create the administrator menu
-*
-*   @param  string  $view   View being shown, so set the help text
-*   @return string      Administrator menu
-*/
+ * Create the administrator menu.
+ *
+ * @param   string  $view   View being shown, so set the help text
+ * @return  string      Administrator menu
+ */
 function BANR_adminMenu($view='')
 {
     global $_CONF, $LANG_ADMIN, $LANG_BANNER, $_CONF_BANR;

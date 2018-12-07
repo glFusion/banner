@@ -1,16 +1,16 @@
 <?php
 /**
-*   This is the main user-facing page for the Banner Plugin.
-*   Provides a way for users to view and edit banners that they own.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * This is the main user-facing page for the Banner Plugin.
+ * Provides a way for users to view and edit banners that they own.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php 
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 require_once '../lib-common.php';
 USES_lib_admin();
@@ -176,11 +176,11 @@ echo COM_siteFooter();
 exit;
 
 /**
-*   Create the administrator menu
-*
-*   @param  string  $view   View being shown, so set the help text
-*   @return string      Administrator menu
-*/
+ * Create the administrator menu.
+ *
+ * @param   string  $view   View being shown, so set the help text
+ * @return  string      Administrator menu
+ */
 function BANR_userMenu($view='')
 {
     global $_CONF, $LANG_ADMIN, $LANG_BANNER, $_CONF_BANR;

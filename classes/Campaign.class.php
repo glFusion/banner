@@ -1,41 +1,41 @@
 <?php
 /**
-*   Class to handle advertising campaigns
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Class to handle advertising campaigns.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Banner;
 
 /**
-*   Class to manage banner campaigns
-*   @package banner
-*/
+ * Class to manage banner campaigns.
+ * @package banner
+ */
 class Campaign
 {
-    /** Properties of a campaign
-    *   @var array */
+    /** Properties of a campaign.
+     * @var array */
     var $properties;
 
-    /** Flag to indicate whether this item is new
-    *   @var boolean */
+    /** Flag to indicate whether this item is new.
+     * @var boolean */
     var $isNew;
 
-    /** Array to hold associated banner objects
-    *   @var array */
+    /** Array to hold associated banner objects.
+     * @var array */
     var $Banners = array();
 
 
     /**
-    *   Constructor. Read campaign data from the database, or create
-    *   a blank entry with default values
-    *
-    *   @param  string  $id     Optional campaign ID to read
-    */
+     * Read an existing campaign or create a blank one.
+     *
+     * @param   string  $id     Optional campaign ID to read
+     */
     public function __construct($id='')
     {
         global $_USER, $_TABLES, $_CONF_BANR;
@@ -60,10 +60,10 @@ class Campaign
 
 
     /**
-    *   Read a single campaign record into the object
-    *
-    *   @param  string  $id     ID of the campaign to retrieve
-    */
+     * Read a single campaign record into the object.
+     *
+     * @param   string  $id     ID of the campaign to retrieve
+     */
     public function Read($id)
     {
         global $_TABLES;
@@ -79,11 +79,11 @@ class Campaign
 
 
     /**
-    *   Set a property value
-    *
-    *   @param  string  $key    Name of property
-    *   @param  mixed   $value  Value to set
-    */
+     * Set a property value.
+     *
+     * @param   string  $key    Name of property
+     * @param   mixed   $value  Value to set
+     */
     public function __set($key, $value)
     {
         switch ($key) {
@@ -122,11 +122,11 @@ class Campaign
 
 
     /**
-    *   Retrieve the value of a property
-    *
-    *   @param  string  $key    Name of property
-    *   @return mixed           Value of property
-    */
+     * Retrieve the value of a property.
+     *
+     * @param   string  $key    Name of property
+     * @return  mixed           Value of property
+     */
     public function __get($key)
     {
         if (array_key_exists($key, $this->properties))
@@ -137,10 +137,10 @@ class Campaign
 
 
     /**
-    *   Set all the variables in this object from values provided.
-    *
-    *   @param  array   $A  Array of values, either from $_POST or database
-    */
+     * Set all the variables in this object from values provided.
+     *
+     * @param   array   $A  Array of values, either from $_POST or database
+     */
     public function setVars($A)
     {
         if (!is_array($A))
@@ -184,10 +184,10 @@ class Campaign
 
 
     /**
-    *   Set the owner ID of this campaign
-    *
-    *   @param  integer $uid    glFusion user ID
-    */
+     * Set the owner ID of this campaign.
+     *
+     * @param   integer $uid    glFusion user ID
+     */
     public function setUID($uid)
     {
         $this->owner_id = (int)$uid;
@@ -196,11 +196,12 @@ class Campaign
 
 
     /**
-    *   Update the 'enabled' value for a banner ad.
-    *
-    *   @param  integer $newval     New value to set (1 or 0)
-    *   @param  string  $id         Campaign ID to toggle
-    */
+     * Update the 'enabled' value for a banner ad.
+     *
+     * @param   integer $oldval Original value being changed
+     * @param   string  $id         Campaign ID to toggle
+     * @return  integer     New value, or old value on error
+     */
     public static function toggleEnabled($oldval, $id)
     {
         global $_TABLES;
@@ -216,11 +217,10 @@ class Campaign
 
 
     /**
-    *   Delete a campaign.
-    *   Can be called as Campaign::Delete($id).
-    *
-    *   @param  string  $id ID of campaign to delete, this object if empty
-    */
+     * Delete a campaign.
+     *
+     * @param   string  $id     ID of campaign to delete, this object if empty
+     */
     public function Delete($id)
     {
         global $_TABLES;
@@ -233,11 +233,11 @@ class Campaign
 
 
     /**
-    *   Determine if this campaign has any banners belonging to it.
-    *
-    *   @param  string  $id ID of campaign to check, this object if empty.
-    *   @return boolean     True if this has baners, False if unused
-    */
+     * Determine if a campaign has any banners belonging to it.
+     *
+     * @param   string  $id ID of campaign to check
+     * @return  boolean     True if this has baners, False if unused
+     */
     public static function isUsed($id)
     {
         global $_TABLES;
@@ -252,10 +252,10 @@ class Campaign
 
 
     /**
-    *   Create the editing form for this campaign
-    *
-    *   @return string      HTML for edit form
-    */
+     * Create the editing form for this campaign.
+     *
+     * @return  string      HTML for edit form
+     */
     public function Edit()
     {
         global $_CONF, $_CONF_BANR, $_TABLES, $LANG_ACCESS, $LANG_BANNER, $_SYSTEM;
@@ -335,10 +335,10 @@ class Campaign
 
 
     /**
-    *   Save this campaign
-    *
-    *   @param  array   $A  Array of values from $_POST (optional)
-    */
+     * Save this campaign.
+     *
+     * @param   array   $A  Array of values from $_POST (optional)
+     */
     public function Save($A='')
     {
         global $_TABLES, $LANG_BANNER;
@@ -409,11 +409,11 @@ class Campaign
 
 
     /**
-    *   Get the current user's access level to this campaign
-    *
-    *   @return integer     Access level from SEC_hasAccess()
-    *   @see SEC_hasAccess()
-    */
+     * Get the current user's access level to this campaign.
+     *
+     * @see     SEC_hasAccess()
+     * @return  integer     Access level from SEC_hasAccess()
+     */
     public function Access()
     {
         static $access = NULL;
@@ -427,13 +427,12 @@ class Campaign
 
 
     /**
-    *   Determine if the current user has access at lease equal to the
-    *   specified value.
-    *
-    *   @see Campaign::Access()
-    *   @param  integer $level  Level to check current access against
-    *   @return boolean         True if the users access >= requested level
-    */
+     * Determine if the current user has access at lease equal to the specified value.
+     *
+     * @see     self::Access()
+     * @param   integer $level  Level to check current access against
+     * @return  boolean         True if the users access >= requested level
+     */
     public function hasAccess($level=3)
     {
         if ($this->Access() < (int)$level)
@@ -444,11 +443,12 @@ class Campaign
 
 
     /**
-    *   Return the option elements for a campaign selection dropdown.
-    *
-    *   @param  string  $sel    Campaign ID to show as selected
-    *   @return string          HTML for option statements
-    */
+     * Return the option elements for a campaign selection dropdown.
+     *
+     * @param   string  $sel    Campaign ID to show as selected
+     * @param   integer $access Required access level to campaigns
+     * @return  string          HTML for option statements
+     */
     public static function DropDown($sel='', $access=3)
     {
         global $_TABLES;
@@ -486,10 +486,9 @@ class Campaign
 
 
     /**
-    *   Get an array of Banner objects for the banners associated
-    *   with this campaign.
-    *   Sets the internal Banner variable to an array of Banner objects.
-    */
+     * Get an array of Banner objects associated with this campaign.
+     * Sets the internal Banner variable to an array of Banner objects.
+     */
     public function getBanners()
     {
         global $_TABLES;
@@ -509,10 +508,10 @@ class Campaign
 
 
     /**
-    *   Update the impression counter for this campaign.
-    *
-    *   @param  string  $camp_id    Campaign ID
-    */
+     * Update the impression counter for this campaign.
+     *
+     * @param   string  $camp_id    Campaign ID
+     */
     public static function updateImpressions($camp_id)
     {
         global $_TABLES;
@@ -523,10 +522,10 @@ class Campaign
 
 
     /**
-    *   Update the hit counter for this campaign.
-    *
-    *   @param  string  $camp_id    Campaign to update
-    */
+     * Update the hit counter for this campaign.
+     *
+     * @param   string  $camp_id    Campaign to update
+     */
     public static function updateHits($camp_id)
     {
         global $_TABLES;
@@ -542,9 +541,12 @@ class Campaign
 
 
 /**
-*   Create the admin menu for managing campaigns
-*/
-function BANNER_menu_adminCampaigns()
+ * Create the admin menu for managing campaigns.
+ *
+ * @deprecated
+ * @return  string      HTML for admin menu
+ */
+function XBANNER_menu_adminCampaigns()
 {
     global $_CONF, $LANG_BANNER, $LANG_ADMIN;
 

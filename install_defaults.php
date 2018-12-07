@@ -13,6 +13,7 @@
  * @filesource
  */
 
+/** Block execution if not loaded through glFusion */
 if (!defined('GVERSION')) {
     die('This file can not be used on its own!');
 }
@@ -310,7 +311,7 @@ $bannerConfigData = array(
     ),
     array(
         'name' => 'default_permissions',
-        'default_value' => array (3, 3, 2, 2);,
+        'default_value' => array (3, 3, 2, 2),
         'type' => '@select',
         'subgroup' => 0,
         'fieldset' => 20,

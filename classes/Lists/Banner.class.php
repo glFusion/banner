@@ -1,43 +1,45 @@
 <?php
 /**
-*   Class to handle banner lists for administrators and regular users
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
-namespace Banner;
+ * Class to handle banner lists for administrators and regular users.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
+namespace Banner\Lists;
 
 /**
-*   Define a class for banner lists
-*   @package banner
-*/
-class BannerList
+ * Define a class for banner lists.
+ * @package banner
+ */
+class Banner
 {
-    /** Indicate whether this is an admin or not
-    *   @var boolean */
+    /** Indicate whether this is an admin or not.
+     * @var boolean */
     var $isAdmin;
 
-    /** Specific campaign ID to list
-    *   @var string */
+    /** Specific campaign ID to list.
+     * @var string */
     var $campID;
 
-    /** Specific category ID to list
-    *   @var string */
+    /** Specific category ID to list.
+     * @var string */
     var $catID;
 
-    /** Base url, depending on where user is admin or not
-    *   @var string */
+    /** Base url, depending on where user is admin or not.
+     * @var string */
     var $url;
 
 
     /**
-    *   Constructor.
-    */
+     * Constructor.
+     *
+     * @param   boolean $isAdmin    True if this as administrator viewing
+     */
     public function __construct($isAdmin = false)
     {
         $this->setAdmin($isAdmin);
@@ -47,10 +49,10 @@ class BannerList
 
 
     /**
-    *   Sets the isAdmin variable and the plugin URL based on it.
-    *
-    *   @param  boolean $isAdmin    True if the current user is an admin.
-    */
+     * Sets the isAdmin variable and the plugin URL based on it.
+     *
+     * @param   boolean $isAdmin    True if the current user is an admin.
+     */
     public function setAdmin($isAdmin)
     {
         $this->isAdmin = $isAdmin && plugin_isadmin_banner() ? true : false;
@@ -63,10 +65,10 @@ class BannerList
 
 
     /**
-    *   Sanitize and set the Campaign ID
-    *
-    *   @param  string  $id     Campaign ID
-    */
+     * Sanitize and set the Campaign ID.
+     *
+     * @param   string  $id     Campaign ID
+     */
     public function setCampID($id)
     {
         $this->campID = COM_sanitizeID($id, false);
@@ -74,10 +76,10 @@ class BannerList
 
 
     /**
-    *   Santize and set the Category ID
-    *
-    *   @param  string  $id     Category ID
-    */
+     * Santize and set the Category ID.
+     *
+     * @param   string  $id     Category ID
+     */
     public function setCatID($id)
     {
         $this->catID = COM_sanitizeID($id, false);
@@ -85,8 +87,10 @@ class BannerList
 
 
     /**
-    *   Create the list
-    */
+     * Create the list.
+     *
+     * @return  string      HTML for the banner list
+     */
     public function ShowList()
     {
         global $LANG_ADMIN, $LANG_BANNER, $_USER,
@@ -201,18 +205,18 @@ class BannerList
         return $retval;
     }
 
-}   // class BannerList
+}   // class Banner\Lists\Banner
 
 
 /**
-*   Get the correct display for a single field in the banner admin list
-*
-*   @param  string  $fieldname  Field variable name
-*   @param  string  $fieldvalue Value of the current field
-*   @param  array   $A          Array of all field names and values
-*   @param  array   $icon_arr   Array of system icons
-*   @return string              HTML for field display within the list cell
-*/
+ * Get the correct display for a single field in the banner admin list.
+ *
+ * @param   string  $fieldname  Field variable name
+ * @param   string  $fieldvalue Value of the current field
+ * @param   array   $A          Array of all field names and values
+ * @param   array   $icon_arr   Array of system icons
+ * @return  string              HTML for field display within the list cell
+ */
 function getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;

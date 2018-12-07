@@ -1,34 +1,36 @@
 <?php
 /**
-*   Class to create the admin list of advertising campaigns.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
-namespace Banner;
+ * Class to create the admin list of advertising campaigns.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
+namespace Banner\Lists;
 
 /**
-*   Class to manage banner campaigns
-*   @package banner
-*/
-class CampaignList
+ * Class to manage banner campaigns.
+ * @package banner
+ */
+class Campaign
 {
     /** Indicate whether this is an administrator or not.
-    *   @var boolean */
+    * @var boolean */
     var $isAdmin;
 
-    /** Base url for links in the menus.  May be admin or public
-    *   @var string */
+    /** Base url for links in the menus.  May be admin or public.
+    * @var string */
     var $url;
 
     /**
-    *   Constructor.
-    */
+     * Constructor.
+     *
+     * @param   boolean $isAdmin    True to indicate that this is an administrator
+     */
     public function __construct($isAdmin = false)
     {
         $this->setAdmin($isAdmin);
@@ -36,10 +38,10 @@ class CampaignList
 
 
     /**
-    *   Set a flag and other values for admins
-    *
-    *   @param  boolean $isAdmin    True if user is an admin, False if not
-    */
+     * Set a flag and other values for admins.
+     *
+     * @param   boolean $isAdmin    True if user is an admin, False if not
+     */
     public function setAdmin($isAdmin)
     {
         $this->isAdmin = $isAdmin == true ? true : false;
@@ -52,9 +54,11 @@ class CampaignList
 
 
     /**
-    *   Create the admin list of campaigns to manage.
-    *   @return string  HTML for admin list
-    */
+     * Create the admin list of campaigns to manage.
+     *
+     * @param   integer $uid    Limit list by owner
+     * @return  string  HTML for admin list
+     */
     public function ShowList($uid = 0)
     {
         global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS, $LANG_BANNER;
@@ -118,15 +122,15 @@ class CampaignList
 
 
 /**
-*   Return the correct display for a single field in the campaign admin list.
-*
-*   @param  string  $fieldname  Field variable name
-*   @param  string  $fieldvalue Value of the current field
-*   @param  array   $A          Array of all field names and values
-*   @param  array   $icon_arr   Array of system icons
-*   @param  boolean $isAdmin    True if this is an administrator viewing
-*   @return string              HTML for field display within the list cell
-*/
+ * Return the correct display for a single field in the campaign admin list.
+ *
+ * @param   string  $fieldname  Field variable name
+ * @param   string  $fieldvalue Value of the current field
+ * @param   array   $A          Array of all field names and values
+ * @param   array   $icon_arr   Array of system icons
+ * @param   boolean $isAdmin    True if this is an administrator viewing
+ * @return  string              HTML for field display within the list cell
+ */
 function getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr, $isAdmin)
 {
     global $_CONF, $_TABLES, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
@@ -150,7 +154,7 @@ function getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr, $isAdmin)
         break;
 
     case 'delete':
-        if (!Campaign::isUsed($A['camp_id'])) {
+        if (\Banner\Campaign::isUsed($A['camp_id'])) {
             $retval .= COM_createLink('<i class="' . BANR_getIcon('trash', 'danger') . '"></i>',
                 "$base_url/index.php?delete=x&item=campaign&amp;camp_id={$A['camp_id']}",
                 array(

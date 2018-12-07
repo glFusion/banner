@@ -1,15 +1,15 @@
 <?php
 /**
-*   Provides automatic installation of the Banner plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.3.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Provides automatic installation of the Banner plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v0.3.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php 
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 if (!defined ('GVERSION')) {
     die ('This file can not be used on its own.');
@@ -22,138 +22,159 @@ require_once __DIR__ . '/sql/'. $_DB_dbms. '_install.php';
 
 // Plugin installation options
 $INSTALL_plugin['banner'] = array(
-    'installer' => array('type' => 'installer', 
-            'version' => '1', 
-            'mode' => 'install',
+    'installer' => array(
+        'type'  => 'installer', 
+        'version' => '1', 
+        'mode'  => 'install',
     ),
 
-    'plugin' => array('type' => 'plugin', 
-            'name'      => $_CONF_BANR['pi_name'],
-            'ver'       => $_CONF_BANR['pi_version'], 
-            'gl_ver'    => $_CONF_BANR['gl_version'],
-            'url'       => $_CONF_BANR['pi_url'], 
-            'display'   => $_CONF_BANR['pi_display_name'],
+    'plugin' => array(
+        'type'      => 'plugin', 
+        'name'      => $_CONF_BANR['pi_name'],
+        'ver'       => $_CONF_BANR['pi_version'], 
+        'gl_ver'    => $_CONF_BANR['gl_version'],
+        'url'       => $_CONF_BANR['pi_url'], 
+        'display'   => $_CONF_BANR['pi_display_name'],
     ),
 
-    array(  'type' => 'table', 
-            'table'     => $_TABLES['banner'], 
-            'sql'       => $_SQL['banner'],
+    array(
+        'type'  => 'table', 
+        'table' => $_TABLES['banner'], 
+        'sql'   => $_SQL['banner'],
     ),
 
-    array(  'type' => 'table', 
-            'table'     => $_TABLES['bannercategories'], 
-            'sql'       => $_SQL['bannercategories'],
+    array(
+        'type'  => 'table', 
+        'table' => $_TABLES['bannercategories'], 
+        'sql'   => $_SQL['bannercategories'],
     ),
 
-    array(  'type' => 'table', 
-            'table'     => $_TABLES['bannersubmission'], 
-            'sql'       => $_SQL['bannersubmission'],
+    array(
+        'type'  => 'table', 
+        'table' => $_TABLES['bannersubmission'], 
+        'sql'   => $_SQL['bannersubmission'],
     ),
 
-    array(  'type' => 'table', 
-            'table'     => $_TABLES['bannercampaigns'], 
-            'sql'       => $_SQL['bannercampaigns'],
+    array(
+        'type'  => 'table', 
+        'table' => $_TABLES['bannercampaigns'], 
+        'sql'   => $_SQL['bannercampaigns'],
     ),
 
-    array(  'type' => 'table',
-            'table'     => $_TABLES['banner_mapping'],
-            'sql'       => $_SQL['banner_mapping'],
+    array(
+        'type'  => 'table',
+        'table' => $_TABLES['banner_mapping'],
+        'sql'   => $_SQL['banner_mapping'],
     ),
 
-    array(  'type' => 'group', 
-            'group' => 'banner Admin', 
-            'desc' => 'Users in this group can administer the Banner plugin',
-            'variable' => 'admin_group_id', 
-            'admin' => true,
-            'addroot' => true,
+    array(
+        'type'      => 'group', 
+        'group'     => 'banner Admin', 
+        'desc'      => 'Users in this group can administer the Banner plugin',
+        'variable'  => 'admin_group_id', 
+        'admin'     => true,
+        'addroot'   => true,
     ),
 
-    array(  'type' => 'feature', 
-            'feature' => 'banner.admin', 
-            'desc' => 'Banner Administrator',
-            'variable' => 'admin_feature_id',
+    array(
+        'type'      => 'feature', 
+        'feature'   => 'banner.admin', 
+        'desc'      => 'Banner Administrator',
+        'variable'  => 'admin_feature_id',
     ),
 
-    array(  'type' => 'feature', 
-            'feature' => 'banner.edit', 
-            'desc' => 'Banner Editor',
-            'variable' => 'edit_feature_id',
+    array(
+        'type'      => 'feature', 
+        'feature'   => 'banner.edit', 
+        'desc'      => 'Banner Editor',
+        'variable'  => 'edit_feature_id',
     ),
 
-    array(  'type' => 'feature', 
-            'feature' => 'banner.submit', 
-            'desc' => 'Bypass Banner Submission Queue',
-            'variable' => 'submit_feature_id',
+    array(
+        'type'      => 'feature', 
+        'feature'   => 'banner.submit', 
+        'desc'      => 'Bypass Banner Submission Queue',
+        'variable'  => 'submit_feature_id',
     ),
 
-    array(  'type' => 'feature', 
-            'feature' => 'banner.moderate', 
-            'desc' => 'Moderate Banner Submissions',
-            'variable' => 'moderate_feature_id',
+    array(
+        'type'      => 'feature', 
+        'feature'   => 'banner.moderate', 
+        'desc'      => 'Moderate Banner Submissions',
+        'variable'  => 'moderate_feature_id',
     ),
 
-    array(  'type' => 'mapping', 
-            'group' => 'admin_group_id', 
-            'feature' => 'admin_feature_id',
-            'log' => 'Adding Admin feature to the admin group',
+    array(
+        'type'      => 'mapping', 
+        'group'     => 'admin_group_id', 
+        'feature'   => 'admin_feature_id',
+        'log'       => 'Adding Admin feature to the admin group',
     ),
 
-    array(  'type' => 'mapping', 
-            'group' => 'admin_group_id', 
-            'feature' => 'edit_feature_id',
-            'log' => 'Adding Edit feature to the admin group',
+    array(
+        'type'      => 'mapping', 
+        'group'     => 'admin_group_id', 
+        'feature'   => 'edit_feature_id',
+        'log'       => 'Adding Edit feature to the admin group',
     ),
 
-    array(  'type' => 'mapping', 
-            'group' => 'admin_group_id', 
-            'feature' => 'submit_feature_id',
-            'log' => 'Adding Submit feature to the admin group',
+    array(
+        'type'      => 'mapping', 
+        'group'     => 'admin_group_id', 
+        'feature'   => 'submit_feature_id',
+        'log'       => 'Adding Submit feature to the admin group',
     ),
 
-    array(  'type' => 'mapping', 
-            'group' => 'admin_group_id', 
-            'feature' => 'moderate_feature_id',
-            'log' => 'Adding Moderate feature to the admin group',
+    array(
+        'type'      => 'mapping', 
+        'group'     => 'admin_group_id', 
+        'feature'   => 'moderate_feature_id',
+        'log'       => 'Adding Moderate feature to the admin group',
     ),
 
-    array(  'type' => 'block', 
-            'name' => 'banner_random', 
-            'title' => 'Random Banner',
-            'phpblockfn' => 'phpblock_banner_topic_random',
-            'block_type' => 'phpblock',
-            'is_enabled' => 0,
-            'group_id' => 'admin_group_id',
+    array(
+        'type'      => 'block', 
+        'name'      => 'banner_random', 
+        'title'     => 'Random Banner',
+        'phpblockfn' => 'phpblock_banner_topic_random',
+        'block_type' => 'phpblock',
+        'is_enabled' => 0,
+        'group_id'  => 'admin_group_id',
     ),
 
-    array(  'type' => 'block', 
-            'name' => 'banner_block', 
-            'title' => 'Banners',
-            'phpblockfn' => 'phpblock_banner_topic',
-            'block_type' => 'phpblock',
-            'is_enabled' => 0,
-            'group_id' => 'admin_group_id',
+    array(
+        'type'      => 'block', 
+        'name'      => 'banner_block', 
+        'title'     => 'Banners',
+        'phpblockfn' => 'phpblock_banner_topic',
+        'block_type' => 'phpblock',
+        'is_enabled' => 0,
+        'group_id'  => 'admin_group_id',
     ),
 
-    array(  'type' => 'sql',
-            'sql' => $DEFVALUES['bannercategories'],
+    array(
+        'type'  => 'sql',
+        'sql'   => $DEFVALUES['bannercategories'],
     ),
 
-    array(  'type' => 'sql',
-            'sql' => $DEFVALUES['bannercampaigns'],
+    array(
+        'type'  => 'sql',
+        'sql'   => $DEFVALUES['bannercampaigns'],
     ),
 
-    array(  'type' => 'sql',
-            'sql' => $DEFVALUES['banner_mapping'],
+    array(
+        'type'  => 'sql',
+        'sql'   => $DEFVALUES['banner_mapping'],
     ),
 );
 
 
 /**
-*   Puts the datastructures for this plugin into the glFusion database
-*   Note: Corresponding uninstall routine is in functions.inc
-*
-*   @return boolean     True if successful False otherwise
-*/
+ * Puts the datastructures for this plugin into the glFusion database.
+ * Note: Corresponding uninstall routine is in functions.inc.
+ *
+ * @return  boolean     True if successful False otherwise
+ */
 function plugin_install_banner()
 {
     global $INSTALL_plugin, $_CONF_BANR;
@@ -173,10 +194,10 @@ function plugin_install_banner()
 
 
 /**
-*   Loads the configuration records for the Online Config Manager
-*
-*   @return boolean     True = proceed with install, False = an error occured
-*/
+ * Loads the configuration records for the Online Config Manager.
+ *
+ * @return  boolean     True = proceed with install, False = an error occured
+ */
 function plugin_load_configuration_banner()
 {
     global $_CONF_BANR, $_TABLES;
