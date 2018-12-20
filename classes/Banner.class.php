@@ -855,13 +855,6 @@ class Banner
                 $img_attr['width'] = $output['width'];
                 $img_attr['height'] = $output['height'];
                 $img = $output['url'];
-            } else {
-                // Newer lglib plugin not available, call the legacy function.
-                $img = LGLIB_ImageUrl(
-                    $_CONF_BANR['img_dir'] . '/' . $filename,
-                    $width, $height);
-                $img_attr['width'] = $width;
-                $img_attr['height'] = $height;
             }
             if (!empty($img)) {
                 $retval = COM_createImage($img, $alt, $img_attr);
