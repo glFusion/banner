@@ -2,12 +2,13 @@
 
 ## Version 0.3.1
 Release TBD
-- E_ALL fixes
+- Remove support for non-UIkit themes
+- `E_ALL` fixes
 - Implement glFusion caching
 
 ## Version 0.3.0
 Release 2017-10-06
-- Use PLG_supportAdblock() in glFusion 1.7.0 to get template names
+- Use `PLG_supportAdblock()` in glFusion 1.7.0 to get template names
 - Add template configurations in categories to control ad display
 - Submission queue is always required due to potential malicious code in script ads
 - Add Autotag-type ad which will process autotags
@@ -16,7 +17,7 @@ Release 2017-10-06
 - Change admin list AJAX to use Jquery
 - Implement PHP namespace
 - Use icon sets from Uikit or FontAwesome, depending on theme
-- Implement plugin_displayadblock_banner()
+- Implement `plugin_displayadblock_banner()`
 - Disable banner caching in templateSetVars
 
 ## Version 0.2.0

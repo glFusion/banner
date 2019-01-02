@@ -1,190 +1,176 @@
 {# begin {templatelocation} #}
-<script type="text/javascript">
-window.addEvent('domready',function() {
-    var myValidator = new fValidator("submit");
-});
-</script>
 <p>{instructions}</p>
 <br style="clear:both" />
 <form id="submit" action="{site_admin_url}/plugins/banner/index.php" 
-    method="post" class="bannerform">
+    class="uk-form uk-form-horizontal" method="post">
 
   <input name="old_camp_id" type="hidden" value="{camp_id}">
-  <table border="0" cellspacing="0" cellpadding="2" width="100%">
-    <tr>
-      <td align="right" width="175">
-        {$LANG_BANNER['camp_id']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_camp_id', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input type="text" name="camp_id" size="40" maxlength="40" 
-            class="fValidate['required']" value="{camp_id}" />
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['description']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_descrip', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input type="text" name="description" size="32" maxlength="255" 
-            class="fValidate['required']" value="{description}" />
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['pubstart']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_start', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input name="start" id="f_start" type="text" size="32"
-            value="{dt_start}" />
-        <i id="f_start_trigger" title="{$LANG_BANNER['select_date']}" class="fa fa-calendar"></i>
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['pubend']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_finish', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input name="finish" id="f_finish" type="text" size="32" maxlength="32" 
-            value="{dt_finish}" />
-        <i id="f_finish_trigger" title="{$LANG_BANNER['select_date']}" class="fa fa-calendar"></i>
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['topic']}
-        <a href="#" onclick="popupWindow('{help_url}#desc_topic', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <select name="tid">
-          {topic_selection}
-        </select>
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['enabled']}?
-        <a href="#" onclick="popupWindow('{help_url}#desc_enabled', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input name="enabled" type="checkbox" value="1" {enabled}>
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['hits']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_hits', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input name="hits" id="f_hits" type="text" size="12" maxlength="12" 
-            value="{total_hits}" />
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['max_hits']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_max_hits', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input name="max_hits" id="f_max_hits" type="text" size="12" maxlength="12" 
-            value="{max_hits}" />
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['impressions']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_impressions', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input name="impressions" id="f_impressions" type="text" size="12" maxlength="12" 
-            value="{impressions}" />
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['max_impressions']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_max_impressions', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input name="max_impressions" id="f_max_impressions" type="text" 
-            size="12" maxlength="12" value="{max_impressions}" />
-      </td>
-    </tr>
-
-    <tr>
-      <td align="right">
-        {$LANG_BANNER['max_banners']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_max_banners', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-      </td>
-      <td>
-        <input name="max_banners" id="f_max_banners" type="text" size="12" maxlength="12" 
-            value="{max_banners}" />
-        &nbsp;{$LANG_BANNER['zero_eq_unlimited']}
-      </td>
-    </tr>
-
-  <tr>
-    <td align="right" width="150">
-      {$LANG_ACCESS['owner']}:
-      <a href="#" onclick="popupWindow('{help_url}#desc_owner', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-    </td>
-    <td>
-      <select id="owner_id" name="owner_id">
-        {owner_selection}
-      </select>
-    </td>
-  </tr>
-  <tr>
-    <td align="right">
-        {$LANG_ACCESS['group']}:
-        <a href="#" onclick="popupWindow('{help_url}#desc_group', 'Help', 640, 480, 1)" class="toolbar"><img src="{layout_url}/images/button_help.png" alt="" /></a>
-    </td>
-    <td>{group_dropdown}</td>
-  </tr>
-    <tr>
-      <td align="right">{$LANG_ACCESS['permissions']}:</td>
-      <td>
-        {$LANG_ACCESS['permissionskey']}<br />
-        {permissions_editor}
-        {$LANG_ACCESS['permmsg']}
-      </td>
-    </tr>
-  </table>
-
   <input type="hidden" value="{cid}" name="oldcid" /> 
   <input type="hidden" name="{gltoken_name}" value="{gltoken}" />
   <input type="hidden" name="view" value="campaigns" />
   <input type="hidden" name="item" value="campaign" />
-  <input type="submit" name="save" class="lgButton green" value="{$LANG_BANNER_ADMIN[36]}" />
-  <input type="reset" class="lgButton blue" value="{$LANG_BANNER['reset']}" name="reset" />
-  <input type="reset" class="lgButton grey" value="{$LANG_ADMIN['cancel']}" name="cancel" 
-      onclick="javascript: document.location.href='{cancel_url}'"
-       />
-  {!if delete_option}
-      <input name="delete" type="submit" class="lgButton red" value="{$LANG_BANNER_ADMIN[37]}"
-          onclick="return confirm('{$LANG_BANNER['ok_to_delete']}');" />
-  {!endif}
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_camp_id">{$LANG_BANNER['camp_id']}:
+      <span id="cid" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <input required type="text" id="f_camp_id" name="camp_id"
+            size="40" maxlength="40" value="{camp_id}" />
+      <i class="uk-icon uk-icon-warning uk-text-danger tooltip" title="{$LANG_BANNER['required']}"></i>
+    </div>
+  </div>
 
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_description">{$LANG_BANNER['description']}:
+      <span id="dscp" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <input required type="text" id="f_description" name="description" size="60" maxlength="255" 
+            value="{description}" />
+      <i class="uk-icon uk-icon-warning uk-text-danger tooltip" title="{$LANG_BANNER['required']}"></i>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_start">{$LANG_BANNER['pubstart']}:
+      <span id="start" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <input name="start" id="f_start" type="text" size="32" value="{dt_start}" />
+      <i id="f_start_trigger" title="{$LANG_BANNER['select_date']}" class="uk-icon uk-icon-calendar"></i>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_finish">{$LANG_BANNER['pubend']}:
+      <span id="finish" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <input name="finish" id="f_finish" type="text" size="32" maxlength="32" 
+        value="{dt_finish}" />
+      <i id="f_finish_trigger" title="{$LANG_BANNER['select_date']}" class="uk-icon uk-icon-calendar"></i>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_tid">{$LANG_BANNER['topic']}:
+      <span id="tid" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <select id="f_tid" name="tid">
+        {topic_selection}
+      </select>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_enabled">{$LANG_BANNER['enabled']}?
+      <span id="enabled" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls slider_checkbox">
+      <input class="onoff" id="f_enabled" name="enabled" type="checkbox" value="1" {enabled}>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_hits">{$LANG_BANNER['hits']}:
+      <span id="hits" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <input name="hits" id="f_hits" type="text" size="12" maxlength="12" 
+        value="{total_hits}" />
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_max_hits">{$LANG_BANNER['max_hits']}:
+      <span id="max_hits" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <input name="max_hits" id="f_max_hits" type="text" size="12" maxlength="12" 
+        value="{max_hits}" />
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_impressions">{$LANG_BANNER['impressions']}:
+      <span id="impressions" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <input name="impressions" id="f_impressions" type="text" size="12" maxlength="12" 
+        value="{impressions}" />
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_max_impressions">{$LANG_BANNER['max_impressions']}:
+      <span id="max_impressions" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <input name="max_impressions" id="f_max_impressions" type="text" 
+        size="12" maxlength="12" value="{max_impressions}" />
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_max_banners">{$LANG_BANNER['max_banners']}:
+      <span id="max_banners" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <input name="max_banners" id="f_max_banners" type="text" size="12" maxlength="12" 
+        value="{max_banners}" />&nbsp;{$LANG_BANNER['zero_eq_unlimited']}
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_owner_id">{$LANG_ACCESS['owner']}:
+      <span id="owner" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      <select id="f_owner_id" name="owner_id">
+        {owner_selection}
+      </select>
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_group">{$LANG_ACCESS['group']}:
+      <span id="group" class="tooltip_cfg tooltipstered"></span>
+    </label>
+    <div class="uk-form-controls">
+      {group_dropdown}
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <label class="uk-form-label" for="f_perms">{$LANG_ACCESS['permissions']}:</label>
+    <div class="uk-form-controls">
+      {$LANG_ACCESS['permissionskey']}<br />
+      {permissions_editor}
+      {$LANG_ACCESS['permmsg']}
+    </div>
+  </div>
+
+  <div class="uk-form-row">
+    <div class="uk-form-controls">
+      <button type="submit" name="save" class="uk-button uk-button-success" value="{$LANG_BANNER_ADMIN[36]}">{$LANG_BANNER_ADMIN[36]}</button>
+      <button type="reset" class="uk-button uk-button-primary" value="{$LANG_BANNER['reset']}" name="reset">{$LANG_BANNER['reset']}</button>
+      <button type="reset" class="uk-button" value="{$LANG_ADMIN['cancel']}" name="cancel" 
+        onclick="javascript: document.location.href='{cancel_url}'">{$LANG_ADMIN['cancel']}</button>
+      {!if delete_option}
+      <button name="delete" type="submit" class="uk-button uk-button-danger" value="{$LANG_BANNER_ADMIN[37]}"
+        onclick="return confirm('{$LANG_BANNER['ok_to_delete']}');">{$LANG_BANNER_ADMIN[37]}</button>
+      {!endif}
+    </div>
+  <div>
 </form>
 
-<fieldset>
+<fieldset style="clear:both;">
 <legend>{$LANG_BANNER['ads_in_campaign']}</legend>
 <table border="0">
 <th>ID<th>{$LANG_BANNER['banner_content']}<th>{$LANG_BANNER['hits']}
 <!-- BEGIN AdRow -->
-<tr><td>{ad_id}</td><td>{image}</td><td>{url}</td><td align="right">{hits}</td></tr>
+<tr><td>{ad_id}</td><td align="center">{image}</td><td>{url}</td><td align="right">{hits}</td></tr>
 <!-- END AdRow -->
 </table>
 </fieldset>
@@ -205,5 +191,5 @@ window.addEvent('domready',function() {
         button          :   "f_finish_trigger"
     });
 </script>
+{tooltipster}
 {# end {templatelocation} #}
-

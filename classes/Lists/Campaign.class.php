@@ -140,10 +140,10 @@ function getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr, $isAdmin)
     $base_url = $isAdmin ? BANR_ADMIN_URL : BANR_URL;
     switch($fieldname) {
     case 'edit':
-        $retval .= COM_createLink('<i class="' . BANR_getIcon('edit') . '"></i>',
-                "$base_url/index.php?edit=x&item=campaign&amp;camp_id=" .
-                    urlencode($A['camp_id'])
-            );
+        $retval .= COM_createLink(
+            $_CONF_BANR['icons']['edit'],
+            "$base_url/index.php?edit=x&item=campaign&amp;camp_id=" . urlencode($A['camp_id'])
+        );
         break;
 
     case 'enabled':
@@ -155,10 +155,12 @@ function getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr, $isAdmin)
 
     case 'delete':
         if (\Banner\Campaign::isUsed($A['camp_id'])) {
-            $retval .= COM_createLink('<i class="' . BANR_getIcon('trash', 'danger') . '"></i>',
+            $retval .= COM_createLink(
+                $_CONF_BANR['icons']['delete'],
                 "$base_url/index.php?delete=x&item=campaign&amp;camp_id={$A['camp_id']}",
                 array(
-                    'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');")
+                    'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
+                )
             );
         }
         break;

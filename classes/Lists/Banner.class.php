@@ -228,9 +228,9 @@ function getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
     switch($fieldname) {
     case 'edit':
         $retval = COM_createLink(
-                '<i class="' . BANR_getIcon('edit') . '"></i>',
-                $base_url . '/index.php?edit=x&item=banner&amp;bid=' .$A['bid']
-                );
+            $_CONF_BANR['icons']['edit'],
+            $base_url . '/index.php?edit=x&item=banner&amp;bid=' .$A['bid']
+        );
         break;
 
     case 'enabled':
@@ -245,11 +245,13 @@ function getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        $retval = COM_createLink('<i class="' . BANR_getIcon('trash', 'danger') . '"></i>',
-                "$base_url/index.php?bid={$A['bid']}&deleteBanner",
-                array(
-                     'onclick' => "return confirm('Do you really want to delete this item?');",
-                ) );
+        $retval = COM_createLink(
+            $_CONF_BANR['icons']['delete'],
+            "$base_url/index.php?bid={$A['bid']}&deleteBanner",
+            array(
+                 'onclick' => "return confirm('Do you really want to delete this item?');",
+             )
+         );
         break;
 
     case 'dovalidate':

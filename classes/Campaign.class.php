@@ -262,9 +262,8 @@ class Campaign
 
         $T = new \Template($_CONF['path'] . 'plugins/' .
                         $_CONF_BANR['pi_name'].'/templates');
-        $tpltype = $_SYSTEM['framework'] == 'uikit' ? '.uikit' : '';
         $T->set_file (array(
-            'editform' => "admin/campaignedit$tpltype.thtml",
+            'editform' => "admin/campaignedit.thtml",
             'tips' => 'tooltipster.thtml',
         ) );
 
@@ -301,7 +300,6 @@ class Campaign
                                 $this->perm_members,$this->perm_anon),
             'topic_list'    => $topics,
             'cancel_url'    => BANR_ADMIN_URL . '/index.php?view=campaigns',
-            'iconset'       => $_CONF_BANR['_iconset'],
         ) );
 
         if (self::isUsed($this->camp_id)) {

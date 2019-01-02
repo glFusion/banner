@@ -931,8 +931,8 @@ class Banner
 
         // Have to have a valid url to check
         if ($this->options['url'] == '') {
-            return 'n/a&nbsp;<i class="tooltip ' . BANR_getIcon('question-circle','') .
-                '" title="' . $LANG_BANNER['html_status_na'] .
+            return 'n/a&nbsp;<i class="tooltip uk-icon uk-icon-question-circle" title="' .
+                $LANG_BANNER['html_status_na'] .
                 '"></i>';
         }
 
@@ -996,9 +996,8 @@ class Banner
         }
 
         $T = new \Template(BANR_PI_PATH . '/templates/');
-        $tpltype = $_CONF_BANR['_is_uikit'] ? '.uikit' : '';
         $T->set_file(array(
-            'editor' => "bannerform$tpltype.thtml",
+            'editor' => "bannerform.thtml",
             'tips' => 'tooltipster.thtml',
         ) );
 
@@ -1082,7 +1081,6 @@ class Banner
             'sel'.$this->options['target'] => 'selected="selected"',
             'req_item_msg' => $LANG_BANNER['req_item_msg'],
             'perm_msg' => $LANG_ACCESS['permmsg'],
-            'iconset' => $_CONF_BANR['_iconset'],
         ));
 
         foreach (Category::getAll() as $C) {

@@ -47,10 +47,6 @@ if (file_exists(__DIR__ . '/config.php')) {
     include_once __DIR__ . '/config.php';
 }
 
-// Mark whether this is a uikit theme. Save to global conf var
-// so it's available where needed.
-$_CONF_BANR['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
-$_CONF_BANR['_iconset'] = $_CONF_BANR['_is_uikit'] ? 'uk-icon' : 'fa fa';
 $_CONF_BANR['_now'] = new Date('now', $_CONF['timezone']);
 
 define ('BANR_ADMIN_URL',
@@ -398,15 +394,19 @@ function plugin_cclabel_banner()
  */
 function plugin_getadminoption_banner()
 {
-    global $_TABLES, $_CONF_BANR;
+    global $_TABLES, $LANG_BANNER;
 
     if (SEC_hasRights('banner.edit,banner.delete', 'OR')) {
-        $total_banner = DB_getItem ($_TABLES['banner'], 'COUNT(*)',
-                                   COM_getPermSql (''));
-
-        return array ($_CONF_BANR['pi_name'],
-                      BANR_ADMIN_URL . '/index.php',
-                      $total_banner);
+        $total_banner = (int)DB_getItem(
+            $_TABLES['banner'],
+            'COUNT(*)',
+            COM_getPermSql('')
+        );
+        return array(
+            $LANG_BANNER['pi_name'],
+            BANR_ADMIN_URL . '/index.php',
+            $total_banner
+        );
     }
     return false;
 }
@@ -1233,28 +1233,6 @@ function BANNER_docURL($file, $lang='')
 
     if ($lang == '') $lang = $_CONF['language'];
     return LGLIB_getDocUrl($file, $_CONF_BANR['pi_name'], $lang);
-}
-
-
-/**
- * Get an icon from the CSS icon set, either UIkit or FontAwesome.
- *
- * @param   string  $name   Base name of icon, e.g. "edit" for "uk-icon-edit"
- * @param   string  $style  Style name from local CSS
- * @return  string      Class names for icon
- */
-function BANR_getIcon($name, $style='info')
-{
-    global $_CONF_BANR;
-
-    if ($style != '')
-        $style = ' banr-icon-' . $style;
-
-    if ($_CONF_BANR['_is_uikit']) {
-        return 'uk-icon uk-icon-' . $name . $style;
-    } else {
-        return 'fa fa-' . $name . $style;
-    }
 }
 
 

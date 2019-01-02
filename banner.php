@@ -39,4 +39,13 @@ $_CONF_BANR['pi_display_name']   = 'Banner Ads';
 // Fixed config variables
 $_CONF_BANR['img_dir'] = $_CONF['path_html'] . $_CONF_BANR['pi_name'] . '/images/banners/';
 
+$_CONF_BANR['icons'] = array(
+    'delete'    => '<i class="uk-icon uk-icon-trash-o uk-text-danger"></i>',
+    'copy'      => '<i class="uk-icon uk-icon-clone"></i>',
+    'edit'      => '<i class="uk-icon uk-icon-edit"></i>',
+    'arrow-up'  => '<i class="uk-icon uk-icon-arrow-up"></i>',
+    'arrow-down'=> '<i class="uk-icon uk-icon-arrow-down"></i>',
+    'reset'     => '<i class="uk-icon uk-icon-refresh"></i>',
+);
+
 ?>

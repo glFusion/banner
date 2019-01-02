@@ -181,10 +181,8 @@ class Mapping
         $A = PLG_supportAdblock();
         $M = self::loadAll();
         $T = new \Template(BANR_PI_PATH . '/templates/admin/');
-        $tpltype = $_CONF_BANR['_is_uikit'] ? '.uikit' : '';
-        $T->set_file('mappingform', "mapping$tpltype.thtml");
+        $T->set_file('mappingform', "mapping.thtml");
         $T->set_block('mappingform', 'MappingItem', 'item');
-        $T->set_var('iconset', $_CONF_BANR['_iconset']);
         foreach ($A as $tpl) {
             $key = $tpl . '_' . $cid;
             if (isset($M[$key])) {

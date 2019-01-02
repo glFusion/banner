@@ -258,9 +258,8 @@ class Category
         }
 
         $T = new \Template(BANR_PI_PATH . '/templates');
-        $tpltype = $_CONF_BANR['_is_uikit'] ? '.uikit' : '';
         $T->set_file(array(
-            'page' => "admin/categoryeditor$tpltype.thtml",
+            'page' => "admin/categoryeditor.thtml",
             'tips' => 'tooltipster.thtml',
         ) );
 
@@ -291,7 +290,6 @@ class Category
             'max_img_width'     => $this->max_img_width,
             'max_img_height'    => $this->max_img_height,
             'delete_option'     => $delete_option,
-            'iconset'           => $_CONF_BANR['_iconset'],
             'mapping_form'      => Mapping::Form($this->cid),
         ) );
 
@@ -602,9 +600,10 @@ function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
     $access = 3;
     switch ($fieldname) {
     case 'edit':
-        $retval = COM_createLink('<i class="' . BANR_getIcon('edit') . '"></i>',
-                    "$admin_url?edit=x&item=category&amp;cid=" . urlencode($A['cid'])
-                );
+        $retval = COM_createLink(
+            $_CONF_BANR['icons']['edit'],
+            "$admin_url?edit=x&item=category&amp;cid=" . urlencode($A['cid'])
+        );
         break;
 
     case 'enabled':
@@ -620,12 +619,13 @@ function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
 
     case 'delete':
         if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
-            $retval .= COM_createLink('<i class="' . BANR_getIcon('trash', 'danger') . '"></i>',
-                        "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
-                        array(
-                            'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
-                        )
-                );
+            $retval .= COM_createLink(
+                $_CONF_BANR['icons']['delete'],
+                "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
+                array(
+                    'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
+                )
+            );
         }
         break;
 
