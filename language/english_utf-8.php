@@ -155,6 +155,7 @@ $LANG_BANNER = array(
 'root' => 'Root',   // title used for top level category
 'warn_update_hits' => 'Updating the counter may hurt campaign reporting',
 'zero_eq_unlimited' => 'Zero = Unlimited',
+'cannot_delete' => 'Cannot delete required or used categories or campaigns',
 );
 
 ###############################################################################

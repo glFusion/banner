@@ -489,34 +489,50 @@ class Category
 
         $retval = '';
         $header_arr = array(
-                array('text' => $LANG_BANNER['edit'],
-                    'field' => 'edit',
-                    'sort' => false,
-                    'align' => 'center'),
-                array('text' => $LANG_BANNER['enabled'],
-                    'field' => 'enabled',
-                    'sort' => false,
-                    'align' => 'center'),
-                array('text' => $LANG_BANNER['centerblock'],
-                    'field' => 'centerblock',
-                    'sort' => true,
-                    'align' => 'center'),
-                array('text' => 'ID',
-                    'field' => 'cid',
-                    'sort' => 'true'),
-                array('text' => $LANG_BANNER['type'],
-                    'field' => 'type',
-                    'sort' => 'true'),
-                array('text' => $LANG_BANNER['cat_name'],
-                    'field' => 'category',
-                    'sort' => true),
-                array('text' => $LANG_BANNER['topic'],
-                    'field' => 'tid',
-                    'sort' => true),
-                array('text' => $LANG_ADMIN['delete'],
-                    'field' => 'delete',
-                    'sort' => false,
-                    'align' => 'center'),
+            array(
+                'text' => $LANG_BANNER['edit'],
+                'field' => 'edit',
+                'sort' => false,
+                'align' => 'center',
+            ),
+            array(
+                'text' => $LANG_BANNER['enabled'],
+                'field' => 'enabled',
+                'sort' => false,
+                'align' => 'center',
+            ),
+            array(
+                'text' => $LANG_BANNER['centerblock'],
+                'field' => 'centerblock',
+                'sort' => true,
+                'align' => 'center',
+            ),
+            array(
+                'text' => 'ID',
+                'field' => 'cid',
+                'sort' => 'true',
+            ),
+            array(
+                'text' => $LANG_BANNER['type'],
+                'field' => 'type',
+                'sort' => 'true',
+            ),
+            array(
+                'text' => $LANG_BANNER['cat_name'],
+                'field' => 'category',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['topic'],
+                'field' => 'tid',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_ADMIN['delete'],
+                'field' => 'delete',
+                'sort' => false,
+                'align' => 'center',
+            ),
         );
 
         $text_arr = array(
@@ -626,6 +642,9 @@ function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
                     'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
                 )
             );
+        } else {
+            $retval .= '<i class="uk-icon uk-icon-trash-o uk-text-muted tooltip"
+                title="' . $LANG_BANNER['cannot_delete'] . '"></i>';
         }
         break;
 

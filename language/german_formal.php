@@ -156,6 +156,7 @@ $LANG_BANNER = array(
 'root' => 'Wurzel',   // title used for top level category
 'warn_update_hits' => 'Aktualisieren kann die Kampagnenberichterstattung beschädigen',
 'zero_eq_unlimited' => '0 = Unlimitiert',
+'cannot_delete' => 'Cannot delete required or used categories or campaigns',
 );
 
 ###############################################################################
