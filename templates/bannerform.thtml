@@ -214,8 +214,8 @@ function BANR_changeType(value)
     <label class="uk-form-label">{$LANG_BANNER['enabled']}?
       <span id="enabled" class="tooltip_cfg tooltipstered"></span>
     </label>
-    <div class="uk-form-controls slider_checkbox">
-      <input class="onoff" name="enabled" id="f_enabled" type="checkbox" value="1" {ena_chk} /> 
+    <div class="uk-form-controls">
+      <input name="enabled" id="f_enabled" type="checkbox" value="1" {ena_chk} /> 
     </div>
   </div>
 
