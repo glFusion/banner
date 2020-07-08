@@ -162,6 +162,9 @@ function getField_Campaign($fieldname, $fieldvalue, $A, $icon_arr, $isAdmin)
                     'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
                 )
             );
+        } else {
+            $retval .= '<i class="uk-icon uk-icon-trash-o uk-text-muted tooltip"
+                title="' . $LANG_BANNER['cannot_delete'] . '"></i>';
         }
         break;
 

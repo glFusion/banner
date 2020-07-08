@@ -28,7 +28,6 @@ case 'toggleEnabled':
 
     case 'category':
         $newval = Banner\Category::toggleEnabled($oldval, $_POST['id']);
-        $status = true;
         break;
 
     case 'campaign':
@@ -37,7 +36,6 @@ case 'toggleEnabled':
 
     case 'cat_cb':
         $newval = Banner\Category::toggleCenterblock($oldval, $_POST['id']);
-        $status = true;
         break;
 
     default:

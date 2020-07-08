@@ -3,14 +3,15 @@
  * Class to handle banner ads.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.2.1
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace Banner;
+
 
 /**
  * Define a class to deal with banners.
@@ -18,48 +19,144 @@ namespace Banner;
  */
 class Banner
 {
+    const TYPE_LOCAL    = 0;    // Locally-uploaded image
+    const TYPE_REMOTE   = 1;    // Remote image url
+    const TYPE_SCRIPT   = 2;    // Script, e.g. Google Adsense
+    const TYPE_AUTOTAG  = 3;    // Autotag to be processed
+
+    /** Banner record ID.
+     * @var string */
+    private $bid = '';
+
+    /** Campaign record ID.
+     * @var string */
+    private $camp_id = '';
+
+    /** Category ID.
+     * @var string */
+    private $cid = '';
+
+    /** Topic ID.
+     * @var string */
+    private $tid = '';
+
     /** Holder for the original ID, used when saving edits.
      * @var string */
-    var $oldID;
+    private $oldID = '';
 
     /** Indicate whether this is a new banner or not.
      * @var boolean */
-    var $isNew;
+    private $isNew = 1;
 
     /** Indicate whether this is an admin or regular user.
      * @var boolean */
-    var $isAdmin;
+    private $isAdmin = 0;
 
-    /** Holder for the banner record properties.
-    * @var array */
-    var $properties = array();
+    /** Owner (submitter) user ID.
+     * @var integer */
+    private $owner_id = 0;
 
-    /**
-    * Options from the serialized "options" DB field.
-    * These depend on the banner type.
-    * @var array */
-    var $options = array();
+    /** Group ID.
+     * @var integer */
+    private $group_id = 0;
+
+    /** Owner permission.
+     * @var ingeger */
+    private $perm_owner = 3;
+
+    /** Group permission.
+     * @var ingeger */
+    private $perm_group = 2;
+
+    /** Members permission.
+     * @var ingeger */
+    private $perm_members = 2;
+
+    /** Anonymous permission.
+     * @var ingeger */
+    private $perm_anon = 2;
+
+    /** Number of clicks recorded for this banner.
+     * @var integer */
+    private $hits = 0;
+
+    /** Maximum number of hits allowed before the banner stops showing.
+     * @var integer */
+    private $max_hits = 0;
+
+    /** Number of times the banner has been shown.
+     * @var integer */
+    private $impressions = 0;
+
+    /** Maximum number of impressions allowed for this banner.
+     * @var integer */
+    private $max_impressions = 0;
+
+    /** Weight assigned to the banner. Higher = more likely to be shown.
+     * @var integer */
+    private $weight = 5;
+
+    /** Type of banner ad.
+     * @var integer */
+    private $ad_type = 0;
+
+    /** Date to start publishing.
+     * @var object */
+    private $pubstart = NULL;
+
+    /** Date to end publishing.
+     * @var object */
+    private $pubend = NULL;
+
+    /** Date banner creted.
+     * @var object */
+    private $date = NULL;
+
+    /** Flag that the banner is allowed to be shown.
+     * @var boolean */
+    private $enabled = 1;
+
+    /** Banner title.
+     * @var string */
+    private $title = '';
+
+    /** Notes about the banner.
+     * @var string */
+    private $notes = '';
+
+    /** Options from the serialized "options" DB field.
+     * These depend on the banner type.
+     * @var array */
+    private $options = array();
 
     /** Database table name currently in use, submission vs. prod.
-    * @var string */
-    var $table;
+     * Default is prod.
+     * @var string */
+    private $table = 'banner';
 
     /** Holder for error messages to be returned to callers.
     * @var array */
-    var $errors = array();
+    private $errors = array();
+
+    /** Default options to be applied to banners.
+     * @var array */
+    private static $default_opts = array(
+        'target' => '_blank',
+        'rel' => 'sponsored,nofollow',
+    );
+
 
     /**
      * Constructor.
      *
      * @param   string  $bid    Banner ID to retrieve, blank for empty class
-     * @param   string  $table  Table, e.g. Submission or prod
      */
-    public function __construct($bid='', $table='')
+    public function __construct($bid='')
     {
         global $_USER, $_GROUPS, $_CONF_BANR;
 
         $bid = COM_sanitizeID($bid, false);
-        $this->setTable($table);
+        //$this->setTable($table);
 
         if ($bid != '') {
             $this->Read($bid);
@@ -69,101 +166,203 @@ class Banner
             $this->isNew        = true;
             $this->enabled      = 1;
             $this->owner_id     = $_USER['uid'];
-            $this->weight       = $_CONF_BANR['def_weight'];
-            $this->perm_owner   = $_CONF_BANR['default_permissions'][0];
-            $this->perm_group   = $_CONF_BANR['default_permissions'][1];
-            $this->perm_members = $_CONF_BANR['default_permissions'][2];
-            $this->perm_anon    = $_CONF_BANR['default_permissions'][3];
+            $this->weight       = (int)$_CONF_BANR['def_weight'];
+            $this->perm_owner   = (int)$_CONF_BANR['default_permissions'][0];
+            $this->perm_group   = (int)$_CONF_BANR['default_permissions'][1];
+            $this->perm_members = (int)$_CONF_BANR['default_permissions'][2];
+            $this->perm_anon    = (int)$_CONF_BANR['default_permissions'][3];
             $this->hits         = 0;
             $this->max_hits     = 0;
             $this->impressions  = 0;
             $this->max_impressions = 0;
             $this->tid          = 'all';
-            $this->options = array(
-                'target' => '_blank',
-            );
-        }
+            $this->options = self::$default_opts;
+            $this->setPubStart();
+            $this->setPubEnd();
+        }   
     }
 
 
     /**
-     * Setter function. Set a value in the properties array.
+     * Check if this is a new banner record, maybe not found in the DB.
      *
-     * @param   string  $key    Name of property to set
-     * @param   mixed   $value  Value to set
+     * @return  integer     1 if new, 0 if existing
      */
-    public function __set($key, $value)
+    public function isNew()
     {
-        global $_CONF, $_CONF_BANR;
-
-        switch ($key) {
-        case 'owner_id':
-        case 'hits':
-        case 'max_hits':
-        case 'impressions':
-        case 'max_impressions':
-        case 'weight':
-        case 'ad_type':
-            $this->properties[$key] = (int)$value;
-            break;
-
-        case 'bid':
-        case 'camp_id':
-            $this->properties[$key] = COM_sanitizeID($value, false);
-            break;
-
-        case 'cid':
-        case 'tid':
-            $this->properties[$key] = trim($value);
-            break;
-
-        case 'publishstart':
-        case 'publishend':
-            if (!$value) {      // zero or null
-                if ($key == 'publishstart') {
-                    $value = BANR_MIN_DATE;
-                } else {
-                    $value = BANR_MAX_DATE;
-                }
-            }
-        case 'date':
-            $this->properties[$key] = new \Date($value, $_CONF['timezone']);
-            break;
-
-        case 'enabled':
-            $this->properties[$key] = $value == 1 ? 1 : 0;
-            break;
-
-        /*case 'options':
-            if (!is_array($value)) {
-                $value = @unserialize($value);
-                if (!$value) $value = array();
-            }
-            $this->properties[$key] = $value;
-            break;
-        */
-
-        case 'title':
-        case 'notes':
-            $this->properties[$key] = COM_checkHTML(COM_checkWords($value));
-            break;
-        }
+        return $this->isNew ? 1 : 0;
     }
 
 
     /**
-     * Getter function. Returns a property value, or NULL if not found.
+     * Get the banner ID.
      *
-     * @param   string  $key    Name of property to retrieve
-     * @return  mixed           Value of property
+     * @return  string      Banner ID
      */
-    public function __get($key)
+    public function getBid()
     {
-        if (isset($this->properties[$key])) {
-            return $this->properties[$key];
+        return $this->bid;
+    }
+
+
+    /**
+     * Get the category ID.
+     *
+     * @return  string      Category ID
+     */
+    public function getCid()
+    {
+        return $this->cid;
+    }
+
+
+    /**
+     * Get the campaign ID.
+     *
+     * @return  string      Campaign id
+     */
+    public function getCampId()
+    {
+        return $this->camp_id;
+    }
+
+
+    /**
+     * Get the starting date for publication.
+     *
+     * @return  string      Starting publication date
+     */
+    public function getPubStart($fmt='')
+    {
+        if ($fmt == '') {
+            return $this->pubstart;
         } else {
-            return NULL;
+            return $this->pubstart->format($fmt);
         }
+    }
+
+
+    /**
+     * Get the ending date for publication.
+     *
+     * @return  string      Ending publication date
+     */
+    public function getPubEnd($fmt='')
+    {
+        if ($fmt == '') {
+            return $this->pubend;
+        } else {
+            return $this->pubend->format($fmt);
+        }
+    }
+
+
+    /**
+     * Get the number of hits recorded for this banner.
+     *
+     * @return  integer     Banner hits
+     */
+    public function getHits()
+    {
+        return (int)$this->hits;
+    }
+
+
+    /**
+     * Get the maximum number of hits allowed.
+     *
+     * return   integer     Maximum allowed hits
+     */
+    public function getMaxHits()
+    {
+        return (int)$this->max_hits;
+    }
+
+
+    /**
+     * Get the owner's user ID.
+     *
+     * @return  integer     User ID
+     */
+    public function getOwnerId()
+    {
+        return (int)$this->owner_id;
+    }
+
+
+    /**
+     * Set the banner ID.
+     *
+     * @param   string  $bid        Banner ID
+     * @return  object  $this
+     */
+    public function setBID($bid)
+    {
+        $this->bid = COM_sanitizeID($bid, false);
+        return $this;
+    }
+
+
+    /**
+     * Set the campaign ID.
+     *
+     * @param   string  $camp_id    Campaign ID
+     * @return  object  $this
+     */
+    public function setCampId($camp_id)
+    {
+        $this->camp_id = COM_sanitizeID($camp_id, false);
+        return $this;
+    }
+
+
+    /**
+     * Set the starting publication date/time.
+     *
+     * @param   string  $dt_str     MYSQL-formatted date/time string
+     * @return  object  $this
+     */
+    public function setPubStart($dt_str=NULL)
+    {
+        global $_CONF;
+
+        if (empty($dt_str)) {
+            $dt_str = BANR_MIN_DATE;
+        }
+        $this->pubstart = new \Date($dt_str, $_CONF['timezone']);
+        return $this;
+    }
+
+
+    /**
+     * Set the ending publication date/time.
+     *
+     * @param   string  $dt_str     MYSQL-formatted date/time string
+     * @return  object  $this
+     */
+    public function setPubEnd($dt_str=NULL)
+    {
+        global $_CONF;
+
+        if (empty($dt_str)) {
+            $dt_str = BANR_MAX_DATE;
+        }
+        $this->pubend = new \Date($dt_str, $_CONF['timezone']);
+        return $this;
+    }
+
+
+    /**
+     * Set the creation date.
+     *
+     * @param   string  $dt_str     MYSQL-formatted date/time string
+     * @return  object  $this
+     */
+    public function setDate($dt_str)
+    {
+        global $_CONF;
+        $this->date = new \Date($dt_str, $_CONF['timezone']);
+        return $this;
     }
 
 
@@ -171,9 +370,13 @@ class Banner
      * Set the admin flag.
      *
      * @param   boolean $isadmin    True or False
+     * @return  object  $this
      */
     public function setAdmin($isadmin)
-    {   $this->isAdmin = $isadmin ? true : false;   }
+    {
+        $this->isAdmin = $isadmin ? true : false;
+        return $this;
+    }
 
 
     /**
@@ -181,9 +384,12 @@ class Banner
      * Ensures that a valid table name is set
      *
      * @param   string  $table  Table key
+     * @return  object  $this
      */
     public function setTable($table)
-    {   $this->table = $table == 'bannersubmission' ? 'bannersubmission' : 'banner';
+    {
+        $this->table = $table == 'bannersubmission' ? 'bannersubmission' : 'banner';
+        return $this;
     }
 
 
@@ -194,7 +400,7 @@ class Banner
      * @param   mixed   $default    Default value
      * @return  mixed           Option value, $default if not set
      */
-    public function getOpt($name, $default=NULL)
+    public function getOpt($name, $default='')
     {
         if (isset($this->options[$name])) {
             return $this->options[$name];
@@ -205,19 +411,36 @@ class Banner
 
 
     /**
+     * Set the isNew flag to force saving as new.
+     * Used when transferring a banner from the submission table to prod.
+     *
+     * @param   boolean $isnew  True or false
+     * @return  object  $this
+     */
+    public function setIsNew($isnew)
+    {
+        $this->isNew = (bool)$isnew;
+        return $this;
+    }
+
+
+    /**
      * Read a banner record from the database.
      *
      * @param   string  $bid    Banner ID to read (required)
+     * @return  object  $this
      */
     public function Read($bid)
     {
         global $_TABLES;
 
-        $A = DB_fetchArray(DB_query("
-            SELECT *
-            FROM {$_TABLES[$this->table]}
-            WHERE bid='".DB_escapeString($bid)."'", false));
-
+        $A = DB_fetchArray(
+            DB_query(
+                "SELECT * FROM {$_TABLES[$this->table]}
+                WHERE bid='".DB_escapeString($bid)."'"
+            ),
+            false
+        );
         if (!empty($A)) {
             $this->isNew = false;
             $this->setVars($A, true);
@@ -225,6 +448,7 @@ class Banner
             // Save the old ID for use in Update()
             $this->oldID = $this->bid;
         }
+        return $this;
     }
 
 
@@ -235,25 +459,42 @@ class Banner
      * @see     self::_CreateHTMLTemplate()
      * @param   array   $A          Array of values
      * @param   boolean $fromDB     Indicates if reading from DB or submission
+     * @return  object  $this
      */
     public function setVars($A='', $fromDB=false)
     {
         global $_CONF_BANR, $_CONF;
 
-        if (!is_array($A))
-            return;
+        if (!is_array($A)) {
+            return $this;
+        }
 
+        $this->setBID($A['bid']);
+        $this->cid = $A['cid'];
+        $this->setCampID($A['camp_id']);
+        $this->ad_type = (int)$A['ad_type'];
+        $this->notes = isset($A['notes']) ? $A['notes'] : '';
+        $this->title = $A['title'];
+        $this->enabled = isset($A['enabled']) ? $A['enabled'] : 0;
+        $this->impressions = (int)$A['impressions'];
+        $this->max_impressions = (int)$A['max_impressions'];
+        $this->hits = (int)$A['hits'];
+        $this->max_hits = (int)$A['max_hits'];
+        $this->tid = $A['tid'];
+        $this->owner_id = (int)$A['owner_id'];
         if ($fromDB) {
             // Coming from the database
             $this->options = @unserialize($A['options']);
-            if (!$this->options) $this->options = array();
-            $this->weight = $A['weight'];
-            $this->publishstart = $A['publishstart'];
-            $this->publishend = $A['publishend'];
-            $this->date = $A['date'];
+            if (!$this->options) {
+                $this->options = self;;$default_opts;
+            }
+            $this->weight = (int)$A['weight'];
+            $this->setPubStart($A['publishstart'])
+                ->setPubEnd($A['publishend'])
+                ->setDate($A['date']);
         } else {
-            $this->options = array();
             // Coming from a form
+            $this->options = self::$default_opts;
             $this->options['url'] = COM_sanitizeUrl($A['url'],
                                     array('http','https'));
             $this->options['image_url'] = COM_sanitizeUrl($A['image_url'],
@@ -272,39 +513,14 @@ class Banner
 
             // Assemble the dates from component parts
             if (!isset($A['start_dt_limit']) || $A['start_dt_limit'] != 1) {
-                $this->publishstart = 0;
+                $this->setPubStart(0);
             } else {
-                if ($_CONF['hour_mode'] == 12) {
-                    if ($A['start_ampm'] == 'pm') {
-                        if ((int)$A['start_hour'] < 12) {
-                            $A['start_hour'] += 12;
-                        }
-                    } elseif ((int)$A['start_hour'] == 12) {
-                        $A['start_hour'] = 0;
-                    }
-
-                }
-                $dt = sprintf('%d-%02d-%02d %02d:%02d:00',
-                        $A['start_year'], $A['start_month'], $A['start_day'],
-                        $A['start_hour'], $A['start_minute']);
-                $this->publishstart = $dt;
+                $this->setPubStart($A['start_date'] . ' ' . $A['start_time']);
             }
             if (!isset($A['end_dt_limit']) || $A['end_dt_limit'] != 1) {
-                $this->publishend = 0;
+                $this->setPubEnd(0);
             } else {
-                if ($_CONF['hour_mode'] == 12) {
-                    if ($A['end_ampm'] == 'pm') {
-                        if ((int)$A['end_hour'] < 12) {
-                            $A['end_hour'] += 12;
-                        }
-                    } elseif ((int)$A['end_hour'] == 12) {
-                        $A['end_hour'] = 0;
-                    }
-                }
-                $dt = sprintf('%d-%02d-%02d %02d:%02d:00',
-                        $A['end_year'], $A['end_month'], $A['end_day'],
-                        $A['end_hour'], $A['end_minute']);
-                $this->publishend = $dt;
+                $this->setPubEnd($A['end_date'] . ' ' . $A['end_time']);
             }
 
             // Only admins can set some values, use the defaults for others
@@ -316,25 +532,11 @@ class Banner
 
             // Create the HTML template for click tracking if this is
             // an HTML or Javascript ad.
-            if ($this->ad_type == BANR_TYPE_SCRIPT) {
+            if ($this->ad_type == self::TYPE_SCRIPT) {
                 $this->_CreateHTMLTemplate();
             }
         }
-
-        $this->bid = $A['bid'];
-        $this->cid = $A['cid'];
-        $this->camp_id = $A['camp_id'];
-        $this->ad_type = $A['ad_type'];
-
-        $this->notes = isset($A['notes']) ? $A['notes'] : '';
-        $this->title = $A['title'];
-        $this->enabled = isset($A['enabled']) ? $A['enabled'] : 0;
-        $this->impressions = $A['impressions'];
-        $this->max_impressions = $A['max_impressions'];
-        $this->hits = $A['hits'];
-        $this->max_hits = $A['max_hits'];
-        $this->tid = $A['tid'];
-        $this->owner_id = $A['owner_id'];
+        return $this;
     }
 
 
@@ -370,10 +572,9 @@ class Banner
         // Don't update the count for ads show to admins or owners, if
         // so configured.
         if (
-            ($_CONF_BANR['cntimpr_admins'] == 0 &&
-                plugin_isadmin_banner())
-        || ($_CONF_BANR['cntimpr_owner'] == 0 &&
-                $this->owner_id == $_USER['uid'])
+            ($_CONF_BANR['cntimpr_admins'] == 0 && plugin_isadmin_banner())
+            ||
+            ($_CONF_BANR['cntimpr_owner'] == 0 && $this->owner_id == $_USER['uid'])
         ) {
             return;
         }
@@ -395,19 +596,21 @@ class Banner
 
         // Don't update the count for ads show to admins or owners, if
         // so configured.
-        if (($_CONF_BANR['cntclicks_admins'] == 0 && plugin_isadmin_banner())
-            || ($_CONF_BANR['cntclicks_owner'] == 0 && $this->owner_id == $_USER['uid'])
+        if (
+            ($_CONF_BANR['cntclicks_admins'] == 0 && plugin_isadmin_banner())
+            ||
+            ($_CONF_BANR['cntclicks_owner'] == 0 && $this->owner_id == $_USER['uid'])
         ) {
             return;
         }
 
-        // Update the banner hits
+        // Update the banner and campaign hits if not excluded
         $sql = "UPDATE {$_TABLES['banner']}
                 SET hits=hits+1
                 WHERE bid='{$this->bid}'";
         DB_query($sql);
-
         Campaign::updateHits($this->camp_id);
+        return $this;
     }
 
 
@@ -419,13 +622,18 @@ class Banner
         global $_TABLES, $_CONF_BANR, $_USER;
 
         $filename = $this->getOpt('filename');
-        if (!empty($filename) &&
-            file_exists($_CONF_BANR['img_dir'] . '/' . $filename)) {
+        if (
+            !empty($filename) &&
+            file_exists($_CONF_BANR['img_dir'] . '/' . $filename)
+        ) {
             @unlink($_CONF_BANR['img_dir'] . '/' . $filename);
         }
 
-        DB_delete($_TABLES[$this->table],
-            'bid', DB_escapeString(trim($this->bid)));
+        DB_delete(
+            $_TABLES[$this->table],
+            'bid',
+            DB_escapeString(trim($this->bid))
+        );
         BANNER_auditLog("{$_USER['uid']} deleted banner id {$this->bid}");
     }
 
@@ -442,9 +650,11 @@ class Banner
         if ($this->isNew) {
             return 3;
         }
-        $access = SEC_hasAccess($this->owner_id, $this->group_id,
-                    $this->perm_owner, $this->perm_group,
-                    $this->perm_members, $this->perm_anon);
+        $access = SEC_hasAccess(
+            $this->owner_id, $this->group_id,
+            $this->perm_owner, $this->perm_group,
+            $this->perm_members, $this->perm_anon
+        );
         return $access;
     }
 
@@ -522,7 +732,7 @@ class Banner
         }
 
         switch ($this->ad_type) {
-        case BANR_TYPE_LOCAL:
+        case self::TYPE_LOCAL:
             // Unset unused values
             unset($this->options['ad_code']);
             unset($this->options['image_url']);
@@ -550,29 +760,34 @@ class Banner
                 // Set the image dimensions in the banner record if either
                 // is not specified.
                 if (!empty($this->options['filename'])) {
-                    $sizes = @getimagesize($_CONF_BANR['img_dir'] . '/' .
-                                    $this->options['filename']);
-                    if ($this->options['width'] == 0 ||
-                            $this->options['width'] > $sizes[0]) {
+                    $sizes = @getimagesize
+                        ($_CONF_BANR['img_dir'] . '/' . $this->options['filename']
+                    );
+                    if (
+                        $this->options['width'] == 0 ||
+                        $this->options['width'] > $sizes[0]
+                    ) {
                         $this->options['width'] = $sizes[0];
                     }
-                    if ($this->options['height'] == 0 ||
-                            $this->options['height'] > $sizes[1]) {
+                    if (
+                        $this->options['height'] == 0 ||
+                        $this->options['height'] > $sizes[1]
+                    ) {
                         $this->options['height'] = $sizes[1];
                     }
                 }
             }
             break;
 
-        case BANR_TYPE_REMOTE:
+        case self::TYPE_REMOTE:
             unset($this->options['filename']);
             unset($this->options['ad_code']);
             break;
 
-        case BANR_TYPE_SCRIPT:
+        case self::TYPE_SCRIPT:
             if (empty($this->options['url']))
                 unset($this->options['url']);
-        case BANR_TYPE_AUTOTAG:
+        case self::TYPE_AUTOTAG:
             unset($this->options['filename']);
             unset($this->options['image_url']);
             unset($this->options['width']);
@@ -614,8 +829,8 @@ class Banner
                 options = '" . DB_escapeString($options) . "',
                 title = '" . DB_escapeString($this->title). "',
                 notes = '" . DB_escapeString($this->notes). "',
-                publishstart = '" . $this->publishstart->toMySQL(true) . "',
-                publishend = '" . $this->publishend->toMySQL(true) . "',
+                publishstart = '" . $this->pubstart->toMySQL(true) . "',
+                publishend = '" . $this->pubend->toMySQL(true) . "',
                 enabled = {$this->enabled},
                 hits = {$this->hits},
                 max_hits = {$this->max_hits},
@@ -647,7 +862,7 @@ class Banner
      * @param   array   $fields Fields to use in where clause
      * @return  array           Array of Banner ids, empty for none available
      */
-    public static function GetBanner($fields=array())
+    public static function getBanner($fields=array())
     {
         global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
 
@@ -805,24 +1020,25 @@ class Banner
      * @param   boolean $link       True to create link, false for only image
      * @return  string              Banner image URL, with or without link
      */
-    public function BuildBanner($title = '', $width=0, $height=0, $link = true)
+    public function buildBanner($title = '', $width=0, $height=0, $link = true)
     {
         global $_CONF, $LANG_DIRECTION, $_CONF_BANR, $LANG_BANNER;
 
         $retval = '';
 
-        $alt = $this->getOpt('alt', '');
+        $alt = $this->getOpt('alt');
         if (empty($title) && !empty($alt)) {
             $title = $alt;
         }
 
         // Set the ad URL to the portal page only if there is a dest. URL
-        $url = $this->getOpt('url', '');
+        $url = $this->getOpt('url');
         if (!empty($url)) {
             $url = COM_buildUrl(BANR_URL . '/portal.php?id=' . $this->bid);
         }
         $a_attr = array(
             'target' => $this->getOpt('target', '_blank'),
+            'rel' => 'sponsored,nofollow',
         );
         $img_attr = array(
             'class' => 'banner_img',
@@ -833,17 +1049,19 @@ class Banner
         }
 
         $C = new Category($this->cid);
-        if ($width == 0)
-            $width = min($this->getOpt('width', 0), $C->max_img_width);
-        if ($height == 0)
-            $height = min($this->getOpt('height', 0), $C->max_img_height);
+        if ($width == 0) {
+            $width = min($this->getOpt('width', 0), $C->getMaxWidth());
+        }
+        if ($height == 0) {
+            $height = min($this->getOpt('height', 0), $C->getMaxHeight());
+        }
 
         switch ($this->ad_type) {
-        case BANR_TYPE_LOCAL:
+        case self::TYPE_LOCAL:
             // A bit of a kludge until LGLIB is updated for everyone.
             // The service function returns the image width and height as well
             // as the url.
-            $filename = isset($this->options['filename']) ? $this->options['filename'] : '';
+            $filename = $this->getOpt('filename');
             $status = LGLIB_invokeService('lglib', 'imageurl',
                 array(
                     'filepath' => $_CONF_BANR['img_dir'] . '/' . $filename,
@@ -861,7 +1079,7 @@ class Banner
             }
             break;
 
-        case BANR_TYPE_REMOTE:
+        case self::TYPE_REMOTE:
             $img = $this->options['image_url'];
             if ($img != '') {
                 $img_attr['height'] = $height;
@@ -870,7 +1088,7 @@ class Banner
             }
             break;
 
-        case BANR_TYPE_SCRIPT:
+        case self::TYPE_SCRIPT:
             if ($link == true) {
                 $retval = $this->options['ad_code'];
             } else {
@@ -878,7 +1096,7 @@ class Banner
             }
             break;
 
-        case BANR_TYPE_AUTOTAG:
+        case self::TYPE_AUTOTAG:
             $retval = PLG_replaceTags($this->options['ad_code']);
             break;
         }
@@ -973,6 +1191,7 @@ class Banner
 
         switch ($mode) {
         case 'edit':
+        case 'editbanner':
             $saveoption = $LANG_ADMIN['save'];      // Save
             $sub_type = '<input type="hidden" name="item" value="banner" />';
             $cancel_url = $this->isAdmin ? BANR_ADMIN_URL . '/index.php' :
@@ -1043,8 +1262,8 @@ class Banner
         } else {
             $T->set_var('disp_img', '');
             $this->bid = COM_makeSid();
-            $this->publishstart = 0;
-            $this->publishend = 0;
+            //$this->pubstart = 0;
+            //$this->pubend = 0;
         }
 
         $T->set_var('banner_id', $this->bid);
@@ -1053,13 +1272,11 @@ class Banner
         // Ad Type Selection
         $adtype_select = '';
         foreach ($LANG_BANNER['ad_types'] as $value=>$text) {
-            $sel = $this->ad_type === $value ?
-                        ' selected="selected"' : '';
+            $sel = $this->ad_type == $value ? ' selected="selected"' : '';
             $adtype_select .= "<option value=\"$value\"$sel>$text</option>\n";
         }
 
         $T->set_var(array(
-            //'mootools'      => $_SYSTEM['disable_jquery'] ? 'true' : '',
             'banner_title' => htmlspecialchars($this->title),
             'max_url_length' => 255,
             'category_options' => Category::Dropdown(0, $this->cid),
@@ -1069,25 +1286,29 @@ class Banner
             'impressions'   => $this->impressions,
             'max_impressions'   => $this->max_impressions,
             'ena_chk' => $this->enabled == 1 ? ' checked="checked"' : '',
-            'image_url' => isset($this->options['image_url']) ? $this->options['image_url'] : '',
-            'alt'   => isset($this->options['alt']) ? $this->options['alt'] : '',
-            'width' => isset($this->options['width']) ? $this->options['width'] : '',
-            'height' => isset($this->options['height']) ? $this->options['height'] : '',
-            'target_url' => isset($this->options['url']) ? $this->options['url'] : '',
-            'ad_code'   => isset($this->options['ad_code']) ? $this->options['ad_code'] : '',
+            'image_url' => $this->getOpt('image_url'),
+            'alt'   => $this->getOpt('alt'),
+            'width' => $this->getOpt('width'),
+            'height' => $this->getOpt('height'),
+            'target_url' => $this->getOpt('url'),
+            'ad_code'   => $this->getOpt('ad_code'),
             'adtype_select' => $adtype_select,
-            'filename' => isset($this->options['filename']) ? $this->options['filename'] : '',
+            'filename' => $this->getOpt('filename'),
             'weight_select' => $weight_select,
             'sel'.$this->options['target'] => 'selected="selected"',
             'req_item_msg' => $LANG_BANNER['req_item_msg'],
             'perm_msg' => $LANG_ACCESS['permmsg'],
+            'start_date' => $this->getPubStart('Y-m-d'),
+            'start_time' => $this->getPubStart('H:i:s'),
+            'end_date' => $this->getPubEnd('Y-m-d'),
+            'end_time' => $this->getPubEnd('H:i:s'),
         ));
 
         foreach (Category::getAll() as $C) {
-            if (!$C->enabled) continue;
-            $cats[$C->cid] = array(
-                'img_width' => $C->max_img_width,
-                'img_height' => $C->max_img_height,
+            if (!$C->isEnabled()) continue;
+            $cats[$C->getCid()] = array(
+                'img_width' => $C->getMaxWidth(),
+                'img_height' => $C->getMaxHeight(),
             );
         }
         $T->set_var('cats_json', json_encode($cats));
@@ -1126,73 +1347,37 @@ class Banner
 
         $T->set_var('gltoken_name', CSRF_TOKEN);
         $T->set_var('gltoken', SEC_createToken());
-        if ($this->publishstart == BANR_MIN_DATE) {
+        if ($this->pubstart->toMySQL(true) == BANR_MIN_DATE) {
             $T->set_var(array(
                 'start_dt_limit_chk'    => '',
                 'startdt_sel_show'      => 'none',
                 'startdt_txt_show'      => '',
             ) );
-            $startdt = $_CONF_BANR['_now'];
         } else {
             $T->set_var(array(
                 'start_dt_limit_chk'    => 'checked="checked"',
                 'startdt_sel_show'      => '',
                 'startdt_txt_show'      => 'none',
             ) );
-            $startdt = $this->publishstart;
         }
-        if ($startdt->format('H') > 11) {
-            $st_ampm = 'pm';
-        } else {
-            $st_ampm = 'am';
-        }
-        if ($this->publishend == BANR_MAX_DATE) {
+        if ($this->pubend->toMySQL(true) == BANR_MAX_DATE) {
             $T->set_var(array(
                 'end_dt_limit_chk'      => '',
                 'enddt_sel_show'        => 'none',
                 'enddt_txt_show'        => '',
             ) );
-            $enddt = $_CONF_BANR['_now'];
         } else {
             $T->set_var(array(
                 'end_dt_limit_chk'      => 'checked="checked"',
                 'enddt_sel_show'        => '',
                 'enddt_txt_show'        => 'none',
             ) );
-            $enddt = $this->publishend;
         }
-        if ($enddt->format('H') > 11) {
-            $end_ampm = 'pm';
-        } else {
-            $end_ampm = 'am';
-        }
-        $h_fmt = $_CONF['hour_mode'] == 12 ? 'h' : 'H';
-        $st_hour = $startdt->format($h_fmt, true);
-        $end_hour = $enddt->format($h_fmt, true);
-
-        $T->set_var(array(
-            'start_hour_options' =>
-                        COM_getHourFormOptions($st_hour, $_CONF['hour_mode']),
-            'start_ampm_selection' =>
-                        self::getAmPmFormSelection('start_ampm', $st_ampm),
-            'start_month_options' => COM_getMonthFormOptions($startdt->format('m', true)),
-            'start_day_options' => COM_getDayFormOptions($startdt->format('d', true)),
-            'start_year_options' => COM_getYearFormOptions($startdt->format('Y', true)),
-            'start_minute_options' =>
-                        COM_getMinuteFormOptions($startdt->format('i', true)),
-            'end_hour_options' =>
-                        COM_getHourFormOptions($end_hour, $_CONF['hour_mode']),
-            'end_ampm_selection' => self::getAmPmFormSelection('end_ampm', $end_ampm),
-            'end_month_options' => COM_getMonthFormOptions($enddt->format('m', true)),
-            'end_day_options' => COM_getDayFormOptions($enddt->format('d', true)),
-            'end_year_options' => COM_getYearFormOptions($enddt->format('Y', true)),
-            'end_minute_options' => COM_getMinuteFormOptions($enddt->format('i', true)),
-        ) );
         $T->parse('tooltipster', 'tips');
         $T->parse('output', 'editor');
         $retval .= $T->finish($T->get_var('output'));
         return $retval;
-    }   // function Edit()
+    }
 
 
     /**
@@ -1209,18 +1394,21 @@ class Banner
 
         // Check that appropriate ad content has been added
         switch ($A['ad_type']) {
-        case BANR_TYPE_LOCAL:
-            if (empty($_FILES))
+        case self::TYPE_LOCAL:
+            if (empty($_FILES)) {
                 $this->errors[] = $LANG_BANNER['err_missing_upload'];
+            }
             break;
-        case BANR_TYPE_REMOTE:
-            if (COM_sanitizeUrl($A['image_url'], array('http','https')) == '')
+        case self::TYPE_REMOTE:
+            if (COM_sanitizeUrl($A['image_url'], array('http','https')) == '') {
                 $this->errors[] = $LANG_BANNER['err_invalid_image_url'];
+            }
             break;
-        case BANR_TYPE_SCRIPT:
-        case BANR_TYPE_AUTOTAG:
-            if (empty($A['ad_code']))
+        case self::TYPE_SCRIPT:
+        case self::TYPE_AUTOTAG:
+            if (empty($A['ad_code'])) {
                 $this->errors[] = $LANG_BANNER['err_missing_adcode'];
+            }
             break;
         }
         return empty($this->errors) ? true : false;
@@ -1265,8 +1453,9 @@ class Banner
         // Set some static variables since this function can be called
         // multiple times per page load.
         static $in_admin_url = NULL;
-        static $is_blocked_useragent = NULL;
-        static $is_blocked_ip = NULL;
+        //static $is_blocked_useragent = NULL;
+        //static $is_blocked_ip = NULL;
+        $sess_var = 'glf_banr_canshow';
 
         // Check if this is an admin URL and the banner should not be shown.
         if ($_CONF_BANR['show_in_admin'] == 0) {
@@ -1283,9 +1472,17 @@ class Banner
 
         // See if this is a banner admin, and we shouldn't show it.
         // plugin_isadmin_banner() stores a static var, so it's low overhead
-        if ($_CONF_BANR['adshow_admins'] == 0 &&
-                plugin_isadmin_banner()) {
+        if (
+            $_CONF_BANR['adshow_admins'] == 0 &&
+            plugin_isadmin_banner()
+        ) {
             return false;
+        }
+
+        // Get the status from a session var, if it has been set.
+        $canshow = SESS_getVar($sess_var);
+        if ($canshow !== 0) {
+            return $canshow;
         }
 
         // Now check if this user or IP address is in the blocked lists
@@ -1296,41 +1493,57 @@ class Banner
         }*/
 
         if (is_array($_CONF_BANR['ipaddr_dontshow'])) {
-            if ($is_blocked_ip === NULL) {
-                $is_blocked_ip = false;
-                foreach ($_CONF_BANR['ipaddr_dontshow'] as $addr) {
-                    if (empty($addr)) continue;
-                    if (strstr($_SERVER['REMOTE_ADDR'], $addr)) {
-                        $is_blocked_ip = true;
-                        break;
-                    }
+            $is_blocked_ip = false;
+            foreach ($_CONF_BANR['ipaddr_dontshow'] as $addr) {
+                if (empty($addr)) continue;
+                if (strstr($_SERVER['REMOTE_ADDR'], $addr)) {
+                    $is_blocked_ip = true;
+                    break;
                 }
             }
-            if ($is_blocked_ip) return false;
+            if ($is_blocked_ip) {
+                SESS_setVar($sess_var, false);
+                return false;
+            }
         }
 
         if (is_array($_CONF_BANR['uagent_dontshow'])) {
-            if ($is_blocked_useragent === NULL) {
-                $is_blocked_useragent = false;
-                foreach ($_CONF_BANR['uagent_dontshow'] as $agent) {
-                    if (empty($agent)) continue;
-                    if (stristr($_SERVER['HTTP_USER_AGENT'], $agent)) {
-                        $is_blocked_useragent = true;
-                        break;
-                    }
+            $is_blocked_useragent = false;
+            foreach ($_CONF_BANR['uagent_dontshow'] as $agent) {
+                if (empty($agent)) continue;
+                if (stristr($_SERVER['HTTP_USER_AGENT'], $agent)) {
+                    $is_blocked_useragent = true;
+                    break;
                 }
             }
-            if ($is_blocked_useragent) return false;
+            if ($is_blocked_useragent)  {
+                SESS_setVar($sess_var, false);
+                return false;
+            }
+        }
+
+        if (
+            isset($_CONF_BANNER['header_dontshow']) && 
+            is_array($_CONF_BANR['header_dontshow'])
+        ) {
+            foreach ($_CONF_BANR['header_dontshow'] as $header) {
+                if (isset($_SERVER[$header])) {
+                    SESS_setVar($sess_var, false);
+                    return false;
+                }
+            }
         }
 
         // Allow the site admin to implement a custom banner control function
         if (function_exists('CUSTOM_banner_control')) {
             if (CUSTOM_banner_control() == false) {
+                SESS_setVar($sess_var, false);
                 return false;
             }
         }
 
         // Passed all the tests, ok to show banners
+        SESS_setVar($sess_var, true);
         return true;
     }
 
@@ -1417,6 +1630,267 @@ class Banner
         return $retval;
     }
 
-}   // class Banner
+
+    /**
+     * Create the list.
+     *
+     * @param   boolean $isadmin    True for and admin list, False for a user
+     * @return  string      HTML for the banner list
+     */
+    public static function adminList($isadmin=false, $camp_id='')
+    {
+        global $LANG_ADMIN, $LANG_BANNER, $_USER,
+                 $_TABLES, $_CONF, $_CONF_BANR;
+
+        USES_lib_admin();
+
+        $uid = (int)$_USER['uid'];
+        $retval = '';
+        $form_arr = array();
+        $header_arr = array(
+            array(
+                'text' => $LANG_BANNER['edit'],
+                'field' => 'edit',
+                'sort' => false,
+                'align' => 'center',
+            ),
+            array(
+                'text' => $LANG_BANNER['enabled'],
+                'field' => 'enabled',
+                'align' => 'center',
+                'sort' => false,
+            ),
+            array(
+                'text' => $LANG_BANNER['banner_id'],
+                'field' => 'bid',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['banner_title'],
+                'field' => 'title',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['banner_cat'],
+                'field' => 'category',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['weight'],
+                'field' => 'weight',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['pubstart'],
+                'field' => 'publishstart',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['pubend'],
+                'field' => 'publishend',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['hits'],
+                'field' => 'hits',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['impressions'],
+                'field' => 'impressions',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_ADMIN['delete'],
+                'field' => 'delete',
+                'sort' => false,
+                'align' => 'center',
+            ),
+        );
+
+        $is_admin = $isadmin ? 1 : 0;
+        /*if ($is_admin) {;
+            $validate = '';
+            $token = SEC_createToken();
+
+            if (isset($_POST['validate'])) {
+                $header_arr[] = array(
+                    'text' => $LANG_BANNER['html_status'],
+                    'field' => 'dovalidate',
+                    'sort' => false
+                );
+            } else {
+                $dovalidate_url = BANR_ADMIN_URL . '/index.php';
+                    //'/index.php?validate=validate&amp;'. CSRF_TOKEN.'='.$token;
+                $dovalidate_text = '<button class="lgButton green" name="validate">' .
+                    $LANG_BANNER['validate_now'] . '</button>';
+                $form_arr['top'] = COM_createLink($dovalidate_text, $dovalidate_url);
+                $header_arr[] = array(
+                    'text' => $LANG_BANNER['html_status'],
+                    'field' => 'beforevalidate',
+                    'sort' => false
+                );
+            }
+            $text_arr = array(
+                'has_extras' => true,
+                'form_url' => BANR_ADMIN_URL . '/index.php?item=banner',
+            );
+        }*/
+
+        $text_arr = array(
+            'has_extras' => true,
+            'form_url' => BANR_ADMIN_URL . '/index.php?banners',
+        );
+
+        $options = array(
+            'chkdelete' => 'true',
+            'chkfield' => 'bid',
+        );
+        $defsort_arr = array(
+            'field' => 'weight',
+            'direction' => 'desc',
+        );
+        $where = '';
+        if ($camp_id != '') {
+            $where = " AND b.camp_id = '" . DB_escapeString($camp_id) . "'";
+        }
+        $query_arr = array(
+            'table' => 'banner',
+            'sql' => "SELECT
+                    b.bid AS bid, b.cid as cid, b.title AS title, b.weight,
+                    c.category AS category,
+                    b.enabled AS enabled,
+                    b.hits AS hits, b.impressions as impressions,
+                    b.max_hits AS max_hits,
+                    b.max_impressions as max_impressions,
+                    b.publishstart AS publishstart,
+                    b.publishend AS publishend, b.owner_id,
+                    $is_admin as isAdmin
+                FROM {$_TABLES['banner']} AS b
+                LEFT JOIN {$_TABLES['bannercategories']} AS c
+                    ON b.cid=c.cid
+                WHERE ($is_admin = 1 OR b.owner_id = $uid) ",
+            'query_fields' => array(
+                'title', 'category',
+                'b.publishstart', 'b.publishend', 'b.hits',
+            ),
+            'default_filter' => $where,
+        );
+
+        $retval .= COM_createLink($LANG_BANNER['new_banner'],
+            BANR_ADMIN_URL . '/index.php?editbanner=x',
+            array(
+                'class' => 'uk-button uk-button-success',
+                'style' => 'float:left',
+            )
+        );
+        $retval .= ADMIN_list(
+            'banner',
+            array(__CLASS__,  'getAdminField'),
+            $header_arr, $text_arr, $query_arr,
+            $defsort_arr, '', '', $options, $form_arr
+        );
+        return $retval;
+    }
+
+
+    /**
+     * Get the correct display for a single field in the banner admin list.
+     *
+     * @param   string  $fieldname  Field variable name
+     * @param   string  $fieldvalue Value of the current field
+     * @param   array   $A          Array of all field names and values
+     * @param   array   $icon_arr   Array of system icons
+     * @return  string              HTML for field display within the list cell
+     */
+    public static function getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
+    {
+        global $_CONF, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
+
+        $retval = '';
+
+        $base_url = $A['isAdmin'] == 1 ? BANR_ADMIN_URL : BANR_URL;
+
+        switch($fieldname) {
+        case 'edit':
+            $retval = COM_createLink(
+                $_CONF_BANR['icons']['edit'],
+                $base_url . '/index.php?editbanner&amp;bid=' .$A['bid']
+            );
+            break;
+
+        case 'enabled':
+            if ($A['enabled'] == '1') {
+                $switch = 'checked="checked"';
+            } else {
+                $switch = '';
+            }
+            $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"banr_ena_check\"
+                    id=\"togena{$A['bid']}\"
+                    onclick='BANR_toggleEnabled(this, \"{$A['bid']}\",\"banner\");' />\n";
+            break;
+
+        case 'delete':
+            $retval = COM_createLink(
+                $_CONF_BANR['icons']['delete'],
+                "$base_url/index.php?bid={$A['bid']}&delete=banner",
+                array(
+                     'onclick' => "return confirm('Do you really want to delete this item?');",
+                 )
+             );
+            break;
+
+        case 'dovalidate':
+            $B = new self($A['bid']);
+            $retval = $B->validateURL();
+            break;
+
+        /*case 'beforevalidate';
+            $retval = $LANG_BANNER['before_validate'];
+            break;
+
+        case 'camp_id':
+            $retval = COM_createLink(
+                $A['camp_id'],
+                "{$base_url}/index.php?campaigns=x&camp_id=" . urlencode($A['camp_id'])
+            );
+            break;*/
+
+        case 'hits':
+            $max = (int)$A['max_hits'];
+            $hits = (int)$fieldvalue;
+            $max_txt = $max > 0 ? $max : 'Unltd.';
+            $retval = $hits . ' / ' . $max_txt;
+            if ($max > 0 && $hits >= $max) {
+                $retval = "<span style=\"background-color:yellow;\">$retval</span>";
+            }
+            break;
+
+        case 'impressions':
+            $max = (int)$A['max_impressions'];
+            $impr = (int)$fieldvalue;
+            $max_txt = $max > 0 ? $max : 'Unltd.';
+            $retval = $impr . ' / ' . $max_txt;
+            if ($max > 0 && $impr >= $max) {
+                $retval = "<span style=\"background-color:yellow;\">$retval</span>";
+            }
+            break;
+
+        case 'publishstart':
+            $retval = $fieldvalue == BANR_MIN_DATE ? 'n/a' : $fieldvalue;
+            break;
+
+        case 'publishend':
+            $retval = $fieldvalue == BANR_MAX_DATE ? 'n/a' : $fieldvalue;
+            break;
+
+        default:
+            $retval = $fieldvalue;
+            break;
+        }
+        return $retval;
+    }
+
+}
 
 ?>

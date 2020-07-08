@@ -1,16 +1,15 @@
 <?php
 /**
-*   Portal page that tracks banner clicks and redirects users to
-*   the destination url.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
-*   @filesource
-*/
+ * Portal page that tracks banner clicks and redirects to the target.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v1.0.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /** Import core glFusion libraries */
 require_once '../lib-common.php';
@@ -33,12 +32,12 @@ if (!empty($bid)) {
     $i = explode('&', $bid);
     $bid = $i[0];
     $B = new Banner\Banner($bid);
-    $url = $B->options['url'];
+    $url = $B->getOpt('url');
     if (!empty($url)) {
         $B->updateHits();
     } else {
         $url = $_CONF['site_url'];
-    } 
+    }
 }
 
 header('HTTP/1.1 301 Moved');

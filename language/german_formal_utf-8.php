@@ -44,11 +44,11 @@ $LANG_BANNER = array(
 'ad_is_script'  => 'Skriptanzeigen werden nicht angezeigt',
 'ad_type'       => 'Art der Anzeige',
 'ad_types'      => array(
-                    BANR_TYPE_LOCAL     => 'Hochgeladenes-Banner',
-                    BANR_TYPE_REMOTE    => 'Externes-Banner',
-                    BANR_TYPE_SCRIPT    => 'HTML oder Javascript',
-                    BANR_TYPE_AUTOTAG   => 'Autotag',
-                    ),
+    'Hochgeladenes-Banner',
+    'Externes-Banner',
+    'HTML oder Javascript',
+    'Autotag',
+),
 'ok_to_delete'  => 'Möchten Sie diesen Eintrag wirklich löschen?',
 'banner_content' => 'Banner-Inhalt',
 'hits'          => 'Klicks',
@@ -157,6 +157,8 @@ $LANG_BANNER = array(
 'warn_update_hits' => 'Aktualisieren kann die Kampagnenberichterstattung beschädigen',
 'zero_eq_unlimited' => '0 = Unlimitiert',
 'cannot_delete' => 'Cannot delete required or used categories or campaigns',
+'alert' => 'Alert',
+'warning' => 'Warning',
 );
 
 ###############################################################################

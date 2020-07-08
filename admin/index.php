@@ -3,9 +3,9 @@
  * Banner admin entry point.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.2.1
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -28,6 +28,7 @@ $actionval = '';
 $expected = array(
     'save', 'delete', 'delitem', 'validate',
     'edit', 'moderate', 'cancel',
+    'editcampaign', 'editcategory', 'editbanner',
     'banners', 'categories', 'campaigns',
     'mode', 'view',
 );
@@ -79,7 +80,8 @@ case 'delete':
     switch ($item) {
     case 'banner':
         if ($type == 'submission') {
-            $B = new Banner\Banner($_REQUEST['bid'], 'bannersubmission');
+            $B = new Banner\Banner($_REQUEST['bid']);
+            $B->setTable('bannersubmission');
             $view = 'moderation';
         } else {
             $B = new Banner\Banner($_REQUEST['bid']);
@@ -109,11 +111,13 @@ case 'delMultiBanner':
     break;
 
 case 'toggleEnabledCategory':
+    echo "admin $action deprecated";die;
     Banner\Category::toggleEnabled($_REQUEST['newval'], $_REQUEST['cid']);
     $view = 'categories';
     break;
 
 case 'toggleEnabledCampaign':
+    echo "admin $action deprecated";die;
     Banner\Campaign::toggleEnabled($_REQUEST['newval'], $_REQUEST['camp_id']);
     $view = 'campaigns';
     break;
@@ -125,30 +129,26 @@ case 'save':
         $C = new Banner\Category($_POST['oldcid']);
         $status = $C->Save($_POST);
         if ($status != '') {
-            $content .= BANNER_errorMessage($status);
-            if (isset($_POST['oldcid']) && !empty($_POST['oldcid'])) {
-                //$view = 'editcategory';
-                $view = 'edit';
-            } else {
-                $view = 'newcategory';
-            }
+            COM_setMsg(BANNER_errorMessage($status));
+            COM_refresh(BANR_ADMIN_URL . '/index.php?editcategory&cid=' . $_POST['oldcid']);
         } else {
-            $view = 'categories';
+            COM_refresh(BANR_ADMIN_URL . '/index.php?categories');
         }
         break;
 
     case 'campaign':
         $C = new Banner\Campaign($_POST['old_camp_id']);
-        if (!$C->Save($_POST)) {
-            $content .= BANNER_errorMessage($status);
+        $errors = $C->Save($_POST);
+        if ($errors != '') {
+            $content .= BANNER_errorMessage($errors);
             if (isset($_POST['old_camp_id']) && !empty($_POST['old_camp_id'])) {
-                $view = 'edit';
+                $view = 'editcampaign';
                 $mode = 'edit';
             } else {
-                $view = 'newcampaign';
+                $view = 'editcampaign';
             }
         } else {
-            $view = 'campaigns';
+            COM_refresh(BANR_ADMIN_URL . '/index.php?campaigns');
         }
         break;
 
@@ -167,12 +167,12 @@ case 'save':
             $B->setTable('banner');
             // Delete the submission, if any
             if ($type == 'submission') {
-                $B->setVars($_POST);
-                $B->isNew = true;
+                $B->setVars($_POST)
+                    ->setIsNew(true);
                 $status = $B->Save();
                 if ($status == '') {
                     // Only delete from submission table if status is ok
-                    DB_delete($_TABLES['bannersubmission'], 'bid', $B->bid);
+                    DB_delete($_TABLES['bannersubmission'], 'bid', $B->getBid());
                 }
             } else {
                 $status = $B->Save($_POST);
@@ -201,9 +201,7 @@ default:
 
 switch ($view) {
 case 'campaigns':
-    $L = new Banner\Lists\Campaign(true);
-    $content .= $L->ShowList();
-    //$content .= BANNER_adminCampaigns();
+    $content .= Banner\Campaign::adminList(true);
     break;
 
 case 'categories':
@@ -217,14 +215,25 @@ case 'moderation':
 
 case 'editsubmission':
 case 'moderate':
-    $B = new Banner\Banner($_GET['bid'], 'bannersubmission');
-    $B->setAdmin(true);
-    if ($B->bid != '') {
+    $B = new Banner\Banner($_GET['bid']);
+    $B->setTable('bannersubmission')
+        ->setAdmin(true);
+    if ($B->getBid() != '') {
         $content .= $B->Edit($mode);
     }
     break;
 
+case 'editbanner':
+    $B = new Banner\Banner($bid);
+    if (!empty($_POST)) {
+        $B->SetVars($_POST);
+    }
+    $B->setAdmin(true);
+    $content .= $B->Edit($action);
+    break;
+
 case 'edit':
+    echo "edit deprecated";die;
     switch ($item) {
     case 'banner':
         $B = new Banner\Banner($bid);
@@ -241,7 +250,7 @@ case 'edit':
         if (!empty($_POST)) {
             $C->SetVars($_POST);
         }
-        if ($C->camp_id == '') {
+        if ($C->getID() == '') {
             $C->setUID($uid);
         }
         $content .= $C->Edit();
@@ -273,7 +282,7 @@ echo "here in newcampaign";die;
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
-    if ($C->camp_id == '')
+    if ($C->getID() == '')
         $C->setUID($_REQUEST['uid']);
     $content .= $C->Edit();
     break;
@@ -283,119 +292,29 @@ case 'editcampaign':
     if (!empty($_POST)) {
         $C->SetVars($_POST);
     }
-    if ($C->camp_id == '')
+    if ($C->getID() == '') {
         $C->setUID($_REQUEST['uid']);
+    }
     $content .= $C->Edit();
     break;
 
 case 'banners':
 default:
+    $camp_id = LGLIB_getVar($_GET, 'camp_id', 'string', '');
     if (isset($_GET['msg'])) {
         $msg = COM_applyFilter($_GET['msg'], true);
         if ($msg > 0) {
             $content .= COM_showMessage($msg, 'banner');
         }
     }
-    $L = new Banner\Lists\Banner(true);
-    if (isset($_REQUEST['category']))
-        $L->setCatID($_REQUEST['category']);
-    if (isset($_REQUEST['camp_id']))
-        $L->setCampID($_REQUEST['camp_id']);
-    $content .= $L->ShowList();
+    $content .= Banner\Banner::adminList(true, $camp_id);
     break;
 }   // switch ($view)
 
 echo COM_siteHeader('none', $LANG_BANNER['banners']);
-echo BANR_adminMenu($view);
+echo Banner\Menu::Admin($view);
 echo $content;
 echo COM_siteFooter();
 exit;
-
-/**
- * Create the administrator menu.
- *
- * @param   string  $view   View being shown, so set the help text
- * @return  string      Administrator menu
- */
-function BANR_adminMenu($view='')
-{
-    global $_CONF, $LANG_ADMIN, $LANG_BANNER, $_CONF_BANR;
-
-    if (isset($LANG_BANNER['admin_hdr_' . $view]) &&
-        !empty($LANG_BANNER['admin_hdr_' . $view])) {
-        $hdr_txt = $LANG_BANNER['admin_hdr_' . $view];
-    } else {
-        //$hdr_txt = $LANG_BANNER['admin_hdr'];
-        $hdr_txt = '';
-    }
-
-    $act_banners = false;
-    $act_categories = false;
-    $act_campaigns = false;
-    $new_menu = NULL;
-
-    switch ($view) {
-    case 'banners':
-        $act_banners = true;
-        $new_menu = array(
-            'url'  => BANR_ADMIN_URL . '/index.php?edit=x',
-            'text' => '<span class="banrNewAdminItem">' .
-                            $LANG_BANNER['new_banner'] . '</span>',
-        );
-        break;
-
-    case 'categories':
-        $act_categories = true;
-        $new_menu = array(
-            'url'  => BANR_ADMIN_URL . '/index.php?edit=x&item=category',
-            'text' => '<span class="banrNewAdminItem">' .
-                    $LANG_BANNER['new_cat'] . '</span>',
-        );
-        break;
-
-    case 'campaigns':
-        $act_campaigns = true;
-        $new_menu = array(
-            'url'  => BANR_ADMIN_URL . '/index.php?edit=x&item=campaign',
-            'text' => '<span class="banrNewAdminItem">' .
-                    $LANG_BANNER['new_camp'] . '</span>',
-        );
-        break;
-    }
- 
-    $menu_arr = array(
-        array(
-            'url'  => BANR_ADMIN_URL . '/index.php',
-            'text' => $LANG_BANNER['banners'],
-            'active' => $act_banners,
-        ),
-        array(
-            'url'  => BANR_ADMIN_URL . '/index.php?categories=x',
-            'text' => $LANG_BANNER['categories'],
-            'active' => $act_categories,
-        ),
-        array(
-            'url'  => BANR_ADMIN_URL . '/index.php?campaigns=x',
-            'text' => $LANG_BANNER['campaigns'],
-            'active' => $act_campaigns,
-        ),
-        array(
-            'url'  => $_CONF['site_admin_url'],
-            'text' => $LANG_ADMIN['admin_home'],
-        ),
-    );
-    if ($new_menu !== NULL) {
-        $menu_arr[] = $new_menu;
-    }
-
-    $T = new \Template(BANR_PI_PATH . '/templates');
-    $T->set_file('title', 'banner_admin_title.thtml');
-    $T->set_var('title',
-        $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . $_CONF_BANR['pi_version'] . ')');
-    $retval = $T->parse('', 'title');
-    $retval .= ADMIN_createMenu($menu_arr, $hdr_txt,
-            plugin_geticon_banner());
-    return $retval;
-}
 
 ?>

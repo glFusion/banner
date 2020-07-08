@@ -21,13 +21,9 @@ global $_CONF_BANR;
 
 // Define banner types.  This is done very early because they're used
 // in the language files
-define ('BANR_TYPE_LOCAL',  0);    // Locally-uploaded image
-define ('BANR_TYPE_REMOTE', 1);    // Remote image url
-define ('BANR_TYPE_SCRIPT', 2);    // Script, e.g. Google Adsense
-define ('BANR_TYPE_AUTOTAG', 3);    // Autotag to be processed
-define ('BANR_PI_PATH', $_CONF['path'] . 'plugins/banner');
-define ('BANR_MAX_DATE', '9999-12-31 23:59:59');
-define ('BANR_MIN_DATE', '0000-01-01 00:00:00');
+define('BANR_PI_PATH', $_CONF['path'] . 'plugins/banner');
+define('BANR_MAX_DATE', '9999-12-31 23:59:59');
+define('BANR_MIN_DATE', '0000-01-01 00:00:00');
 
 $langfile = $_CONF['language'] . '.php';
 if (!file_exists(__DIR__ . '/language/' . $langfile)) {
@@ -49,11 +45,11 @@ if (file_exists(__DIR__ . '/config.php')) {
 
 $_CONF_BANR['_now'] = new Date('now', $_CONF['timezone']);
 
-define ('BANR_ADMIN_URL',
+define('BANR_ADMIN_URL',
         $_CONF['site_admin_url'] . '/plugins/'.$_CONF_BANR['pi_name']);
-define ('BANR_URL',
+define('BANR_URL',
         $_CONF['site_url'] . '/'.$_CONF_BANR['pi_name']);
-define ('BANR_CLASSPATH', BANR_PI_PATH . '/classes');
+define('BANR_CLASSPATH', BANR_PI_PATH . '/classes');
 
 spl_autoload_register(function ($class)
 {
@@ -106,8 +102,10 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
 
     // If centerblock not enabled, or just for homepage and
     // we're not on the homepage, just return
-    if ($_CONF_BANR['cb_enable'] == 0 ||
-            ($_CONF_BANR['cb_home'] == 1 && !$on_homepage) ) {
+    if (
+        $_CONF_BANR['cb_enable'] == 0 ||
+        ($_CONF_BANR['cb_home'] == 1 && !$on_homepage)
+    ) {
         return '';
     }
 
@@ -158,9 +156,9 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
         $T->set_file('page', 'centerblock.thtml');
         $T->set_var(array(
             'banner'    => $B->BuildBanner(),
-            'category'  => $B->cid,
-            'banner_id' => $B->bid,
-            'campaign'  => $B->camp_id,
+            'category'  => $B->getCid(),
+            'banner_id' => $B->getBid(),
+            'campaign'  => $B->getCampID(),
         ) );
         $T->parse('output','page');
 
@@ -202,7 +200,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             // Get a specific banner
             $bid = COM_sanitizeID($autotag['parm1'], false);
             $B = new Banner\Banner($bid);
-            if (!$B->isNew) {
+            if (!$B->isNew()) {
                 $banner = $B->BuildBanner();
                 $B->updateImpressions();
             }
@@ -249,9 +247,9 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
                 $B = new Banner\Banner($A['bid']);
                 $T->set_var(array(
                     'banner'    => $B->BuildBanner(),
-                    'category'  => $B->cid,
-                    'banner_id' => $B->bid,
-                    'campaign'  => $B->camp_id,
+                    'category'  => $B->getCid(),
+                    'banner_id' => $B->getBid(),
+                    'campaign'  => $B->getCampId(),
                 ) );
                 $B->updateImpressions();
                 $T->parse('BRow', 'bannerRow', true);
@@ -330,10 +328,11 @@ function plugin_chkVersion_banner()
         for ($i = 0; $i < $nrows; $i++) {
             list($bid) = DB_fetchArray ($result);
             $B->Read($bid);
-            $data_arr[] = array('title' => $B->title,
-                            'banner' => $B->BuildBanner('', 200, 0, false),
-                            'hits' => COM_numberFormat($B->hits),
-                          );
+            $data_arr[] = array(
+                'title' => $B->getTitle(),
+                'banner' => $B->BuildBanner('', 200, 0, false),
+                'hits' => COM_numberFormat($B->getHits()),
+            );
         }
         $retval .= ADMIN_simpleList ('', $header_arr, $text_arr, $data_arr);
     } else {
@@ -426,8 +425,11 @@ function plugin_user_delete_banner ($uid)
         DB_delete($_TABLES['banner'], 'owner_id', $uid);
     } else {
         // assign ownership to a user from the Banner Admin group
-        $rootgroup = DB_getItem($_TABLES['groups'], 'grp_id',
-                                 "grp_name = 'Root'");
+        $rootgroup = (int)DB_getItem(
+            $_TABLES['groups'],
+            'grp_id',
+            "grp_name = 'Root'"
+        );
         $result = DB_query("SELECT DISTINCT ug_uid
                 FROM {$_TABLES['group_assignments']}
                 WHERE ug_main_grp_id = $rootgroup
@@ -840,18 +842,20 @@ function plugin_displayadblock_banner($plugin, $counter)
     }
 
     $Cats = Banner\Mapping::showCats($plugin, $counter);
+    COM_errorLog("cats for $counter: " . print_r($Cats,true));
     if (empty($Cats)) return '';
 
     $options = array(
         'limit' => '1',
         'cid' => $Cats,
     );
-
-    $bids = Banner\Banner::GetBanner($options);
+    $bids = Banner\Banner::getBanner($options);
     if (is_array($bids) && !empty($bids)) {
         $B = new Banner\Banner($bids[0]);
         $B->updateImpressions();
-        return $B->BuildBanner();
+        return $B->buildBanner();
+    } else {
+        return '';
     }
 }
 
@@ -1013,7 +1017,7 @@ function plugin_getheadercss_banner()
  *
  * @return  array   Array of menu items.
  */
-function plugin_getuseroption_banner()
+function Xplugin_getuseroption_banner()
 {
     global $LANG_BANNER, $_CONF, $_CONF_BANR, $_USER, $_TABLES;
 
@@ -1273,8 +1277,9 @@ function BANNER_auditLog($logentry = '')
 {
     global $_CONF, $_USER, $LANG01, $_CONF_BANR;
 
-    if ($logentry == '')
-        return '';
+    if ($logentry == '') {
+        return;
+    }
 
     // A little sanitizing
     $logentry = str_replace(

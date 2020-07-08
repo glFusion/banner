@@ -4,15 +4,17 @@
  * Provides a way for users to view and edit banners that they own.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.2.1
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php 
  *              GNU Public License v2 or later
  * @filesource
  */
 
 require_once '../lib-common.php';
+COM_404();      // disabled, no user-facing function
+
 USES_lib_admin();
 
 // Nothing here for anonymous users.
@@ -21,12 +23,15 @@ if (!in_array('banner', $_PLUGINS) || COM_isAnonUser()) {
 }
 
 // MAIN
-$display = '';
-$view = 'campaigns';
-$expected = array('banners', 'campaigns', 'campaignDetail', 'report', 
-        'edit', 'toggleEnabled', 'toggleEnabledCampaign',
-        'deleteBanner', 'save',
-        'action', 'view');
+$content = '';
+$view_title = $LANG_BANNER['pi_name'];
+$action = 'campaigns';
+$expected = array(
+    'banners', 'campaigns', 'campaignDetail', 'report', 
+    'edit', 'toggleEnabled', 'toggleEnabledCampaign',
+    'deleteBanner', 'save',
+    'action', 'view',
+);
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
         $action = $provided;
@@ -52,7 +57,7 @@ $message = array();
 switch ($action) {
 case 'deleteBanner':
     $B = new Banner\Banner($_GET['bid']);
-    if ($B->isNew || $B->owner_id != $_USER['uid']) {
+    if ($B->isNew() || $B->getOwnerId() != $_USER['uid']) {
         COM_404();
     }
     $B->Delete();
@@ -111,23 +116,16 @@ default:
 switch ($view) {
 case 'banners':
 default:
-    $view_title = $LANG_BANNER[['pi_name']];
-    $camp_id = '';
-    $L = new Banner\BannerList();
-    if (isset($_REQUEST['camp_id']))
-        $L->setCampID($_REQUEST['camp_id']);
-    $content .= $L->ShowList();
+    $content .= Banner\Banner::adminList();
     break;
 
 case 'campaigns':
-    $L = new Banner\CampaignList();
-    $content .= $L->ShowList();
+    $content .= Banner\Campaign::adminList();
     break;
 
 case 'campaignDetail':
     $C = new Banner\Campaign($_REQUEST['camp_id']);
     $C->getBanners();
-
     $menu_arr = array(
         array('url' => BANR_URL . '/index.php?banners=x',
               'text' => $LANG_BANNER['banners']),
@@ -147,11 +145,11 @@ case 'campaignDetail':
     $T->set_block('camp_detail', 'BannerRow', 'brow');
     foreach ($C->Banners as $B) {
         $T->set_var(array(
-            'banner_id'         => $B->bid,
-            'banner_pubstart'   => $B->publishstart,
-            'banner_pubend'     => $B->publishend,
+            'banner_id'         => $B->getBid(),
+            'banner_pubstart'   => $B->getPubStart(),
+            'banner_pubend'     => $B->getPubEnd(),
             'banner_content'    => $B->BuildBanner('', 300, 300, false),
-            'banner_hits'       => $B->hits.'/'.$B->max_hits,
+            'banner_hits'       => $B->getHits().'/'.$B->getMaxHits(),
         ) );
         $T->parse('brow', 'BannerRow', true);
     }
@@ -170,59 +168,9 @@ case 'edit':
 }
 
 echo COM_siteHeader('menu', $view_title);
-echo BANR_userMenu($view);
+echo Banner\Menu::User($view);
 echo $content;
 echo COM_siteFooter();
 exit;
-
-/**
- * Create the administrator menu.
- *
- * @param   string  $view   View being shown, so set the help text
- * @return  string      Administrator menu
- */
-function BANR_userMenu($view='')
-{
-    global $_CONF, $LANG_ADMIN, $LANG_BANNER, $_CONF_BANR;
-
-    if (isset($LANG_BANNER['admin_hdr_' . $view]) && 
-        !empty($LANG_BANNER['admin_hdr_' . $view])) {
-        $hdr_txt = $LANG_BANNER['admin_hdr_' . $view];
-    } else {
-        $hdr_txt = $LANG_BANNER['admin_hdr'];
-    }
-
-    if ($view == 'banners') {
-        $menu_arr[] = array(
-                    'url'  => BANR_URL . '/index.php?edit=x',
-                    'text' => '<span class="banrNewAdminItem">' .
-                            $LANG_BANNER['new_banner'], '</span>');
-    } else {
-        $menu_arr[] = array(
-                    'url'  => BANR_URL . '/index.php?banners',
-                    'text' => $LANG_BANNER['banners']);
-    }
-
-    if ($view == 'campaigns') {
-        $menu_arr[] = array(
-                    'url'  => BANR_URL . '/index.php?edit=x&item=campaign',
-                    'text' => '<span class="banrNewAdminItem">' .
-                            $LANG_BANNER['new_camp'] . '</span>');
-    } else {
-        $menu_arr[] = array('url'  => BANR_URL . 
-                            '/index.php?campaigns=x',
-                    'text' => $LANG_BANNER['campaigns']);
-    }
-
-    $T = new \Template(BANR_PI_PATH . '/templates');
-    $T->set_file('title', 'banner_admin_title.thtml');
-    $T->set_var('title', 
-        $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . $_CONF_BANR['pi_version'] . ')');
-    $retval = $T->parse('', 'title');
-    $retval .= ADMIN_createMenu($menu_arr, $hdr_txt, 
-            plugin_geticon_banner());
-
-    return $retval;
-}
 
 ?>

@@ -3,9 +3,9 @@
  * Class to handle banner category to plugin template mappings.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.3.0
+ * @version     v1.0.0
  * @since       v0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
@@ -19,12 +19,29 @@ namespace Banner;
  */
 class Mapping
 {
-    /** Internal properties accessed via `__set()` and `__get()`.
-     * @var array */
-    private $properties = array();
+    /** Item position, e.g. after first item, second item, etc.
+     * @var integer */
+    private $pos = 0;
+
+    /** Category ID related to this mapping.
+     * @var string */
+    private $cid = '';
+
+    /** Template name assigned to this mapping.
+     * @var string */
+    private $tpl = '';
+
+    /** Flag to show only one banner per page.
+     * @var boolean */
+    private $once = 0;
+
+    /** Flag to indicate that this mapping is displayed in content.
+     * @var boolean */
+    private $in_content = 0;
+
 
     /**
-     * Constructor
+     * Constructor.
      * Can optionally read a mapping record, or just creates an empty object
      *
      * @param   string  $tpl    Optional template name
@@ -39,60 +56,62 @@ class Mapping
         if ($tpl != '' && $cid != '') {
             // Have to have both $tpl and $cid to get a record
             $this->Read($tpl, $cid);
-        } else {
-            // Set defaults for new record
-            $this->pos = 0;
-            $this->once = 0;
-            $this->tpl = '';
-            $this->cid = '';
-            $this->enabled = 0;
-            $this->in_content = 0;
         }
     }
 
 
     /**
-     * Set a value in the properties array.
+     * Get the position (placement) for this mapping.
      *
-     * @param   string  $key    Name of property to set
-     * @param   mixed   $value  Value to set
+     * @return  integer     Placement code
      */
-    public function __set($key, $value)
+    public function getPos()
     {
-        global $_CONF_BANR;
-
-        switch ($key) {
-        case 'pos':
-            $this->properties[$key] = (int)$value;
-            break;
-
-        case 'cid':
-        case 'tpl':
-            $this->properties[$key] = trim($value);
-            break;
-
-        case 'once':
-        case 'enabled':
-        case 'in_content':
-            $this->properties[$key] = $value == 1 ? 1 : 0;
-            break;
-        }
+        return (int)$this->pos;
     }
 
 
     /**
-     * Get a property value, or NULL if not defined.
+     * Get the template name associated with this mapping.
      *
-     * @param   string  $key    Name of property to retrieve
-     * @return  mixed           Value of property
+     * @return  string      Template name
      */
-    public function __get($key)
+    public function getTpl()
     {
-        if (isset($this->properties[$key])) {
-            return $this->properties[$key];
-        } else {
-            return NULL;
-        }
+        return $this->tpl;
+    }
+
+
+    /**
+     * Get the category ID associated with this mapping.
+     *
+     * @return  string      Category ID
+     */
+    public function getCid()
+    {
+        return $this->cid;
+    }
+
+
+    /**
+     * Check if this mapping is shown in content.
+     *
+     * @return  integer     1 if shown in content, 0 if not
+     */
+    public function showInContent()
+    {
+        return $this->in_content ? 1 : 0;
+    }
+
+
+    /**
+     * Check if this mapping is shown only once per page.
+     *
+     * @return  integer     1 if shown only once, 0 if not
+     */
+    public function showOnce()
+    {
+        return $this->once ? 1 : 0;
     }
 
 
@@ -110,8 +129,9 @@ class Mapping
         $A = Cache::get($key);
         if ($A === NULL) {
             $sql = "SELECT * FROM {$_TABLES['banner_mapping']}
-                    WHERE tpl = '" . DB_escapeString($tpl) . "'
-                    AND cid = '" . DB_escapeString($cid) . "'";
+                WHERE tpl = '" . DB_escapeString($tpl) . "'
+                AND cid = '" . DB_escapeString($cid) . "'
+                LIMIT 1";
             $res = DB_query($sql);
             $A = DB_fetchArray($res, false);
             Cache::set($key, $A, 'maps');
@@ -132,12 +152,15 @@ class Mapping
     {
         global $_CONF_BANR, $_CONF;
 
-        if (!is_array($A))
+        if (!is_array($A)) {
             return;
-
-        foreach (array('tpl', 'cid', 'pos', 'once', 'enabled', 'in_content') as $key) {
-            $this->$key = isset($A[$key]) ? $A[$key] : '';
         }
+
+        $this->tpl = $A['tpl'];
+        $this->cid = $A['cid'];
+        $this->pos = (int)$A['pos'];
+        $this->once = isset($A['once']) ? (int)$A['once'] : 0;
+        $this->in_content = isset($A['in_content']) ? (int)$A['in_content'] : 0;
     }
 
 
@@ -178,7 +201,7 @@ class Mapping
     {
         global $_CONF_BANR;
 
-        $A = PLG_supportAdblock();
+        $A = PLG_supportAdblock();  // get all templates supporting ad blocks
         $M = self::loadAll();
         $T = new \Template(BANR_PI_PATH . '/templates/admin/');
         $T->set_file('mappingform', "mapping.thtml");
@@ -186,10 +209,11 @@ class Mapping
         foreach ($A as $tpl) {
             $key = $tpl . '_' . $cid;
             if (isset($M[$key])) {
-                $pos = $M[$key]->pos;
-                $once = $M[$key]->once;
+                // Mapping already defined, get the existing settings
+                $pos = $M[$key]->getPos();
+                $once = $M[$key]->showOnce();
                 $enabled = 1;
-                $in_content = $M[$key]->in_content;
+                $in_content = $M[$key]->showInContent();
             } else {
                 $pos = 0;
                 $once = 0;
@@ -232,13 +256,13 @@ class Mapping
             $sql = "INSERT INTO {$_TABLES['banner_mapping']} SET
                         tpl = '$tpl',
                         cid = '$cid',
-                        pos = {$M->pos},
-                        once = {$M->once},
-                        in_content = {$M->in_content}
+                        pos = {$M->getPos()},
+                        once = {$M->showOnce()},
+                        in_content = {$M->showInContent()}
                     ON DUPLICATE KEY UPDATE
-                        pos = {$M->pos},
-                        once = {$M->once},
-                        in_content = {$M->in_content}";
+                        pos = {$M->getPos()},
+                        once = {$M->showOnce()},
+                        in_content = {$M->showInContent()}";
         } else {
             $sql = "DELETE FROM {$_TABLES['banner_mapping']}
                     WHERE tpl = '$tpl' AND cid = '$cid'";
@@ -279,18 +303,25 @@ class Mapping
         $Maps = self::loadAll();
         $cats = array();
         foreach ($Maps as $Map) {
-            if ($Map->tpl != $tpl) continue;
-            if ($counter == $Map->pos) {
+            if ($Map->getTpl() != $tpl) {
+                continue;
+            }
+            if ($counter == $Map->getPos()) {
                 // Whatever $count is, show the enabled category if it matches
                 // Handles fixed placement, e.g. position 2, non-repeating
-                $cats[] = $Map->cid;
-            } elseif ($counter == 0 && $Map->in_content == 1) {
+                $cats[] = $Map->getCid();
+            } elseif ($counter == 0 && $Map->showInContent()) {
                 // Check if this is a content page vs. an index
                 // $counter == 0 implies show only once
-                $cats[] = $Map->cid;
-            } elseif ($counter > 0 && !$Map->once && $Map->pos > 0 && ($counter % $Map->pos) == 0) {
+                $cats[] = $Map->getCid();
+            } elseif (
+                $counter > 0 &&
+                !$Map->showOnce() &&
+                $Map->getPos()> 0 &&
+                ($counter % $Map->getPos()) == 0
+            ) {
                 // If showing every X items, see if this is a matching item
-                $cats[] = $Map->cid;
+                $cats[] = $Map->getCid();
             }
         }
         return $cats;

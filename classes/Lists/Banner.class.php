@@ -103,39 +103,64 @@ class Banner
         $form_arr = array();
 
         $header_arr = array(
-            array(  'text' => $LANG_BANNER['edit'],
-                    'field' => 'edit',
-                    'sort' => false,
-                    'align' => 'center'),
-            array(  'text' => $LANG_BANNER['enabled'],
-                    'field' => 'enabled',
-                    'align' => 'center',
-                    'sort' => false),
-            array(  'text' => $LANG_BANNER['banner_id'],
-                    'field' => 'bid',
-                    'sort' => true),
-            array(  'text' => $LANG_BANNER['banner_title'],
-                    'field' => 'title',
-                    'sort' => true),
-            array(  'text' => $LANG_BANNER['banner_cat'],
-                    'field' => 'category',
-                    'sort' => true),
-            array(  'text' => $LANG_BANNER['pubstart'],
-                    'field' => 'publishstart',
-                    'sort' => true),
-            array(  'text' => $LANG_BANNER['pubend'],
-                    'field' => 'publishend',
-                    'sort' => true),
-            array(  'text' => $LANG_BANNER['hits'],
-                    'field' => 'hits',
-                    'sort' => true),
-            array(  'text' => $LANG_BANNER['impressions'],
-                    'field' => 'impressions',
-                    'sort' => true),
-            array(  'text' => $LANG_ADMIN['delete'],
-                    'field' => 'delete',
-                    'sort' => false,
-                    'align' => 'center'),
+            array(
+                'text' => $LANG_BANNER['edit'],
+                'field' => 'edit',
+                'sort' => false,
+                'align' => 'center',
+            ),
+            array(
+                'text' => $LANG_BANNER['enabled'],
+                'field' => 'enabled',
+                'align' => 'center',
+                'sort' => false,
+            ),
+            array(
+                'text' => $LANG_BANNER['banner_id'],
+                'field' => 'bid',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['banner_title'],
+                'field' => 'title',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['banner_cat'],
+                'field' => 'category',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['weight'],
+                'field' => 'weight',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['pubstart'],
+                'field' => 'publishstart',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['pubend'],
+                'field' => 'publishend',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['hits'],
+                'field' => 'hits',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_BANNER['impressions'],
+                'field' => 'impressions',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_ADMIN['delete'],
+                'field' => 'delete',
+                'sort' => false,
+                'align' => 'center',
+            ),
         );
 
         if ($this->isAdmin) {
@@ -166,13 +191,19 @@ class Banner
             $is_admin = 0;
         }
 
-        $options = array('chkdelete' => 'true', 'chkfield' => 'bid');
+        $options = array(
+            'chkdelete' => 'true',
+            'chkfield' => 'bid',
+        );
 
-        $defsort_arr = array('field' => 'category', 'direction' => 'asc');
+        $defsort_arr = array(
+            'field' => 'weight',
+            'direction' => 'desc',
+        );
 
         $query_arr = array('table' => 'banner',
             'sql' => "SELECT
-                    b.bid AS bid, b.cid as cid, b.title AS title,
+                    b.bid AS bid, b.cid as cid, b.title AS title, b.weight,
                     c.category AS category,
                     b.enabled AS enabled,
                     b.hits AS hits, b.impressions as impressions,
@@ -255,7 +286,7 @@ function getField_banner($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'dovalidate':
-        $B = new Banner($A['bid']);
+        $B = new \Banner\Banner($A['bid']);
         $retval = $B->validateURL();
         break;
 

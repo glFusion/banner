@@ -32,23 +32,42 @@
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_start">{$LANG_BANNER['pubstart']}:
+    <label class="uk-form-label">{$LANG_BANNER['pubstart']}:
       <span id="start" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="start" id="f_start" type="text" size="32" value="{dt_start}" />
-      <i id="f_start_trigger" title="{$LANG_BANNER['select_date']}" class="uk-icon uk-icon-calendar"></i>
+      <span id="start_date" dir="ltr" style="display:{startdt_sel_show};">
+        <input type="text" name="end_date" value="{start_date}"
+            class="uk-form-width-small"
+            data-uk-datepicker="{format:YYYY-MM-DD}"
+            title="{$LANG_PP['datepicker']}" data-uk-tooltip
+            maxlength="16" />&nbsp;
+        <input type="text" name="start_time" value="{start_time}"
+            class="uk-form-width-small"
+            data-uk-timepicker="(format:24h}"
+            title="{$LANG_PP['datepicker']}" data-uk-tooltip
+            maxlength="16" />
+        </span>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="f_finish">{$LANG_BANNER['pubend']}:
+    <label class="uk-form-label">{$LANG_BANNER['pubend']}:
       <span id="finish" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="finish" id="f_finish" type="text" size="32" maxlength="32" 
-        value="{dt_finish}" />
-      <i id="f_finish_trigger" title="{$LANG_BANNER['select_date']}" class="uk-icon uk-icon-calendar"></i>
+      <span id="end_date" dir="ltr" style="display:{enddt_sel_show};">
+        <input type="text" name="end_date" value="{end_date}" 
+            class="uk-form-width-small"
+            data-uk-datepicker="{format:YYYY-MM-DD}"
+            title="{$LANG_PP['datepicker']}" data-uk-tooltip
+            maxlength="16" />&nbsp;
+        <input type="text" name="end_time" value="{end_time}" 
+            class="uk-form-width-small"
+            data-uk-timepicker="(format:24h}"
+            title="{$LANG_PP['datepicker']}" data-uk-tooltip
+            maxlength="16" />
+        </span>
     </div>
   </div>
 
@@ -174,22 +193,5 @@
 <!-- END AdRow -->
 </table>
 </fieldset>
-
-<script type="text/javascript">
-    Calendar.setup({
-        inputField     :    "f_start",
-        ifFormat       :    "%Y-%m-%d %H:%M",
-        showsTime      :    true,
-        timeFormat     :    "24",
-        button          :   "f_start_trigger"
-    });
-    Calendar.setup({
-        inputField     :    "f_finish",
-        ifFormat       :    "%Y-%m-%d %H:%M",
-        showsTime      :    true,
-        timeFormat     :    "24",
-        button          :   "f_finish_trigger"
-    });
-</script>
 {tooltipster}
 {# end {templatelocation} #}

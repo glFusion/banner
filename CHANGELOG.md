@@ -1,10 +1,11 @@
 # Changelog - Banner plugin for glFusion
 
-## Version 0.3.1
+## Version 1.0.0
 Release TBD
 - Remove support for non-UIkit themes
 - `E_ALL` fixes
 - Implement glFusion caching
+- Implement private class properties and accessor methods
 
 ## Version 0.3.0
 Release 2017-10-06

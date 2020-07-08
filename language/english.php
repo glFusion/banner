@@ -43,11 +43,11 @@ $LANG_BANNER = array(
 'ad_is_script'  => 'Script ad not displayed',
 'ad_type'       => 'Type of Ad',
 'ad_types'      => array(
-                    BANR_TYPE_LOCAL     => 'Uploaded Image',
-                    BANR_TYPE_REMOTE    => 'Remotely-Hosted Image',
-                    BANR_TYPE_SCRIPT    => 'HTML or Javascript',
-                    BANR_TYPE_AUTOTAG   => 'Autotag',
-                    ),
+    'Uploaded Image',
+    'Remotely-Hosted Image',
+    'HTML or Javascript',
+    'Autotag',
+),
 'ok_to_delete'  => 'Are you sure you want to delete this item?',
 'banner_content' => 'Banner Content',
 'hits'          => 'Hits',
@@ -156,6 +156,8 @@ $LANG_BANNER = array(
 'warn_update_hits' => 'Updating the counter may hurt campaign reporting',
 'zero_eq_unlimited' => 'Zero = Unlimited',
 'cannot_delete' => 'Cannot delete required or used categories or campaigns',
+'alert' => 'Alert',
+'warning' => 'Warning',
 );
 
 ###############################################################################

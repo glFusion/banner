@@ -3,14 +3,15 @@
  * Class to handle banner categories.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.2.1
+ * @version     v1.00
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace Banner;
+
 
 /**
  * Class to handle category data.
@@ -18,13 +19,54 @@ namespace Banner;
  */
 class Category
 {
-    /** Properties of the category.
-     * @var array() */
-    var $properties;
-
     /** Indicate whether this is a new submission or existing item.
      * @var boolean */
-    var $isNew;
+    private $isNew = 1;
+
+    /** Category ID.
+     * @var string */
+    private $cid = '';
+
+    /** Old Category ID, used for tracking changes to category ID.
+     * @var string */
+    private $oldcid = '';
+
+    /** Topic ID for category placement.
+     * @var string */
+    private $tid = '';
+
+    /** Type of category.
+     * @var string */
+    private $type = '';
+
+    /** Name of category.
+     * @var string */
+    private $category = '';
+
+    /** Description of category.
+     * @var string */
+    private $dscp = '';
+
+    /** Indicate that category can be used.
+     * @var boolean */
+    private $enabled = 1;
+
+    /** Enable this category as a centerblock.
+     * @var boolean */
+    private $centerblock = 0;
+
+    /** Group ID with permission to view this category.
+     * @var integer */
+    private $grp_view = 2;
+
+    /** Max image width, in pixels.
+     * @var integer */
+    private $max_img_width = 468;
+
+    /** Max image height, in pixels.
+     * @var integer */
+    private $max_img_height = 80;
+
 
     /**
      * Constructor.
@@ -37,7 +79,6 @@ class Category
         global $_USER, $_TABLES;
 
         $this->isNew = true;
-        $this->properties = array();
 
         if ($id != '') {
             $this->cid = $id;
@@ -49,12 +90,56 @@ class Category
             $this->tid = '';
             $this->type = '';
             $this->category = '';
-            $this->description = '';
+            $this->dscp = '';
             $this->enabled = 1;
             $this->grp_view = 2;
             $this->max_img_height = 0;
             $this->max_img_width = 0;
         }
+    }
+
+
+    /**
+     * Get the category ID.
+     *
+     * @return  string      Category ID
+     */
+    public function getCid()
+    {
+        return $this->cid;
+    }
+
+
+    /**
+     * Check if this category is enabled.
+     *
+     * @return  integer     1 if enabled, 0 if not
+     */
+    public function isEnabled()
+    {
+        return $this->enabled ? 1 : 0;
+    }
+
+
+    /**
+     * Get the max image width, in pixels.
+     *
+     * @return  integer     Max image width
+     */
+    public function getMaxWidth()
+    {
+        return (int)$this->max_img_width;
+    }
+
+
+    /**
+     * Get the max image height, in pixels.
+     *
+     * @return  integer     Max image height
+     */
+    public function getMaxHeight()
+    {
+        return (int)$this->max_img_height;
     }
 
 
@@ -80,56 +165,6 @@ class Category
 
 
     /**
-     * Set a property value.
-     *
-     * @param   string  $key    Name of property
-     * @param   mixed   $value  Value to set
-     */
-    public function __set($key, $value)
-    {
-        switch ($key) {
-        case 'cid':
-        case 'oldcid':
-        case 'tid':
-            $this->properties[$key] = COM_sanitizeId($value, false);
-            break;
-
-        case 'type':
-        case 'category':
-        case 'description':
-            $this->properties[$key] = $value;
-            break;
-
-        case 'enabled':
-        case 'centerblock':
-            $this->properties[$key] = $value ? 1 : 0;
-            break;
-
-        case 'grp_view':
-        case 'max_img_width':
-        case 'max_img_height':
-            $this->properties[$key] = (int)$value;
-            break;
-        }
-    }
-
-
-    /**
-     * Retrieve the value of a property.
-     *
-     * @param   string  $key    Name of property
-     * @return  mixed           Value of property
-     */
-    public function __get($key)
-    {
-        if (array_key_exists($key, $this->properties))
-            return $this->properties[$key];
-        else
-            return NULL;
-    }
-
-
-    /**
      * Sets this object's values from the supplied array.
      * The array may be a database record or a $_POST array.
      * All values will be set, so missing values will result in empty
@@ -146,9 +181,9 @@ class Category
         $this->tid = $A['tid'];
         $this->type = trim($A['type']);
         $this->category = trim($A['category']);
-        $this->description = trim($A['description']);
-        $this->enabled = isset($A['enabled']) ? $A['enabled'] : 0;
-        $this->centerblock = isset($A['centerblock']) ? $A['centerblock'] : 0;
+        $this->dscp = trim($A['description']);
+        $this->enabled = isset($A['enabled']) ? (int)$A['enabled'] : 0;
+        $this->centerblock = isset($A['centerblock']) ? (int)$A['centerblock'] : 0;
         $this->grp_view = (int)$A['grp_view'];
         $this->max_img_height = (int)$A['max_img_height'];
         $this->max_img_width = (int)$A['max_img_width'];
@@ -190,7 +225,19 @@ class Category
      */
     public static function toggleCenterblock($oldval, $id)
     {
-        return self::_toggle('centerblock', $oldval, $id);
+        if ($oldval == 1) {
+            // Was set, now turning it off. Nothing to do except toggle.
+            return self::_toggle('centerblock', $oldval, $id);
+        } else {
+            // Not set as centerblock, turn it on and disable all others.
+            $newval = $oldval ? 0 : 1;
+            if (self::_toggle('centerblock', $oldval, $id) == $newval) {
+                self::unsetCenterblock($id);
+                return $newval;
+            } else {
+                return $oldval;
+            }
+        }
     }
 
 
@@ -202,7 +249,7 @@ class Category
      * @param   string  $id         Category ID
      * @return  integer     New value, or old value upon error
      */
-    public function toggleEnabled($oldval, $id)
+    public static function toggleEnabled($oldval, $id)
     {
         return self::_toggle('enabled', $oldval, $id);
     }
@@ -215,8 +262,9 @@ class Category
     {
         global $_TABLES;
 
-        if (self::isRequired($this->type))
+        if (self::isRequired($this->type)) {
             return;
+        }
 
         if (!self::isUsed($this->cid)) {
             DB_delete($_TABLES['bannercategories'],
@@ -284,9 +332,9 @@ class Category
             'old_cid'           => $this->cid,
             'type'              => $this->type,
             'category'          => $this->category,
-            'description'       => $this->description,
-            'chk_enabled'       => $this->enabled == 0 ? '' : 'checked="checked"',
-            'chk_centerblock'   => $this->centerblock == 0 ? '' : 'checked="checked"',
+            'description'       => $this->dscp,
+            'chk_enabled'       => $this->isEnabled() ? 'checked="checked"' : '',
+            'chk_cblock'        => $this->centerblock ? 'checked="checked"' : '',
             'max_img_width'     => $this->max_img_width,
             'max_img_height'    => $this->max_img_height,
             'delete_option'     => $delete_option,
@@ -331,48 +379,51 @@ class Category
     {
         global $_TABLES, $LANG_BANNER;
 
-        if (is_array($A))
+        if (is_array($A)) {
             $this->setVars($A);
+        }
 
         if ($this->isNew) {
-
             // Make sure there's a valid category ID
             if ($this->cid == '') {
                 $this->cid = COM_makeSid();
             }
 
             // Make sure there's not a duplicate ID
-            if (DB_count($_TABLES['bannercategories'], 'cid', $this->cid) > 0) {
+            if (DB_count(
+                $_TABLES['bannercategories'],
+                'cid',
+                $this->cid
+            ) > 0) {
                 return $LANG_BANNER['duplicate_cid'];
             }
-
             $sql1 = "INSERT INTO {$_TABLES['bannercategories']} SET ";
             $sql3 = '';
-
         } else {
-
             if ($this->cid == '') {
                 $this->cid = $this->oldcid;
             }
-
             $sql1 = "UPDATE {$_TABLES['bannercategories']} SET ";
             $sql3 = " WHERE cid='" . DB_escapeString($this->oldcid) . "'";
-
         }
         $sql2 = "cid='" . DB_escapeString($this->cid) . "',
                 type='".DB_escapeString($this->type)."',
                 category='".DB_escapeString($this->category)."',
-                description='".DB_escapeString($this->description)."',
+                description='".DB_escapeString($this->dscp)."',
                 tid='".DB_escapeString($this->tid)."',
-                enabled={$this->enabled},
-                centerblock={$this->centerblock},
-                grp_view = {$this->grp_view},
-                max_img_height={$this->max_img_height},
-                max_img_width={$this->max_img_width}";
+                enabled = '{$this->isEnabled()}',
+                centerblock = '{$this->centerblock}',
+                grp_view = '{$this->grp_view}',
+                max_img_height = '{$this->max_img_height}',
+                max_img_width = '{$this->max_img_width}'";
         //echo $sql1 . $sql2 . $sql3;die;
         DB_query($sql1 . $sql2 . $sql3);
         if (DB_error()) {
             return $LANG_BANNER['err_saving_item'];
+        }
+        if ($this->centerblock) {
+            // Disable other centerblock categories if this one is set
+            self::unsetCenterblock($this->cid);
         }
         if ($this->oldcid != $this->cid) {
             // Update banners that were associated with the old ID
@@ -383,6 +434,17 @@ class Category
         }
         Cache::clear('cats');
         return '';
+    }
+
+
+    private static function unsetCenterblock($except)
+    {
+        global $_TABLES;
+
+        $sql = "UPDATE {$_TABLES['bannercategories']}
+            SET centerblock = 0
+            WHERE cid <> '" . DB_escapeString($except) . "'";
+        DB_query($sql);
     }
 
 
@@ -465,8 +527,6 @@ class Category
      */
     public static function isRequired($type)
     {
-        global $_TABLES;
-
         $req_blocks = array('header', 'footer', 'block');
 
         if (!empty($type) && in_array($type, $req_blocks)) {
@@ -483,7 +543,7 @@ class Category
      * @see     lib-admin.php
      * @return  string  HTML for administration page
      */
-    public static function AdminList()
+    public static function adminList()
     {
         global $LANG_ADMIN, $LANG_BANNER;
 
@@ -501,12 +561,12 @@ class Category
                 'sort' => false,
                 'align' => 'center',
             ),
-            array(
+            /*array(
                 'text' => $LANG_BANNER['centerblock'],
                 'field' => 'centerblock',
                 'sort' => true,
                 'align' => 'center',
-            ),
+            ),*/
             array(
                 'text' => 'ID',
                 'field' => 'cid',
@@ -539,8 +599,18 @@ class Category
             'form_url' => BANR_ADMIN_URL . '/index.php?categories=x',
         );
         $data_arr = self::_listCategories();
-        $retval .= ADMIN_simpleList(__NAMESPACE__ . '\getField_Category', $header_arr,
-                                $text_arr, $data_arr);
+        $retval .= COM_createLink($LANG_BANNER['new_cat'],
+            BANR_ADMIN_URL . '/index.php?editcategory=0&cid=0',
+            array(
+                'class' => 'uk-button uk-button-success',
+                'style' => 'float:left',
+            )
+        );
+        $retval .= ADMIN_simpleList(
+            array(__CLASS__, 'getAdminField'),
+            $header_arr,
+            $text_arr, $data_arr
+        );
         return $retval;
     }
 
@@ -594,107 +664,107 @@ class Category
         return $cats;
     }
 
-}   // class Category
 
+    /**
+     * Return the display value for a single field in the admin list.
+     *
+     * @param   string  $fieldname      Name of field in the array
+     * @param   mixed   $fieldvalue     Value of the field
+     * @param   array   $A              Complete array of fields
+     * @param   array   $icon_arr       Array of system icons
+     * @return  string                  HTML to display the field
+     */
+    public static function getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
+    {
+        global $_CONF, $_TABLES, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
 
-/**
- * Return the display value for a single field in the admin list.
- *
- * @param   string  $fieldname      Name of field in the array
- * @param   mixed   $fieldvalue     Value of the field
- * @param   array   $A              Complete array of fields
- * @param   array   $icon_arr       Array of system icons
- * @return  string                  HTML to display the field
- */
-function getField_Category($fieldname, $fieldvalue, $A, $icon_arr)
-{
-    global $_CONF, $_TABLES, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
+        $retval = '';
+        $admin_url = BANR_ADMIN_URL . '/index.php';
 
-    $retval = '';
-    $admin_url = BANR_ADMIN_URL . '/index.php';
+        $access = 3;
+        switch ($fieldname) {
+        case 'edit':
+            $retval = COM_createLink(
+                $_CONF_BANR['icons']['edit'],
+                "$admin_url?editcategory&amp;cid=" . urlencode($A['cid'])
+            );
+            break;
 
-    $access = 3;
-    switch ($fieldname) {
-    case 'edit':
-        $retval = COM_createLink(
-            $_CONF_BANR['icons']['edit'],
-            "$admin_url?edit=x&item=category&amp;cid=" . urlencode($A['cid'])
-        );
-        break;
-
-    case 'enabled':
-        if ($A['enabled'] == '1') {
-            $switch = 'checked="checked"';
-        } else {
-            $switch = '';
-        }
-        $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"cat_ena_check\"
+        case 'enabled':
+            if ($A['enabled'] == '1') {
+                $switch = 'checked="checked"';
+            } else {
+                $switch = '';
+            }
+            $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"cat_ena_check\"
                 id=\"togena{$A['cid']}\"
                 onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"category\");' />\n";
-        break;
+            break;
 
-    case 'delete':
-        if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
-            $retval .= COM_createLink(
-                $_CONF_BANR['icons']['delete'],
-                "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
-                array(
-                    'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
-                )
-            );
-        } else {
-            $retval .= '<i class="uk-icon uk-icon-trash-o uk-text-muted tooltip"
-                title="' . $LANG_BANNER['cannot_delete'] . '"></i>';
-        }
-        break;
+        case 'delete':
+            if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
+                $retval .= COM_createLink(
+                    $_CONF_BANR['icons']['delete'],
+                    "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
+                    array(
+                        'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
+                    )
+                );
+            } else {
+                $retval .= '<i class="uk-icon uk-icon-trash-o uk-text-muted tooltip"
+                    title="' . $LANG_BANNER['cannot_delete'] . '"></i>';
+            }
+            break;
 
-    case 'centerblock':
-        if ($fieldvalue == '1') {
-            $switch = 'checked="checked"';
-            //$newval = 0;
-        } else {
-            $switch = '';
-            //$newval = 1;
-        }
-        $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"catcb_ena_check\"
+        case 'centerblock':
+            if ($fieldvalue == '1') {
+                $switch = 'checked="checked"';
+                //$newval = 0;
+            } else {
+                $switch = '';
+                //$newval = 1;
+            }
+            $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"catcb_ena_check\"
                 id=\"togcatcb{$A['cid']}\"
                 onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"cat_cb\");' />\n";
-        break;
+            break;
 
-    case 'access':
-        if ($access == 3) {
-           $retval = $LANG_ACCESS['edit'];
-        } else {
-            $retval = $LANG_ACCESS['readonly'];
-        }
-        break;
+        case 'access':
+            if ($access == 3) {
+               $retval = $LANG_ACCESS['edit'];
+            } else {
+                $retval = $LANG_ACCESS['readonly'];
+            }
+            break;
 
-    case 'category':
-        $indent = isset($A['indent']) ? (int)$A['indent'] : 1;
-        $indent = ($indent - 1) * 20;
-        $cat = COM_createLink($A['category'],
+        case 'category':
+            $indent = isset($A['indent']) ? (int)$A['indent'] : 1;
+            $indent = ($indent - 1) * 20;
+            $cat = COM_createLink($A['category'],
                         "$admin_url?banners=x&category=" . urlencode($A['cid']));
-        $retval = "<span style=\"padding-left:{$indent}px;\">$cat</span>";
-        break;
+            $retval = "<span style=\"padding-left:{$indent}px;\">$cat</span>";
+            break;
 
-    case 'tid':
-        if ($A['tid'] == 'homeonly') {
-            $retval = $LANG_BANNER['homeonly'];
-        } elseif ($A['tid'] == 'all' || $A['tid'] == NULL) {
-            $retval = $LANG_BANNER['all'];
-        } elseif (array_key_exists($A['tid'], \Topic::All())) {
-            $retval = $A['tid'];
-        } else {
-            // Bad topic selected.
-            $retval = $LANG_BANNER['unknown'];
+        case 'tid':
+            if ($A['tid'] == 'homeonly') {
+                $retval = $LANG_BANNER['homeonly'];
+            } elseif ($A['tid'] == 'all' || $A['tid'] == NULL) {
+                $retval = $LANG_BANNER['all'];
+            } elseif (array_key_exists($A['tid'], \Topic::All())) {
+                $retval = $A['tid'];
+            } else {
+                // Bad topic selected.
+                $retval = $LANG_BANNER['unknown'];
+            }
+            break;
+
+        default:
+            $retval = $fieldvalue;
+            break;
         }
-        break;
-
-    default:
-        $retval = $fieldvalue;
-        break;
+        return $retval;
     }
-    return $retval;
+
 }
 
 ?>

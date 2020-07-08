@@ -23,6 +23,8 @@ function updateCat(cat_id)
 
 function toggleDateField(val, id)
 {
+console.log(val);
+console.log(id);
     if (val) {
         // A date limit is in effect
         document.getElementById(id+"date").style.display = '';
@@ -142,70 +144,52 @@ function BANR_changeType(value)
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="publishstart">{$LANG_BANNER['pubstart']}
-      <input type="checkbox" name="start_dt_limit" id="start_dt_limit" value="1"
-        {start_dt_limit_chk} onclick="toggleDateField(this.checked, 'start_');"/>
+    <label class="uk-form-label">{$LANG_BANNER['pubstart']}
       <span id="pubstart" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
+      <input type="checkbox" name="start_dt_limit" id="start_dt_limit" value="1"
+        {start_dt_limit_chk} onclick="toggleDateField(this.checked, 'start_');"/>
       <span id="start_date_nolimit" style="display:{startdt_txt_show};">
         {$LANG_BANNER['no_dt_limit']}
       </span>
       <span id="start_date" dir="ltr" style="display:{startdt_sel_show};">
-        <select id="start_month" name="start_month">
-          {start_month_options}
-        </select>
-        /
-        <select id="start_day" name="start_day">
-          {start_day_options}
-        </select>
-        /
-        <select id="start_year" name="start_year">
-          {start_year_options}
-        </select>
-        <select id="start_hour" name="start_hour">
-          {start_hour_options}
-        </select>
-        <b>:</b>
-        <select id="start_minute" name="start_minute">
-          {start_minute_options}
-        </select>
-        {start_ampm_selection}
-        <i id="start" title="{$LANG_BANNER['select_date']}" class="uk-icon uk-icon-calendar popupcal"></i>
+        <input type="text" name="start_date" id="dt_date"
+            class="uk-form-width-small"
+            data-uk-datepicker="{format:YYYY-MM-DD}"
+            title="{$LANG_PP['datepicker']}" data-uk-tooltip
+            value="{start_date}" maxlength="16" />&nbsp;
+        <input type="text" name="start_time" id="dt_time"
+            class="uk-form-width-small"
+            data-uk-timepicker="(format:24h}"
+            title="{$LANG_PP['datepicker']}" data-uk-tooltip
+            value="{start_time}" maxlength="16" />
+      </span>
     </div>
   </div>
 
   <div class="uk-form-row">
-    <label class="uk-form-label" for="end_date">{$LANG_BANNER['pubend']}
-      <input type="checkbox" name="end_dt_limit" id="end_dt_limit" value="1"
-        {end_dt_limit_chk} onclick="toggleDateField(this.checked, 'end_');"/>
+    <label class="uk-form-label">{$LANG_BANNER['pubend']}
       <span id="pubend" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
+      <input type="checkbox" name="end_dt_limit" id="end_dt_limit" value="1"
+        {end_dt_limit_chk} onclick="toggleDateField(this.checked, 'end_');"/>
       <span id="end_date_nolimit" style="display:{enddt_txt_show};">
         {$LANG_BANNER['no_dt_limit']}
       </span>
       <span id="end_date" dir="ltr" style="display:{enddt_sel_show};">
-        <select id="end_month" name="end_month">
-          {end_month_options}
-        </select>
-        /
-        <select id="end_day" name="end_day">
-          {end_day_options}
-        </select>
-        /
-        <select id="end_year" name="end_year">
-          {end_year_options}
-        </select>
-        <select name="end_hour">
-          {end_hour_options}
-        </select>
-        <b>:</b>
-        <select name="end_minute">
-          {end_minute_options}
-        </select>
-        {end_ampm_selection}
-        <i id="end" title="{$LANG_BANNER['select_date']}" class="uk-icon uk-icon-calendar popupcal"></i>
+        <input type="text" name="end_date" id="dt_date"
+            class="uk-form-width-small"
+            data-uk-datepicker="{format:YYYY-MM-DD}"
+            title="{$LANG_PP['datepicker']}" data-uk-tooltip
+            value="{end_date}" maxlength="16" />&nbsp;
+        <input type="text" name="end_time" id="dt_time"
+            class="uk-form-width-small"
+            data-uk-timepicker="(format:24h}"
+            title="{$LANG_PP['datepicker']}" data-uk-tooltip
+            value="{end_time}" maxlength="16" />
+        </span>
     </div>
   </div>
 

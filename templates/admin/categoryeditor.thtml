@@ -92,7 +92,7 @@
       <span id="centerblock" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input id="f_centerblock" name="centerblock" type="checkbox" value="1" {chk_centerblock} />
+      <input id="f_centerblock" name="centerblock" type="checkbox" value="1" {chk_cblock} />
     </div>
   </div>
 
