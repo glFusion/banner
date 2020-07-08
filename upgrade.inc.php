@@ -99,9 +99,12 @@ function banner_do_upgrade($dvlp=false)
 
     // Update with any configuration changes
     USES_lib_install();
-    global $paypalConfigData;
+    global $bannerConfigData;
     require_once __DIR__ . '/install_defaults.php';
-    _update_config('paypal', $paypalConfigData);
+    _update_config('banner', $bannerConfigData);
+
+    // Remove deprecated files from old versions
+    BANR_remove_old_files();
 
     // Final extra check to catch code-only patch versions
     if (!COM_checkVersion($current_ver, $installed_ver)) {
@@ -166,6 +169,43 @@ function banner_do_upgrade_sql($version, $dvlp=false)
         }
     }
     return true;
+}
+
+
+/**
+ * Remove deprecated files.
+ * Errors in unlink() are ignored.
+ */
+function BANR_remove_old_files()
+{
+    global $_CONF;
+
+    $paths = array(
+        // private/plugins/banner
+        __DIR__ => array(
+            'templates/bannerform.uikit.thtml',
+        ),
+        // public_html/banner
+        $_CONF['path_html'] . 'banner' => array(
+            'docs/english/bannerform.legacy.html',
+	    'docs/english/campaignform.legacy.html',
+	    'docs/english/categoryform.legacy.html',
+	    'docs/english/config.legacy.html',
+
+        ),
+        // admin/plugins/banner
+        $_CONF['path_html'] . 'admin/plugins/banner' => array(
+        ),
+    );
+
+    foreach ($paths as $path=>$files) {
+        foreach ($files as $file) {
+            if (is_file("$path/$file")) {
+                BANNER_auditLog("removing $path/$file");
+                @unlink("$path/$file");
+            }
+        }
+    }
 }
 
 ?>
