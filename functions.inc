@@ -125,12 +125,12 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
         }
     }
 
-    // Check if there are no featured articles in this topic 
+    // Check if there are no featured articles in this topic
     // and if so then place it at the top of the page
     if ($topic != "") {
         $wherenames = array('tid', 'featured', 'draft_flag');
         $wherevalues = array($topic, 1, 0);
-        $options['tid'] = $topic;    
+        $options['tid'] = $topic;
     } else {
         $wherenames = array('featured', 'draft_flag');
         $wherevalues = array(1, 0);
@@ -921,23 +921,30 @@ function plugin_autouninstall_banner ()
  *
  * @see     BANNER_block_banner()
  * @param   array   $A  Array of parameters for the block (not used)
- * @param   string  $param  Block information (not used)
+ * @param   string  $param  Category name
  * @return  string      HTML for banner display.
  */
 function phpblock_banner_topic($A=array(), $param='')
 {
     global $_CONF_BANR;
 
-    $extra = array();
-
-    if ($_CONF_BANR['block_limit'] > 0) {
-        $extra['limit'] = (int)$_CONF_BANR['block_limit'];
-    }
-
-    if (!empty($param)) {
-        $extra['type'] = $param;
-    } else {
-        $extra['type'] = 'block';
+    $opts = array(
+        'type',
+        'limit',
+        'topic',
+    );
+    $extra = array(
+        'type' => 'block',
+        'limit' => $_CONF_BANR['block_limit'],
+        'topic' => '',
+    );
+    $param = explode(' ', $param);
+    foreach ($opts as $key=>$name) {
+        if (isset($param[$key]) && !empty($param[$key])) {
+            $extra[$name] = $param[$key];
+        } else {
+            break;
+        }
     }
     return BANNER_block_banner($extra);
 }
@@ -1211,8 +1218,11 @@ function BANNER_block_banner($extra='')
         $B = new Banner\Banner();
         foreach ($bids as $bid) {
             $B->Read($bid);
-            $retval .= '<div class="blockbanner">' . $B->BuildBanner() . '</div>';
-            $B->updateImpressions();
+            $retval .= '<div class="blockbanner">' .
+                Banner\Banner::getInstance($bid)
+                    ->updateImpressions()
+                    ->BuildBanner() .
+                '</div>';
         }
         $retval .= "</div>\n";
     }
