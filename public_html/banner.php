@@ -25,10 +25,10 @@ $options = array(
 );
 
 $B = new Banner\Banner();
-$bids = Banner\Banner::GetBanner($options);
+$bids = Banner\Banner::getBannerIDs($options);
 if (is_array($bids) && !empty($bids)) {
     $B->Read($bids[0]);
-    $banner = $B->BuildBanner();
+    $banner = $B->buildBanner();
     $B->updateImpressions();
     echo $banner;
 }

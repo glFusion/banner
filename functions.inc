@@ -147,7 +147,7 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
         return '';
     }
 
-    $bids = Banner\Banner::GetBanner($options);
+    $bids = Banner\Banner::getBannerIDs($options);
     if (!empty($bids)) {
         $B = new Banner\Banner($bids[0]);
         $B->updateImpressions();
@@ -213,7 +213,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             if (!empty($type)) {
                 $options['type'] = $type;
             }
-            $bids = Banner\Banner::GetBanner($options);
+            $bids = Banner\Banner::getBannerIDs($options);
             if (!empty($bids)) {
                 $B = new Banner\Banner($bids[0]);
                 $banner = $B->BuildBanner($title);
@@ -814,7 +814,7 @@ function plugin_templateSetVars_banner($templatename, &$template)
     $B = new Banner\Banner();
     foreach ($templatenames as $type) {
         $options['type'] = $type;
-        $bids = Banner\Banner::GetBanner($options);
+        $bids = Banner\Banner::getBannerIDs($options);
         if (is_array($bids) && !empty($bids)) {
             $B->Read($bids[0]);
             $banner = $B->BuildBanner();
@@ -842,14 +842,13 @@ function plugin_displayadblock_banner($plugin, $counter)
     }
 
     $Cats = Banner\Mapping::showCats($plugin, $counter);
-    COM_errorLog("cats for $counter: " . print_r($Cats,true));
     if (empty($Cats)) return '';
 
     $options = array(
         'limit' => '1',
         'cid' => $Cats,
     );
-    $bids = Banner\Banner::getBanner($options);
+    $bids = Banner\Banner::getBannerIDs($options);
     if (is_array($bids) && !empty($bids)) {
         $B = new Banner\Banner($bids[0]);
         $B->updateImpressions();
@@ -1205,7 +1204,7 @@ function BANNER_block_banner($extra='')
 
     // Get the banner IDs that fit the requirements.  Could be an array or a
     // single value, so convert into an array
-    $bids = Banner\Banner::GetBanner($params);
+    $bids = Banner\Banner::getBannerIDs($params);
 
     if (is_array($bids) && !empty($bids)) {
         $retval .= "<div class=\"aligncenter\">\n";

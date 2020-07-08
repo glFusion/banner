@@ -38,7 +38,7 @@ class Banner
 
     /** Topic ID.
      * @var string */
-    private $tid = '';
+    private $tid = 'all';
 
     /** Holder for the original ID, used when saving edits.
      * @var string */
@@ -160,26 +160,32 @@ class Banner
 
         if ($bid != '') {
             $this->Read($bid);
-            $this->isNew = false;
+            $this->isNew = 0;
         } else {
             // Set defaults for new record
-            $this->isNew        = true;
-            $this->enabled      = 1;
+            $this->isNew        = 1;
             $this->owner_id     = $_USER['uid'];
             $this->weight       = (int)$_CONF_BANR['def_weight'];
             $this->perm_owner   = (int)$_CONF_BANR['default_permissions'][0];
             $this->perm_group   = (int)$_CONF_BANR['default_permissions'][1];
             $this->perm_members = (int)$_CONF_BANR['default_permissions'][2];
             $this->perm_anon    = (int)$_CONF_BANR['default_permissions'][3];
-            $this->hits         = 0;
-            $this->max_hits     = 0;
-            $this->impressions  = 0;
-            $this->max_impressions = 0;
-            $this->tid          = 'all';
             $this->options = self::$default_opts;
             $this->setPubStart();
             $this->setPubEnd();
         }   
+    }
+
+
+    /**
+     * Get an instance of a banner by record ID or contents.
+     *
+     * @param   array|string    $bid    Banner ID or DB record
+     * @return  object      Banner object
+     */
+    public static function getInstance($bid)
+    {
+        return new self($bid);
     }
 
 
@@ -486,7 +492,7 @@ class Banner
             // Coming from the database
             $this->options = @unserialize($A['options']);
             if (!$this->options) {
-                $this->options = self;;$default_opts;
+                $this->options = self::$default_opts;
             }
             $this->weight = (int)$A['weight'];
             $this->setPubStart($A['publishstart'])
@@ -564,6 +570,8 @@ class Banner
 
     /**
      * Update the impression (display) count.
+     *
+     * @return  object  $this
      */
     public function updateImpressions()
     {
@@ -572,11 +580,14 @@ class Banner
         // Don't update the count for ads show to admins or owners, if
         // so configured.
         if (
+            $this->isNew()
+            ||
             ($_CONF_BANR['cntimpr_admins'] == 0 && plugin_isadmin_banner())
             ||
             ($_CONF_BANR['cntimpr_owner'] == 0 && $this->owner_id == $_USER['uid'])
+
         ) {
-            return;
+            return $this;
         }
 
         DB_query("UPDATE {$_TABLES['banner']}
@@ -584,6 +595,7 @@ class Banner
                 WHERE bid='{$this->bid}'");
 
         Campaign::updateImpressions($this->camp_id);
+        return $this;
     }
 
 
@@ -860,9 +872,9 @@ class Banner
      * Returns the banner id for a banner or group of banners.
      *
      * @param   array   $fields Fields to use in where clause
-     * @return  array           Array of Banner ids, empty for none available
+     * @return  array           Array of Banner ids, empty if none available
      */
-    public static function getBanner($fields=array())
+    public static function getBannerIds($fields=array())
     {
         global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
 
@@ -1025,6 +1037,11 @@ class Banner
         global $_CONF, $LANG_DIRECTION, $_CONF_BANR, $LANG_BANNER;
 
         $retval = '';
+
+        if ($this->isNew()) {
+            // in case an invalid banner ID was requested.
+            return $retval;
+        }
 
         $alt = $this->getOpt('alt');
         if (empty($title) && !empty($alt)) {
