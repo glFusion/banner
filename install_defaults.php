@@ -188,6 +188,17 @@ $bannerConfigData = array(
         'group' => 'banner',
     ),
     array(
+        'name' => 'adshow_admins',
+        'default_value' => 1,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => 3,
+        'sort' => 50,
+        'set' => true,
+        'group' => 'banner',
+    ),
+    array(
         'name' => 'cntclicks_owner',
         'default_value' => 0,
         'type' => 'select',
