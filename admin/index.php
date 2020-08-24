@@ -288,11 +288,11 @@ echo "here in newcampaign";die;
     break;
 
 case 'editcampaign':
-    $C = new Banner\Campaign($_REQUEST['camp_id']);
+    $C = new Banner\Campaign($actionval);
     if (!empty($_POST)) {
-        $C->SetVars($_POST);
+        $C->setVars($_POST);
     }
-    if ($C->getID() == '') {
+    if ($C->getID() == '' && isset($REQUEST['uid']) && !empty($_REQUEST['uid'])) {
         $C->setUID($_REQUEST['uid']);
     }
     $content .= $C->Edit();
