@@ -304,23 +304,24 @@ class Mapping
         $cats = array();
         foreach ($Maps as $Map) {
             if ($Map->getTpl() != $tpl) {
+                // This mapping doesn't include the current template, skip.
                 continue;
             }
             if ($counter == $Map->getPos()) {
-                // Whatever $count is, show the enabled category if it matches
-                // Handles fixed placement, e.g. position 2, non-repeating
+                // Whatever $count is, show the enabled category if it matches.
+                // Handles fixed placement, e.g. position 2, non-repeating.
                 $cats[] = $Map->getCid();
             } elseif ($counter == 0 && $Map->showInContent()) {
-                // Check if this is a content page vs. an index
-                // $counter == 0 implies show only once
+                // Check if this is a content page vs. an index.
+                // $counter == 0 implies show only once.
                 $cats[] = $Map->getCid();
             } elseif (
                 $counter > 0 &&
                 !$Map->showOnce() &&
-                $Map->getPos()> 0 &&
+                $Map->getPos() > 0 &&
                 ($counter % $Map->getPos()) == 0
             ) {
-                // If showing every X items, see if this is a matching item
+                // Showing every X times on the page.
                 $cats[] = $Map->getCid();
             }
         }

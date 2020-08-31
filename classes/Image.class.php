@@ -58,16 +58,16 @@ class Image extends \upload
         $this->bid = $bid;
         $this->pathImage = $_CONF_BANR['img_dir'];
         $this->setAllowedMimeTypes(array(
-                'image/pjpeg' => '.jpg,.jpeg',
-                'image/jpeg'  => '.jpg,.jpeg',
-                'image/png'   => '.png',
-                'image/x-png' => '.png',
-                'image/gif'   => '.gif',
-        ));
+            'image/pjpeg' => '.jpg,.jpeg',
+            'image/jpeg'  => '.jpg,.jpeg',
+            'image/png'   => '.png',
+            'image/x-png' => '.png',
+            'image/gif'   => '.gif',
+        ) );
         $this->setMaxFileSize($_CONF['max_image_size']);
         $this->setMaxDimensions(
-                $_CONF_BANR['img_max_width'],
-                $_CONF_BANR['img_max_height']
+            $_CONF_BANR['img_max_width'],
+            $_CONF_BANR['img_max_height']
         );
         $this->setAutomaticResize(false);
         $this->setFieldName($varname);

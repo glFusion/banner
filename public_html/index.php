@@ -7,13 +7,13 @@
  * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
  * @package     banner
  * @version     v1.0.0
- * @license     http://opensource.org/licenses/gpl-2.0.php 
+ * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 
 require_once '../lib-common.php';
-COM_404();      // disabled, no user-facing function
+COM_404();
 
 USES_lib_admin();
 
@@ -27,7 +27,9 @@ $content = '';
 $view_title = $LANG_BANNER['pi_name'];
 $action = 'campaigns';
 $expected = array(
-    'banners', 'campaigns', 'campaignDetail', 'report', 
+    'savesubmission',
+    'banners', 'editbanner',
+    'campaigns', 'campaignDetail', 'report',
     'edit', 'toggleEnabled', 'toggleEnabledCampaign',
     'deleteBanner', 'save',
     'action', 'view',
@@ -55,12 +57,16 @@ if (isset($_POST['delitem']) && is_array($_POST['delitem'])) {
 $message = array();
 
 switch ($action) {
+case 'savesubmission':
+    $B = new Banner\Banner;
+    $status = $B->setVars($_POST, false)->Save();
+    break;
+
 case 'deleteBanner':
-    $B = new Banner\Banner($_GET['bid']);
-    if ($B->isNew() || $B->getOwnerId() != $_USER['uid']) {
-        COM_404();
+    $B = new Banner\Banner($bid);
+    if (!$B->isNew() && $B->getOwnerId() == $_USER['uid']) {
+        $B->Delete();
     }
-    $B->Delete();
     echo COM_refresh(BANR_URL);
     exit;
     break;
@@ -68,9 +74,11 @@ case 'deleteBanner':
 case 'report':
     // Send a broken banner report to the admin
     if (!empty($bid)) {
-        $result = DB_query("SELECT url, title 
-                    FROM {$_TABLES['banner']} 
-                    WHERE bid = '$bid'");
+        $result = DB_query(
+            "SELECT url, title
+            FROM {$_TABLES['banner']}
+            WHERE bid = '$bid'"
+        );
         list($url, $title) = DB_fetchArray($result);
 
         $editurl = $_CONF['site_admin_url']
@@ -83,43 +91,28 @@ case 'report':
         $message = array($LANG_BANNER['thanks'], $LANG_BANNER['thanks_for_report']);
     }
     break;
-case 'toggleEnabled':
-    $B = new Banner\Banner($_REQUEST['bid']);
-    $B->toggleEnabled($_REQUEST['newval']);
-    $view = 'banners';
-    break;
-
-case 'toggleEnabledCampaign':
-    $C = new Banner\Campaign($_REQUEST['camp_id']);
-    $C->toggleEnabled($_REQUEST['newval']);
-    $view = 'campaigns';
-    break;
-
-case 'delmulti':
-    // Delete multiple banners.  Double-check that the user has access.
-    foreach ($_POST['delitem'] as $item) {
-        $B = new Banner\Banner($item);
-        if ($B->hasAccess(3)) {
-            $B->Delete();
-        } else {
-            BANNER_auditLog("Tried to delete banner $item without access");
-        }
-    }
-    $view = 'banners';
-    break;
-
 default:
     $view = $action;
     break;
 }
 
 switch ($view) {
+case 'editbanner':
+    $B = new Banner\Banner($bid);
+    $B->setAdmin(false);
+    if (empty($bid)) {
+        $content .= $B->Edit('submit');
+    } else {
+        $content .= $B->Edit();
+    }
+    break;
+
 case 'banners':
 default:
     $content .= Banner\Banner::adminList();
     break;
 
-case 'campaigns':
+/*case 'campaigns':
     $content .= Banner\Campaign::adminList();
     break;
 
@@ -164,7 +157,7 @@ case 'edit':
         $content .= $B->Edit('useredit');
     }
     break;
-
+ */
 }
 
 echo COM_siteHeader('menu', $view_title);

@@ -156,7 +156,6 @@ class Banner
         global $_USER, $_GROUPS, $_CONF_BANR;
 
         $bid = COM_sanitizeID($bid, false);
-        //$this->setTable($table);
 
         if ($bid != '') {
             $this->Read($bid);
@@ -173,7 +172,7 @@ class Banner
             $this->options = self::$default_opts;
             $this->setPubStart();
             $this->setPubEnd();
-        }   
+        }
     }
 
 
@@ -462,14 +461,14 @@ class Banner
      * Set the banner variables from the supplied array.
      * The array may be from a form ($_POST) or database record
      *
-     * @see     self::_CreateHTMLTemplate()
+     * @see     self::_createHTMLTemplate()
      * @param   array   $A          Array of values
      * @param   boolean $fromDB     Indicates if reading from DB or submission
      * @return  object  $this
      */
     public function setVars($A='', $fromDB=false)
     {
-        global $_CONF_BANR, $_CONF;
+        global $_CONF_BANR, $_CONF, $_USER;
 
         if (!is_array($A)) {
             return $this;
@@ -481,15 +480,15 @@ class Banner
         $this->ad_type = (int)$A['ad_type'];
         $this->notes = isset($A['notes']) ? $A['notes'] : '';
         $this->title = $A['title'];
-        $this->enabled = isset($A['enabled']) ? $A['enabled'] : 0;
-        $this->impressions = (int)$A['impressions'];
-        $this->max_impressions = (int)$A['max_impressions'];
-        $this->hits = (int)$A['hits'];
-        $this->max_hits = (int)$A['max_hits'];
         $this->tid = $A['tid'];
-        $this->owner_id = (int)$A['owner_id'];
         if ($fromDB) {
             // Coming from the database
+            $this->owner_id = (int)$A['owner_id'];
+            $this->enabled = (int)$A['enabled'];
+            $this->impressions = (int)$A['impressions'];
+            $this->max_impressions = (int)$A['max_impressions'];
+            $this->hits = (int)$A['hits'];
+            $this->max_hits = (int)$A['max_hits'];
             $this->options = @unserialize($A['options']);
             if (!$this->options) {
                 $this->options = self::$default_opts;
@@ -532,14 +531,21 @@ class Banner
             // Only admins can set some values, use the defaults for others
             if (SEC_hasRights('banner.edit')) {
                 $this->weight = (int)$A['weight'];
+                $this->enabled = isset($A['enabled']) ? $A['enabled'] : 0;
+                $this->impressions = (int)$A['impressions'];
+                $this->max_impressions = (int)$A['max_impressions'];
+                $this->hits = (int)$A['hits'];
+                $this->max_hits = (int)$A['max_hits'];
+                $this->owner_id = (int)$A['owner_id'];
             } else {
                 $this->weight = (int)$_CONF_BANR['def_weight'];
+                $this->owner_id = (int)$_USER['uid'];
             }
 
             // Create the HTML template for click tracking if this is
             // an HTML or Javascript ad.
             if ($this->ad_type == self::TYPE_SCRIPT) {
-                $this->_CreateHTMLTemplate();
+                $this->_createHTMLTemplate();
             }
         }
         return $this;
@@ -701,10 +707,13 @@ class Banner
                 $_CONF_BANR, $LANG12, $LANG_BANNER;
 
         if ($this->isNew) {
-            if ( COM_isAnonUser() ||
-                    ($_CONF_BANR['usersubmit'] == 0 &&
-                    !SEC_hasRights('banner.submit'))
-                ) {
+            if (
+                COM_isAnonUser() ||
+                (
+                    $_CONF_BANR['usersubmit'] == 0 &&
+                    !SEC_hasRights('banner.submit')
+                )
+            ) {
                 return $LANG_BANNER['access_denied'];
             }
         } else {
@@ -750,17 +759,11 @@ class Banner
             unset($this->options['image_url']);
 
             // Handle the file upload
-            if (isset($_FILES['bannerimage']['name']) &&
-                !empty($_FILES['bannerimage']['name'])) {
+            if (
+                isset($_FILES['bannerimage']['name']) &&
+                !empty($_FILES['bannerimage']['name'])
+            ) {
                 $Img = new Image($this->bid, 'bannerimage');
-
-                // Set max image size to the global sanity check.
-                // Images will be resized down to the category size for display
-                $Img->setMaxDimensions(
-                    $_CONF_BANR['img_max_height'],
-                    $_CONF_BANR['img_max_width']
-                );
-
                 $Img->uploadFiles();
                 if ($Img->areErrors() > 0) {
                     $this->options['filename'] = '';
@@ -1066,11 +1069,13 @@ class Banner
         }
 
         $C = new Category($this->cid);
-        if ($width == 0) {
-            $width = min($this->getOpt('width', 0), $C->getMaxWidth());
+        $width = (int)$this->getOpt('width');
+        if ($width == 0 && $C->getMaxWidth() > 0) {
+            $width = min($width, $C->getMaxWidth());
         }
-        if ($height == 0) {
-            $height = min($this->getOpt('height', 0), $C->getMaxHeight());
+        $height = (int)$this->getOpt('height');
+        if ($height == 0 && $C->getMaxHeight() > 0) {
+            $height = min($height, $C->getMaxHeight());
         }
 
         switch ($this->ad_type) {
@@ -1209,24 +1214,18 @@ class Banner
         switch ($mode) {
         case 'edit':
         case 'editbanner':
-            $saveoption = $LANG_ADMIN['save'];      // Save
-            $sub_type = '<input type="hidden" name="item" value="banner" />';
+            $saveaction = 'save';
             $cancel_url = $this->isAdmin ? BANR_ADMIN_URL . '/index.php' :
-                $_CONF['site_url'];
+                BANR_RUL . '/index.php';
+            break;
         case 'submit':
-            $saveoption = $LANG_ADMIN['save'];      // Save
-            // override sub_type for submit.php
-            $sub_type =
-                '<input type="hidden" name="type" value="banner" />'
-                .'<input type="hidden" name="mode" value="' .
-                    $LANG12[8].'" />';
-            $cancel_url = $this->isAdmin ? BANR_ADMIN_URL . '/index.php' :
-                $_CONF['site_url'];
+            $saveaction = 'savesubmission';
+            $cancel_url = BANR_URL . '/index.php';
             break;
 
         case 'moderate':
             $saveoption = $LANG_ADMIN['moderate'];  // Save & Approve
-            $sub_type = '<input type="hidden" name="type" value="submission" />';
+            //$sub_type = '<input type="hidden" name="type" value="submission" />';
             $cancel_url = $_CONF['site_admin_url'] . '/moderation.php';
             break;
         }
@@ -1239,8 +1238,8 @@ class Banner
 
         $T->set_var(array(
             'help_url'      => BANNER_docUrl('bannerform'),
-            'submission_option' => $sub_type,
-            'lang_save'     => $saveoption,
+            //'submission_option' => $sub_type,
+            //'lang_save'     => $saveoption,
             'cancel_url'    => $cancel_url,
         ));
 
@@ -1252,11 +1251,7 @@ class Banner
                 $weight_select .= "<option value=\"$i\" $sel>$i</option>\n";
             }
         } else {
-            if ($mode == 'submit') {
-                $T->set_var('action_url', $_CONF['site_url'] . '/submit.php');
-            } else {
-                $T->set_var('action_url', BANR_URL . '/index.php');
-            }
+            $T->set_var('action_url', BANR_URL . '/index.php');
         }
 
         $access = $this->Access();
@@ -1286,6 +1281,12 @@ class Banner
         $T->set_var('banner_id', $this->bid);
         $T->set_var('old_banner_id', $this->oldID);
 
+        $camp_select = Campaign::Dropdown($this->camp_id);
+        if (empty($camp_select)) {
+            COM_setMsg("Access Denied");
+            COM_refresh($cancel_url);
+        }
+
         // Ad Type Selection
         $adtype_select = '';
         foreach ($LANG_BANNER['ad_types'] as $value=>$text) {
@@ -1297,7 +1298,7 @@ class Banner
             'banner_title' => htmlspecialchars($this->title),
             'max_url_length' => 255,
             'category_options' => Category::Dropdown(0, $this->cid),
-            'campaign_options' => Campaign::Dropdown($this->camp_id),
+            'campaign_options' => $camp_select,
             'banner_hits' => $this->hits,
             'banner_maxhits' => $this->max_hits,
             'impressions'   => $this->impressions,
@@ -1319,6 +1320,7 @@ class Banner
             'start_time' => $this->getPubStart('H:i:s'),
             'end_date' => $this->getPubEnd('Y-m-d'),
             'end_time' => $this->getPubEnd('H:i:s'),
+            'saveaction' => $saveaction,
         ));
 
         foreach (Category::getAll() as $C) {
@@ -1540,7 +1542,7 @@ class Banner
         }
 
         if (
-            isset($_CONF_BANNER['header_dontshow']) && 
+            isset($_CONF_BANNER['header_dontshow']) &&
             is_array($_CONF_BANR['header_dontshow'])
         ) {
             foreach ($_CONF_BANR['header_dontshow'] as $header) {
@@ -1570,29 +1572,39 @@ class Banner
      *
      * @return  string  HTML for the banner
      */
-    private function _CreateHTMLTemplate()
+    private function _createHTMLTemplate()
     {
         $buffer = $this->options['ad_code'];
-        if (empty($buffer))
+        if (empty($buffer)) {
             return;
+        }
 
         // Put our click URL and our target parameter in all anchors...
         // The regexp should handle ", ', \", \' as delimiters
         if (preg_match_all(
                 '#<a(.*?)href\s*=\s*(\\\\?[\'"])http(.*?)\2(.*?) *>#is',
-                $buffer, $m)) {
+                $buffer, $m
+            )
+        ) {
             foreach ($m[0] as $k => $v) {
                 // Remove target parameters
-                $m[4][$k] = trim(preg_replace(
-                            '#target\s*=\s*(\\\\?[\'"]).*?\1#i',
-                            '', $m[4][$k]));
+                $m[4][$k] = trim(
+                    preg_replace(
+                        '#target\s*=\s*(\\\\?[\'"]).*?\1#i',
+                        '', $m[4][$k]
+                    )
+                );
                 $urlDest = preg_replace(
-                            '/%7B(.*?)%7D/', '{$1}',
-                            "http" . $m[3][$k]);
+                    '/%7B(.*?)%7D/', '{$1}',
+                    "http" . $m[3][$k]
+                );
                 //$buffer = str_replace($v, "<a{$m[1][$k]}href={$m[2][$k]}{clickurl}$urlDest{$m[2][$k]}{$m[4][$k]} target={$m[2][$k]}{target}{$m[2][$k]}>", $buffer);
-                $buffer = str_replace($v, "<a{$m[1][$k]}href={$m[2][$k]}{clickurl}{$m[2][$k]}{$m[4][$k]} target={$m[2][$k]}{target}{$m[2][$k]}>", $buffer);
+                $buffer = str_replace(
+                    $v,
+                    "<a{$m[1][$k]}href={$m[2][$k]}{clickurl}{$m[2][$k]}{$m[4][$k]} target={$m[2][$k]}{target}{$m[2][$k]}>",
+                    $buffer
+                );
             }
-
             $this->options['url'] = $urlDest;
             $this->options['htmlTemplate'] = $buffer;
         }
@@ -1794,8 +1806,9 @@ class Banner
             'default_filter' => $where,
         );
 
+        $base_url = $isadmin ? BANR_ADMIN_URL : BANR_URL;
         $retval .= COM_createLink($LANG_BANNER['new_banner'],
-            BANR_ADMIN_URL . '/index.php?editbanner=x',
+            $base_url . '/index.php?editbanner=x',
             array(
                 'class' => 'uk-button uk-button-success',
                 'style' => 'float:left',
