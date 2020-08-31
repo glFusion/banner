@@ -54,7 +54,7 @@ $bannerConfigData = array(
         'set' => true,
         'group' => 'banner',
     ),
-    array(
+    /*array(
         'name' => 'usersubmit',
         'default_value' => 0,
         'type' => 'select',
@@ -64,7 +64,7 @@ $bannerConfigData = array(
         'sort' => 20,
         'set' => true,
         'group' => 'banner',
-    ),
+    ),*/
     array(
         'name' => 'notification',
         'default_value' => 0,

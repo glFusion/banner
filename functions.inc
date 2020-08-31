@@ -352,19 +352,20 @@ function plugin_chkVersion_banner()
  */
 function plugin_statssummary_banner ()
 {
-    global $LANG_BANNER_STATS, $_TABLES;
+    global $LANG_BANNER, $_TABLES;
 
     $result = DB_query("SELECT COUNT(*) AS count, SUM(hits) AS clicks
         FROM {$_TABLES['banner']}
         WHERE (publishstart IS NULL OR publishstart < NOW())
         AND (publishend IS NULL OR publishend > NOW())" .
-        COM_getPermSQL ('AND'));
+        COM_getPermSQL ('AND')
+    );
     $A = DB_fetchArray ($result);
 
     $item_count = COM_NumberFormat($A['count'])
-                . ' (' . COM_NumberFormat((int)$A['clicks']) . ')';
+        . ' (' . COM_NumberFormat((int)$A['clicks']) . ')';
 
-    return array ($LANG_BANNER_STATS['banner'], $item_count);
+    return array($LANG_BANNER['pi_name'], $item_count);
 }
 
 
@@ -396,11 +397,7 @@ function plugin_getadminoption_banner()
     global $_TABLES, $LANG_BANNER;
 
     if (SEC_hasRights('banner.edit,banner.delete', 'OR')) {
-        $total_banner = (int)DB_getItem(
-            $_TABLES['banner'],
-            'COUNT(*)',
-            COM_getPermSql('')
-        );
+        $total_banner = (int)DB_count($_TABLES['banner']);
         return array(
             $LANG_BANNER['pi_name'],
             BANR_ADMIN_URL . '/index.php',
@@ -732,12 +729,14 @@ function plugin_savesubmission_banner($A)
  * If this is being shown as the result of a submission form error,
  * $A will contain all the fields to repopulate the form.
  *
+ * @deprecated
  * @param   array   $A      Array of form fields.
  * @return  string  HTML for the banner submission form
  */
-function plugin_submit_banner($A=array())
+function Xplugin_submit_banner($A=array())
 {
     global $_CONF_BANR, $LANG_BANNER, $_USER;
+    echo "here";die;
 
     // Make sure members can submit banners.  Anonymous users can never submit.
     if ( COM_isAnonUser() ||
@@ -1031,13 +1030,18 @@ function Xplugin_getuseroption_banner()
     $uid = (int)$_USER['uid'];
     if ($uid < 2) return '';
 
-    $banner_cnt = (int)DB_count($_TABLES['banner'],
-                    'owner_id', $_USER['uid']);
-    if ($banner_cnt > 0) {
-        $retval = array($LANG_BANNER['banners'],
+    $banner_cnt = (int)DB_count(
+        $_TABLES['banner'],
+        'owner_id',
+        $uid
+    );
+    //if ($banner_cnt > 0) {
+        $retval = array(
+            $LANG_BANNER['banners'],
             BANR_URL . '/index.php?banners=x',
-            $banner_cnt);
-    }
+            $banner_cnt,
+        );
+    //}
     return $retval;
 }
 
