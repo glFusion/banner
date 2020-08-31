@@ -7,6 +7,9 @@ Release TBD
 - Implement glFusion caching
 - Implement private class properties and accessor methods
 - Use transparent icon for command and control
+- Remove user submission menus
+- Fixes for MySQL strict mode
+- Remove max banners setting for campaings
 
 ## Version 0.3.0
 Release 2017-10-06
