@@ -40,8 +40,7 @@ class Menu
         $menu_arr = array(
             array(
                 'url'  => BANR_URL . '/index.php?edit=x',
-                'text' => '<span class="banrNewAdminItem">' .
-                    $LANG_BANNER['new_banner'], '</span>',
+                'text' => $LANG_BANNER['banners'],
                 'active' => $view == 'banners' ? true : false,
             ),
         );
