@@ -11,6 +11,10 @@
  * @filesource
  */
 
+global $_DB_dbms;
+require_once __DIR__ . "/sql/{$_DB_dbms}_install.php";
+
+
 /**
  * Perform the upgrade starting at the current version.
  *
@@ -19,7 +23,7 @@
  */
 function banner_do_upgrade($dvlp=false)
 {
-    global $_TABLES, $_CONF_BANR, $_PLUGIN_INFO;
+    global $_TABLES, $_CONF_BANR, $_PLUGIN_INFO, $BANR_UPGRADE;
 
     $pi_name = $_CONF_BANR['pi_name'];
 
@@ -93,6 +97,20 @@ function banner_do_upgrade($dvlp=false)
 
     if (!COM_checkVersion($current_ver, '0.3.0')) {
         $current_ver = '0.3.0';
+        // Add mappings if the default categories weren't deleted by an admin.
+        // Included in v0.3.2, only effective if upgrading from < v0.3.0
+        foreach (
+            array(
+                'header' => '20090010100000000',
+                'footer' => '20090010100000001',
+            ) as $tpl=>$cid
+        ) {
+            $val = DB_getItem($_TABLES['bannercategories'], 'cid', "cid='$cid'");
+            if ($val == $cid) {
+                $BANR_UPGRADE[$current_ver][] = "INSERT INTO {$_TABLES['banner_mapping']}
+                    (tpl, cid) VALUES ('$tpl', '$cid')";
+            }
+        }
         if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
         if (!banner_do_update_version($current_ver)) return false;
     }
@@ -156,9 +174,7 @@ function banner_do_update_version($version)
  */
 function banner_do_upgrade_sql($version, $dvlp=false)
 {
-    global $_TABLES, $_CONF_BANR, $BANR_UPGRADE, $_DB_dbms;
-
-    require_once BANR_PI_PATH . "/sql/{$_DB_dbms}_install.php";
+    global $_TABLES, $_CONF_BANR, $BANR_UPGRADE;
 
     // If no sql statements needed, return success
     if (
