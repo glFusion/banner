@@ -71,7 +71,6 @@ $_SQL['bannercampaigns'] = "CREATE TABLE {$_TABLES['bannercampaigns']} (
   `max_hits` int(11) NOT NULL default '0',
   `impressions` int(11) NOT NULL default '0',
   `max_impressions` int(11) NOT NULL default '0',
-  `max_banners` int(11) NOT NULL default 0,
   `owner_id` mediumint(11) unsigned NOT NULL default '2',
   `group_id` mediumint(11) unsigned NOT NULL default '1',
   `perm_owner` tinyint(1) unsigned NOT NULL default '3',
@@ -186,6 +185,9 @@ $BANR_UPGRADE = array(
     "UPDATE {$_TABLES['bannersubmission']}
         SET publishend = '9999-12-31 23:59:59'
             WHERE publishend IS NULL",
+    ),
+'0.3.2' => array(
+    "ALTER TABLE {$_TABLES['bannercampaigns']} DROP max_banners",
     ),
 );
 

@@ -97,6 +97,12 @@ function banner_do_upgrade($dvlp=false)
         if (!banner_do_update_version($current_ver)) return false;
     }
 
+    if (!COM_checkVersion($current_ver, '0.3.2')) {
+        $current_ver = '0.3.2';
+        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!banner_do_update_version($current_ver)) return false;
+    }
+
     // Update with any configuration changes
     USES_lib_install();
     global $bannerConfigData;
@@ -154,9 +160,13 @@ function banner_do_upgrade_sql($version, $dvlp=false)
 
     require_once BANR_PI_PATH . "/sql/{$_DB_dbms}_install.php";
 
-    // If no sql statements passed in, return success
-    if (!is_array($BANR_UPGRADE[$version]))
+    // If no sql statements needed, return success
+    if (
+        !isset($BANR_UPGRADE[$version]) ||
+        !is_array($BANR_UPGRADE[$version])
+    ) {
         return true;
+    }
 
     // Execute SQL now to perform the upgrade
     COM_errorLOG("--Updating Banner to version $version");

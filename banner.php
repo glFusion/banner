@@ -31,8 +31,8 @@ $_TABLES['banneraccount']       = $_DB_table_prefix . 'banneraccount';
 $_TABLES['bannertrans']         = $_DB_table_prefix . 'bannertrans';
 
 $_CONF_BANR['pi_name']           = 'banner';
-$_CONF_BANR['pi_version']        = '1.0.0';
-$_CONF_BANR['gl_version']        = '1.7.7';
+$_CONF_BANR['pi_version']        = '0.3.2';
+$_CONF_BANR['gl_version']        = '1.7.8';
 $_CONF_BANR['pi_url']            = 'http://www.leegarner.com';
 $_CONF_BANR['pi_display_name']   = 'Banner Ads';
 

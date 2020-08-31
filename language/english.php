@@ -121,7 +121,6 @@ $LANG_BANNER = array(
 'confirm_delitem'   => 'Are you sure you want to delete this item?',
 'req_item_msg'  => 'Items in <span class="required">red</span> are required.',
 'user_can_add'  => 'User can submit banners',
-'max_banners'   => 'Max. Banners',
 'version'       => 'Version',
 'err_invalid_url' => 'Invalid target URL given',
 'err_invalid_image_url' => 'Invalid Image URL given for a remotely-hosted banner',

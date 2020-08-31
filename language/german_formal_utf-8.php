@@ -122,7 +122,6 @@ $LANG_BANNER = array(
 'confirm_delitem'   => 'Möchten Sie diesen Eintrag wirklich löschen?',
 'req_item_msg'  => ' = Pflichtfelder',
 'user_can_add'  => 'Mitglider können Banner einsenden',
-'max_banners'   => 'Max. Banner',
 'version'       => 'Version',
 'err_invalid_url' => 'Ungültige Ziel-URL angegeben.',
 'err_invalid_image_url' => 'Ungültige Bild-URL für Externes-Banner angegeben.',

@@ -66,10 +66,6 @@ class Campaign
      * @var integer */
     private $max_impressions = 0;
 
-    /** Max number of banners allowed in this campaign.
-     * @var integer */
-    private $max_banners = 0;
-
     /** Description of this campaign.
      * @var string */
     private $dscp = '';
@@ -174,7 +170,6 @@ class Campaign
         $this->max_hits = (int)$A['max_hits'];
         $this->impressions = (int)$A['impressions'];
         $this->max_impressions = (int)$A['max_impressions'];
-        $this->max_banners= (int)$A['max_banners'];
         $this->tid = $A['tid'];
 
         if ($fromDB) {
@@ -411,7 +406,6 @@ class Campaign
             'max_hits'      => $this->max_hits,
             'impressions'   => $this->impressions,
             'max_impressions'   => $this->max_impressions,
-            'max_banners'   => $this->max_banners,
             'banner_ownerid'    => $this->owner_id,
             'owner_username' => DB_getItem($_TABLES['users'],
                                 'username', "uid = '{$this->owner_id}'"),
@@ -506,7 +500,6 @@ class Campaign
                 max_hits = '{$this->max_hits}',
                 impressions= '{$this->impressions}',
                 max_impressions = '{$this->max_impressions}',
-                max_banners = '{$this->max_banners}',
                 owner_id = '{$this->owner_id}',
                 group_id = '{$this->group_id}',
                 perm_owner = '{$this->perm_owner}',
@@ -573,32 +566,14 @@ class Campaign
     {
         global $_TABLES;
 
-        $retval = '';
-        $sel = COM_sanitizeID($sel, false);
         $access = (int)$access;
-
-        // Retrieve the campaigns to which the current user has access
-        $sql = "SELECT c.camp_id, MAX(c.description) AS description,
-            MAX(c.max_banners) AS max_banners,
-            COUNT(b.bid) as cnt
-            FROM {$_TABLES['bannercampaigns']} c
-            LEFT JOIN {$_TABLES['banner']} b
-                ON c.camp_id=b.camp_id " .
-            COM_getPermSQL('WHERE', 0, $access, 'c') .
-            " GROUP BY c.camp_id
-            HAVING (max_banners = 0 OR cnt < max_banners)";
-        //echo $sql;
-        $result = DB_query($sql);
-
-        while ($row = DB_fetchArray($result)) {
-            $selected = $row['camp_id'] == $sel ? ' selected' : '';
-            $retval .= "<option value=\"" .
-                        htmlspecialchars($row['camp_id']) .
-                        "\"$selected>" .
-                        htmlspecialchars($row['description']) .
-                        "</option>\n";
-        }
-        return $retval;
+        return COM_optionList(
+            $_TABLES['bannercampaigns'],
+            'camp_id,description',
+            $sel,
+            1,
+            COM_getPermSQL('', 0, $access)
+        );
     }
 
 
