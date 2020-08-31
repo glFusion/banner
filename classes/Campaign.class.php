@@ -126,6 +126,8 @@ class Campaign
             $this->perm_group = (int)$_CONF_BANR['default_permissions'][1];
             $this->perm_members = (int)$_CONF_BANR['default_permissions'][2];
             $this->perm_anon = (int)$_CONF_BANR['default_permissions'][3];
+            $this->setPubStart();
+            $this->setPubEnd();
         }
     }
 
@@ -244,7 +246,7 @@ class Campaign
      * @param   string  $dt_str     MYSQL-formatted date/time string
      * @return  object  $this
      */
-    public function setPubStart($dt_str)
+    public function setPubStart($dt_str='')
     {
         global $_CONF;
 
@@ -262,7 +264,7 @@ class Campaign
      * @param   string  $dt_str     MYSQL-formatted date/time string
      * @return  object  $this
      */
-    public function setPubEnd($dt_str)
+    public function setPubEnd($dt_str='')
     {
         global $_CONF;
 
@@ -576,17 +578,15 @@ class Campaign
         $access = (int)$access;
 
         // Retrieve the campaigns to which the current user has access
-        $sql = "SELECT c.camp_id, c.description, c.max_banners,
-                    u.username,
-                    COUNT(b.bid) as cnt
-                FROM {$_TABLES['bannercampaigns']} c
-                LEFT JOIN {$_TABLES['banner']} b
-                    ON c.camp_id=b.camp_id
-                LEFT JOIN {$_TABLES['users']} u
-                    ON u.uid = c.owner_id " .
-                    COM_getPermSQL('WHERE', 0, $access, 'c') .
-                " GROUP BY c.camp_id HAVING
-                    (c.max_banners = 0 OR cnt < c.max_banners)";
+        $sql = "SELECT c.camp_id, MAX(c.description) AS description,
+            MAX(c.max_banners) AS max_banners,
+            COUNT(b.bid) as cnt
+            FROM {$_TABLES['bannercampaigns']} c
+            LEFT JOIN {$_TABLES['banner']} b
+                ON c.camp_id=b.camp_id " .
+            COM_getPermSQL('WHERE', 0, $access, 'c') .
+            " GROUP BY c.camp_id
+            HAVING (max_banners = 0 OR cnt < max_banners)";
         //echo $sql;
         $result = DB_query($sql);
 
@@ -595,7 +595,6 @@ class Campaign
             $retval .= "<option value=\"" .
                         htmlspecialchars($row['camp_id']) .
                         "\"$selected>" .
-                        htmlspecialchars($row['username']) . ' : ' .
                         htmlspecialchars($row['description']) .
                         "</option>\n";
         }
@@ -741,7 +740,7 @@ class Campaign
         $form_arr = array();
 
         $retval .= COM_createLink($LANG_BANNER['new_camp'],
-            BANR_ADMIN_URL . '/index.php?editcampaign=x',
+            BANR_ADMIN_URL . '/index.php?editcampaign',
             array(
                 'class' => 'uk-button uk-button-success',
                 'style' => 'float:left',
@@ -777,7 +776,7 @@ class Campaign
         case 'edit':
             $retval .= COM_createLink(
                 $_CONF_BANR['icons']['edit'],
-                "$base_url/index.php?editcampaign&amp;camp_id=" . urlencode($A['camp_id'])
+                "$base_url/index.php?editcampaign=" . urlencode($A['camp_id'])
             );
             break;
 
