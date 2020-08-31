@@ -198,6 +198,17 @@ function BANR_remove_old_files()
         ),
     );
 
+    // Files that were renamed, changing case only.
+    // Only delete thes on non-case-sensitive systems.
+    if (php_uname('s') == "Linux") {
+        $files = array(
+            'classes/banner.class.php',
+            'classes/campaign.class.php',
+            'classes/category.class.php',
+        );
+        $paths[__DIR__] = array_merge($paths[__DIR__], $files);
+    }
+
     foreach ($paths as $path=>$files) {
         foreach ($files as $file) {
             if (is_file("$path/$file")) {
