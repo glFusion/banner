@@ -19,6 +19,7 @@ global $LANG32;
 * @global array $LANG_BANNER
 */
 $LANG_BANNER = array(
+    'pi_name'   => 'Banner',
 'bid'           => 'ID',
 'cid'           => 'ID',
 'camp_id'       => 'Kampagne',
@@ -158,6 +159,10 @@ $LANG_BANNER = array(
 'cannot_delete' => 'Cannot delete required or used categories or campaigns',
 'alert' => 'Alert',
 'warning' => 'Warning',
+'admin_hdr' => 'Banner Administration',
+'at_dscp_banner' => 'Include a specific banner in the content',
+'at_dscp_randombanner' => 'Include a random banner in the content',
+'at_dscp_bannercategory' => 'Include a random banner from a specific category in the content',
 );
 
 ###############################################################################

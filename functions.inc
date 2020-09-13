@@ -188,10 +188,26 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
  */
 function plugin_autotags_banner($op, $content = '', $autotag = '')
 {
-    global $_CONF, $_TABLES, $LANG_DIRECTION;
+    global $_CONF, $_TABLES, $LANG_BANNER;
 
     if ($op == 'tagname' ) {
-        return array('banner','randombanner','bannercategory');
+        return array('banner', 'randombanner', 'bannercategory');
+    } else if ($op == 'tagusage') {
+        $tagUsage = array(
+            array('namespace' => 'banner','usage' => 'description')
+        );
+        return $tagUsage;
+    } else if ($op == 'desc' ) {
+        switch ($content) {
+            case 'banner':
+            case 'randombanner':
+            case 'bannercategory':
+                return $LANG_BANNER['at_dscp_' . $content];
+                break;
+            default :
+                return '';
+                break;
+       }
     } else if ($op == 'parse') {
         $banner = '';
 

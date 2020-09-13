@@ -158,6 +158,9 @@ $LANG_BANNER = array(
 'cannot_delete' => 'Cannot delete required or used categories or campaigns',
 'alert' => 'Alert',
 'warning' => 'Warning',
+'at_dscp_banner' => 'Include a specific banner in the content',
+'at_dscp_randombanner' => 'Include a random banner in the content',
+'at_dscp_bannercategory' => 'Include a random banner from a specific category in the content',
 );
 
 ###############################################################################
