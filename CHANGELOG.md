@@ -10,6 +10,7 @@ Release TBD
 - Remove user submission menus
 - Fixes for MySQL strict mode
 - Remove max banners setting for campaings
+- Remove non-UTF-8 language files
 
 ## Version 0.3.0
 Release 2017-10-06

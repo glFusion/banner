@@ -27,7 +27,7 @@ define('BANR_MIN_DATE', '0000-01-01 00:00:00');
 
 $langfile = $_CONF['language'] . '.php';
 if (!file_exists(__DIR__ . '/language/' . $langfile)) {
-    $langfile = 'english.php';
+    $langfile = 'english_utf-8.php';
 }
 /** Import the plugin's language file */
 require_once __DIR__ . '/language/' . $langfile;

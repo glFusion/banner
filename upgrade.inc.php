@@ -210,6 +210,10 @@ function BANR_remove_old_files()
         // private/plugins/banner
         __DIR__ => array(
             'templates/bannerform.uikit.thtml',
+            // 0.3.2
+            'language/english.php',
+            'language/german.php',
+            'language/german_formal.php',
         ),
         // public_html/banner
         $_CONF['path_html'] . 'banner' => array(
