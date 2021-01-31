@@ -83,18 +83,6 @@ class Category
         if ($id != '') {
             $this->cid = $id;
             $this->Read($this->cid);
-        } else {
-            // Set default values
-            $this->cid = '';
-            $this->oldcid = '';
-            $this->tid = '';
-            $this->type = '';
-            $this->category = '';
-            $this->dscp = '';
-            $this->enabled = 1;
-            $this->grp_view = 2;
-            $this->max_img_height = 0;
-            $this->max_img_width = 0;
         }
     }
 
