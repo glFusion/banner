@@ -13,6 +13,7 @@
 
 global $_TABLES;
 
+$_SQL = array();
 $_SQL['bannercategories'] = "CREATE TABLE {$_TABLES['bannercategories']} (
   `cid` varchar(32) NOT NULL,
   `type` varchar(32) NOT NULL,
