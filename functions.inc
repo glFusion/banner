@@ -3,9 +3,9 @@
  * glFusion API functions for the Banner plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.2.1
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -837,6 +837,19 @@ function plugin_templateSetVars_banner($templatename, &$template)
 
 
 /**
+ * Get the htmlheader banner template in place for head section banners.
+ *
+ * @return  array       Array of supported template names
+ */
+function plugin_supportadblock_banner()
+{
+    return array(
+        'banner_htmlheader',
+    );
+}
+
+
+/**
  * Provide a banner for PLG_displayAdBlock().
  *
  * @since   v0.3.0
@@ -1357,4 +1370,3 @@ function BANNER_auditLog($logentry = '')
     fputs($file, "$timestamp ($byuser) - $logentry\n");
 }
 
-?>

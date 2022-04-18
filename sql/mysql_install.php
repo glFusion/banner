@@ -1,15 +1,15 @@
 <?php
 /**
-*   Table definitions for the Banner plugin
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    banner
-*   @version    0.3.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Table definitions for the Banner plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
+ * @package     banner
+ * @version     v1.0.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 global $_TABLES;
 
@@ -97,7 +97,8 @@ $DEFVALUES['bannercategories'] = "INSERT INTO `{$_TABLES['bannercategories']}`
     VALUES
         ('20090010100000000','header','Header','Header Banners',468,60),
         ('20090010100000001','footer','Footer','Footer Banners',468,60),
-        ('20090010100000002','block','Block','Block Banners',140,400)";
+        ('20090010100000002','block','Block','Block Banners',140,400),
+        ('htmlheader','htmlheader','HTMLHeader','HEAD Section Banners',140,400)";
 
 $DEFVALUES['bannercampaigns'] = "INSERT INTO `{$_TABLES['bannercampaigns']}`
         (camp_id, description)
@@ -107,7 +108,8 @@ $DEFVALUES['banner_mapping'] = "INSERT INTO {$_TABLES['banner_mapping']}
         (tpl, cid, once)
     VALUES
         ('header', '20090010100000000', 1),
-        ('footer', '20090010100000001', 1)";
+        ('footer', '20090010100000001', 1),
+        ('banner_htmlheader', 'htmlheader', 1)";
 
 $BANR_UPGRADE = array(
 '0.1.0' => array(
@@ -190,6 +192,15 @@ $BANR_UPGRADE = array(
 '0.3.2' => array(
     "ALTER TABLE {$_TABLES['bannercampaigns']} DROP max_banners",
     ),
+'1.0.0' => array(
+    "INSERT INTO `{$_TABLES['bannercategories']}`
+        (cid, type, category, description, max_img_width, max_img_height)
+    VALUES
+        ('htmlheader','htmlheader','HTMLHeader','HEAD Section Banners',140,400)",
+    ),
+    "INSERT INTO {$_TABLES['banner_mapping']}
+        (tpl, cid, once)
+    VALUES
+        ('banner_htmlheader', 'htmlheader', 0)",
 );
 
-?>
