@@ -125,19 +125,16 @@ class Mapping
     {
         global $_TABLES;
 
-        $key = 'map_' . $tpl . '_' . $cid;
-        $A = Cache::get($key);
-        if ($A === NULL) {
-            $sql = "SELECT * FROM {$_TABLES['banner_mapping']}
-                WHERE tpl = '" . DB_escapeString($tpl) . "'
-                AND cid = '" . DB_escapeString($cid) . "'
-                LIMIT 1";
-            $res = DB_query($sql);
+        $sql = "SELECT * FROM {$_TABLES['banner_mapping']}
+            WHERE tpl = '" . DB_escapeString($tpl) . "'
+            AND cid = '" . DB_escapeString($cid) . "'
+            LIMIT 1";
+        $res = DB_query($sql);
+        if ($res && DB_numRows($res) == 1) {
             $A = DB_fetchArray($res, false);
-            Cache::set($key, $A, 'maps');
-        }
-        if (!empty($A)) {
-            $this->setVars($A);
+            if (!empty($A)) {
+                $this->setVars($A);
+            }
         }
     }
 
@@ -173,18 +170,15 @@ class Mapping
     {
         global $_TABLES;
 
-        $cache_key = 'maps_all';
-        $M = Cache::get($cache_key);
-        if ($M === NULL) {
-            $sql = "SELECT * FROM {$_TABLES['banner_mapping']}";
-            $res = DB_query($sql);
+        $M = array();
+        $sql = "SELECT * FROM {$_TABLES['banner_mapping']}";
+        $res = DB_query($sql);
+        if ($res && DB_numRows($res) > 0) {
             while ($A = DB_fetchArray($res, false)) {
                 $key = $A['tpl'] . '_' . $A['cid'];
                 $M[$key] = new self();
                 $M[$key]->setVars($A);
             }
-            if (empty($M)) $M = array();
-            Cache::set($cache_key, $M, 'maps');
         }
         return $M;
     }
@@ -269,9 +263,6 @@ class Mapping
         }
         //echo $sql;die;
         DB_query($sql);
-        if ($clear_cache) {
-            Cache::clear('maps');
-        }
     }
 
 
@@ -288,7 +279,6 @@ class Mapping
             // delay clearing cache until after all are saved.
             self::Save($data, false);
         }
-        Cache::clear('maps');
     }
 
 
