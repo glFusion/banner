@@ -3,9 +3,9 @@
  * Upgrade routines for the Banner plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.3.1
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -117,6 +117,12 @@ function banner_do_upgrade($dvlp=false)
 
     if (!COM_checkVersion($current_ver, '0.3.2')) {
         $current_ver = '0.3.2';
+        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!banner_do_update_version($current_ver)) return false;
+    }
+
+    if (!COM_checkVersion($current_ver, '1.0.0')) {
+        $current_ver = '1.0.0';
         if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
         if (!banner_do_update_version($current_ver)) return false;
     }
@@ -249,4 +255,3 @@ function BANR_remove_old_files()
     }
 }
 
-?>
