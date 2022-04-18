@@ -1302,7 +1302,7 @@ class Banner
         $T->set_var(array(
             'banner_title' => htmlspecialchars($this->title),
             'max_url_length' => 255,
-            'category_options' => Category::Dropdown(0, $this->cid),
+            'category_options' => Category::Dropdown(0, $this->cid, !plugin_isadmin_banner()),
             'campaign_options' => $camp_select,
             'banner_hits' => $this->hits,
             'banner_maxhits' => $this->max_hits,
@@ -1329,7 +1329,9 @@ class Banner
         ));
 
         foreach (Category::getAll() as $C) {
-            if (!$C->isEnabled()) continue;
+            if (!plugin_isadmin_banner() && !$C->isEnabled()) {
+                continue;
+            }
             $cats[$C->getCid()] = array(
                 'img_width' => $C->getMaxWidth(),
                 'img_height' => $C->getMaxHeight(),

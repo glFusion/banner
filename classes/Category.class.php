@@ -488,19 +488,26 @@ class Category
      * @param   string  $sel    Category ID to show as selected
      * @return  string          HTML for option statements
      */
-    public static function DropDown($access = 3, $sel='')
+    public static function Dropdown(int $access = 3, ?string $sel=NULL, ?bool $enabled=NULL) : string
     {
         $retval = '';
         $sel = COM_sanitizeID($sel, false);
         $access = (int)$access;
 
         foreach (self::getAll() as $C) {
-            if (!$C->enabled) continue;
+            $str = htmlspecialchars($C->category);
+            if (!$C->enabled) {
+                if ($enabled) {
+                    continue;
+                } else {
+                    $str .= ' *';
+                }
+            }
             $selected = $C->cid === $sel ? ' selected="selected"' : '';
             $retval .= '<option value="' .
                         htmlspecialchars($C->cid) .
                         '" ' . $selected . '>' .
-                        htmlspecialchars($C->category) .
+                        $str .
                         '</option>' . LB;
         }
         return $retval;
