@@ -11,6 +11,7 @@ Release TBD
 - Fixes for MySQL strict mode
 - Remove max banners setting for campaings
 - Remove non-UTF-8 language files
+- Implement headercode category to add banner code to `head` section.
 
 ## Version 0.3.0
 Release 2017-10-06

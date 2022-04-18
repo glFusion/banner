@@ -80,10 +80,6 @@ spl_autoload_register(function ($class)
     }
 });
 
-/** Import Banner User Functions */
-function USES_banner_userfunctions()
-{   require_once BANR_PI_PATH . '/userfunctions.php';    }
-
 
 /**
  * Create the centerblock, if needed.
@@ -1030,6 +1026,29 @@ function plugin_getheadercss_banner()
         }
     }
     return $styles;
+}
+
+
+/**
+ * Get banners into the htmlheader template.
+ *
+ * @return  string      Banner code to appear in the <head> section.
+ */
+function plugin_getheadercode_banner()
+{
+    $retval = '';
+    $options = array(
+        'type' => 'htmlheader',
+    );
+    $bids = Banner\Banner::getBannerIDs($options);
+    if (is_array($bids) && !empty($bids)) {
+        $B = new Banner\Banner();
+        foreach ($bids as $bid) {
+            $B->Read($bid);
+            $retval .= $B->BuildBanner() . LB;
+        }
+    }
+    return $retval;
 }
 
 
