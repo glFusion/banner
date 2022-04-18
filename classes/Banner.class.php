@@ -710,7 +710,7 @@ class Banner
             if (
                 COM_isAnonUser() ||
                 (
-                    $_CONF_BANR['usersubmit'] == 0 &&
+                    (!isset($_CONF_BANR['usersubmit']) || $_CONF_BANR['usersubmit'] == 0) &&
                     !SEC_hasRights('banner.submit')
                 )
             ) {
@@ -1002,7 +1002,9 @@ class Banner
         global $_TABLES, $_CONF_BANR;
 
         $A = array();
-        if (!self::CanShow()) return $A;
+        if (!self::CanShow()) {
+            return $A;
+        }
         $now = $_CONF_BANR['_now']->toMySQL(true);
 
         $sql = "SELECT bid
@@ -1013,7 +1015,6 @@ class Banner
                 AND (publishhend > '$now') " .
                 COM_getPermSQL('AND') .
                 ' ORDER BY date DESC LIMIT 15';
-
         $result = DB_query($sql);
         while ($row = DB_fetchArray($result)) {
             $A[] = $row['bid'];
@@ -1178,7 +1179,9 @@ class Banner
 
         // Get the header and response code
         $ch = curl_init();
-        curl_setopt_array($ch, array(
+        curl_setopt_array(
+            $ch,
+            array(
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_URL => $this->options['url'],
                 CURLOPT_HEADER => true,
@@ -1255,9 +1258,11 @@ class Banner
         }
 
         $access = $this->Access();
-        if ($access == 0 OR $access == 2) {
-            $retval .= COM_startBlock($LANG_BANNER['access_denied'], '',
-                               COM_getBlockTemplate ('_msg_block', 'header'));
+        if ($access == 0 || $access == 2) {
+            $retval .= COM_startBlock(
+                $LANG_BANNER['access_denied'], '',
+                COM_getBlockTemplate ('_msg_block', 'header')
+            );
             $retval .= $LANG_BANNER['access_denied_msg'];
             $retval .= COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
             COM_accessLog("User {$_USER['username']} tried to illegally submit or edit banner {$this->bid}.");
@@ -1486,7 +1491,9 @@ class Banner
                     $in_admin_url = false;
                 }
             }
-            if ($in_admin_url) return false;
+            if ($in_admin_url) {
+                return false;
+            }
         }
 
         // See if this is a banner admin, and we shouldn't show it.
