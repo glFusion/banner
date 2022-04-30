@@ -30,7 +30,7 @@ if (function_exists('CACHE_clear')) {
 \Banner\Cache::clear();
 
 // Force the plugin version to the previous version and do the upgrade
-$_PLUGIN_INFO['banner']['pi_version'] = '0.5.11';
+$_PLUGIN_INFO['banner']['pi_version'] = '0.2.11';
 banner_do_upgrade(true);
 
 // need to clear the template cache so do it here
