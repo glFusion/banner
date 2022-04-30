@@ -391,11 +391,10 @@ function BANR_changeType(value)
     <div class="uk-form-controls">
       <button type="submit" class="uk-button uk-button-success" value="{$LANG_ADMIN['save']}" name="{saveaction}">{$LANG_ADMIN['save']}</button>
       <button type="reset" class="uk-button uk-button-primary" value="{$LANG_BANNER['reset']}" name="reset">{$LANG_BANNER['reset']}</button>
-      <button type="reset" class="uk-button" value="{$LANG_ADMIN['cancel']}" name="cancel" 
-        onclick="javascript: document.location.href='{cancel_url}'">{$LANG_ADMIN['cancel']}</button>
+      <a class="uk-button" href="{cancel_url}">{$LANG_ADMIN['cancel']}</a>
   {!if can_delete}
       <button type="submit" class="uk-button uk-button-danger" name="delete" value="{$LANG_ADMIN['delete']}" 
-        onclick="return confirm('{$LANG_BANNER['confirm_delitem']}');">"{$LANG_ADMIN['delete']}</button>
+        onclick="return confirm('{$LANG_BANNER['confirm_delitem']}');">{$LANG_ADMIN['delete']}</button>
   {!endif}
   {submission_option}
   <input type="hidden" value="{old_banner_id}" name="oldbid"/>
