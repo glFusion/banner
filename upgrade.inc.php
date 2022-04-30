@@ -138,40 +138,28 @@ function banner_do_upgrade($dvlp=false)
 
     if (!COM_checkVersion($current_ver, '1.0.0')) {
         $current_ver = '1.0.0';
-        $adding_show_fields = !BANR_tableHasColumn('bannercampaigns', 'show_admins');
-        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!BANR_tableHasColumn('bannercampaigns', 'show_admins')) {
+            // Set the show_admins and show_owner campaign fields from the config,
+            // if not already done.
+            if ($_CONF_BANR['adshow_admins'] != 0) {
+                $BANR_UPGRADE[$current_ver][] = "UPDATE {$_TABLES['bannercampaigns']} SET show_admins = 1";
+            }
+            if ($_CONF_BANR['adshow_owner'] != 0) {
+                $BANR_UPGRADE[$current_ver][] = "UPDATE {$_TABLES['bannercampaigns']} SET show_owner = 1";
+            }
+            if ($_CONF_BANR['show_in_admin'] != 0) {
+                $BANR_UPGRADE[$current_ver][] = "UPDATE {$_TABLES['bannercampaigns']} SET show_adm_pages = 1";
+            }
+        }
 
         // Create the htmlheader mapping, if the admin hasn't removed that template
-        $val = $db->getItem($_TABLES['bannercategories'], 'cid', array('cid' => 'HTMLHeader'));
+        $cid = 'HTMLHeader';
+        $val = $db->getItem($_TABLES['bannercategories'], 'cid', array('cid' => $cid));
         if ($val == $cid) {
             $BANR_UPGRADE[$current_ver][] = "INSERT INTO {$_TABLES['banner_mapping']}
                 (tpl, cid) VALUES ('htmlheader', '$cid')";
         }
-        // Set the show_admins and show_owner campaign fields from the config,
-        // if not already done.
-        if ($adding_show_fields) {
-            if ($_CONF_BANR['adshow_admins'] != 0) {
-                try {
-                    $db->conn->executeUpdate("UPDATE {$_TABLES['bannercampaigns']} SET show_admins = 1");
-                } catch (\Exception $e) {
-                    Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
-                }
-            }
-            if ($_CONF_BANR['adshow_owner'] != 0) {
-                try {
-                    $db->conn->executeUpdate("UPDATE {$_TABLES['bannercampaigns']} SET show_owner = 1");
-                } catch (\Exception $e) {
-                    Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
-                }
-            }
-            if ($_CONF_BANR['show_in_admin'] != 0) {
-                try {
-                    $db->conn->executeUpdate("UPDATE {$_TABLES['bannercampaigns']} SET show_adm_pages = 1");
-                } catch (\Exception $e) {
-                    Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
-                }
-            }
-        }
+        if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
         if (!banner_do_update_version($current_ver)) return false;
     }
 
