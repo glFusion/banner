@@ -1,4 +1,9 @@
 {# begin {templatelocation} #}
+<script src="{site_url}/javascript/resetrating.js"></script>
+<script src="{site_url}/javascript/addons/character-counter/jquery.charactercounter.js"></script>
+<script src="{site_url}/javascript/addons/datetime/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{site_url}/javascript/addons/datetime/jquery.datetimepicker.min.css"/ >
+<script src="{site_url}/javascript/addons/datetime/datetimepicker.js"></script>
 <p>{instructions}</p>
 <br style="clear:both" />
 <form id="submit" action="{site_admin_url}/plugins/banner/index.php"
@@ -36,17 +41,9 @@
       <span id="start" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <span id="start_date" dir="ltr" style="display:{startdt_sel_show};">
-        <input type="text" name="end_date" value="{start_date}"
-            class="uk-form-width-small"
-            data-uk-datepicker="{format:YYYY-MM-DD}"
-            title="{$LANG_PP['datepicker']}" data-uk-tooltip
-            maxlength="16" />&nbsp;
-        <input type="text" name="start_time" value="{start_time}"
-            class="uk-form-width-small"
-            data-uk-timepicker="(format:24h}"
-            title="{$LANG_PP['datepicker']}" data-uk-tooltip
-            maxlength="16" />
+      <span id="sp_start_date" dir="ltr" style="display:{startdt_sel_show};">
+        <input type="text" name="start_date" id="start_date" value="{start_date}"
+            class="uk-form-width-medium popupcal"/>
         </span>
     </div>
   </div>
@@ -56,17 +53,9 @@
       <span id="finish" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <span id="end_date" dir="ltr" style="display:{enddt_sel_show};">
-        <input type="text" name="end_date" value="{end_date}"
-            class="uk-form-width-small"
-            data-uk-datepicker="{format:YYYY-MM-DD}"
-            title="{$LANG_PP['datepicker']}" data-uk-tooltip
-            maxlength="16" />&nbsp;
-        <input type="text" name="end_time" value="{end_time}"
-            class="uk-form-width-small"
-            data-uk-timepicker="(format:24h}"
-            title="{$LANG_PP['datepicker']}" data-uk-tooltip
-            maxlength="16" />
+      <span id="sp_end_date" dir="ltr" style="display:{enddt_sel_show};">
+        <input type="text" id="end_date" name="end_date" value="{end_date}"
+            class="uk-form-width-medium popupcal"/>
         </span>
     </div>
   </div>

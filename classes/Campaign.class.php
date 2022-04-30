@@ -76,11 +76,11 @@ class Campaign
 
     /** Publication starting date. NULL indicates no limitation.
      * @var object */
-    private $PubStart = NULL;
+    private $pubStart = NULL;
 
     /** Publication ending date. NULL indicates no limitation.
      * @var object */
-    private $PubEnd = NULL;
+    private $pubEnd = NULL;
 
     /** Campaign owner's disply nme.
      * @var string */
@@ -166,7 +166,7 @@ class Campaign
             $A = NULL;
         }
         if (!empty($A)) {
-            $this->setVars($A);
+            $this->setVars($A, true);
             $this->isNew = false;
         }
     }
@@ -205,12 +205,12 @@ class Campaign
             if (empty($A['start_date'])) {
                 $this->setPubStart(NULL);
             } else {
-                $this->setPubStart($A['start_date'] . ' ' . $A['start_time']);
+                $this->setPubStart($A['start_date']);
             }
             if (empty($A['end_date'])) {
                 $this->setPubEnd(NULL);
             } else {
-                $this->setPubEnd($A['end_date'] . ' ' . $A['end_time']);
+                $this->setPubEnd($A['end_date']);
             }
         }
         if (isset($A['old_camp_id'])) {
@@ -272,9 +272,9 @@ class Campaign
         global $_CONF;
 
         if (!empty($dt_str)) {
-            $this->PubStart = new \Date($dt_str, $_CONF['timezone']);
+            $this->pubStart = new \Date($dt_str, $_CONF['timezone']);
         } else {
-            $this->PubStart = NULL;
+            $this->pubStart = NULL;
         }
         return $this;
     }
@@ -291,9 +291,9 @@ class Campaign
         global $_CONF;
 
         if (!empty($dt_str)) {
-            $this->PubEnd = new \Date($dt_str, $_CONF['timezone']);
+            $this->pubEnd = new \Date($dt_str, $_CONF['timezone']);
         } else {
-            $this->PubEnd = NULL;
+            $this->pubEnd = NULL;
         }
         return $this;
     }
@@ -306,10 +306,10 @@ class Campaign
      */
     public function getPubStart(?string $fmt=NULL)
     {
-        if (!empty($fmt) && !is_null($this->PubStart)) {
-            return $this->PubStart->format($fmt, true);
+        if (!empty($fmt) && !is_null($this->pubStart)) {
+            return $this->pubStart->format($fmt, true);
         } else {
-            return $this->PubStart;
+            return $this->pubStart;
         }
     }
 
@@ -321,10 +321,10 @@ class Campaign
      */
     public function getPubEnd($fmt='')
     {
-        if (!empty($fmt) && !is_null($this->PubEnd)) {
-            return $this->PubEnd->format($fmt, true);
+        if (!empty($fmt) && !is_null($this->pubEnd)) {
+            return $this->pubEnd->format($fmt, true);
         } else {
-            return $this->PubEnd;
+            return $this->pubEnd;
         }
     }
 
@@ -466,10 +466,8 @@ class Campaign
             'camp_id'       => $this->camp_id,
             'uname'         => $this->uname,
             'description'   => $this->dscp,
-            'start_date'    => $this->getPubStart('Y-m-d'),
-            'start_time'    => $this->getPubStart('H:i:s'),
-            'snd_date'      => $this->getPubEnd('Y-m-d'),
-            'end_time'      => $this->getPubEnd('H:i:s'),
+            'start_date'    => $this->getPubStart('Y-m-d H:i'),
+            'end_date'      => $this->getPubEnd('Y-m-d H:i'),
             'enabled'       => $this->enabled == 1 ? 'checked="checked"' : '',
             'total_hits'    => $this->hits,
             'max_hits'      => $this->max_hits,
@@ -537,17 +535,6 @@ class Campaign
         $db = Database::getInstance();
         $qb = $db->conn->createQueryBuilder();
 
-        if (!is_null($this->pubStart)) {
-            $qb->setParameter('start', $this->pubStart->toMySQL(true), Database::STRING);
-        } else {
-            $qb->setParameter('start', NULL, Database::INTEGER);
-        }
-        if (!is_null($this->pubEnd)) {
-            $qb->setParameter('end', $this->pubEnd->toMySQL(true), Database::STRING);
-        } else {
-            $qb->setParameter('end', NULL, Database::INTEGER);
-        }
-
         if ($this->isNew) {
             // Creates a new ID if one not already provided
             $this->camp_id = COM_sanitizeID($this->camp_id, true);
@@ -585,26 +572,27 @@ class Campaign
                 return $LANG_BANNER['err_missing_id'];
 
             $qb->update($_TABLES['bannercampaigns'])
-               ->set('camp_id = :camp_id')
-               ->set('description = :dscp')
-               ->set('start = :start')
-               ->set('finish = :finish')
-               ->set('enabled = :enabled')
-               ->set('hits = :hits')
-               ->set('max_hits = :max_hits')
-               ->set('impressions = :impressions')
-               ->set('max_impressions = :max_impressions')
-               ->set('owner_id = :owner_id')
-               ->set('group_id = :group_id')
-               ->set('perm_owner = :perm_owner')
-               ->set('perm_group = :perm_group')
-               ->set('perm_members = :perm_members')
-               ->set('perm_anon = :perm_anon')
-               ->set('tid = :tid')
-               ->set('show_owner = :show_owner')
-               ->set('show_admins = :show_admins')
-               ->set('show_adm_pages = :show_adm_pages')
-               ->where('camp_id = :camp_id');
+               ->set('camp_id', ':camp_id')
+               ->set('description', ':dscp')
+               ->set('start', ':start')
+               ->set('finish', ':finish')
+               ->set('enabled', ':enabled')
+               ->set('hits', ':hits')
+               ->set('max_hits', ':max_hits')
+               ->set('impressions', ':impressions')
+               ->set('max_impressions', ':max_impressions')
+               ->set('owner_id', ':owner_id')
+               ->set('group_id', ':group_id')
+               ->set('perm_owner', ':perm_owner')
+               ->set('perm_group', ':perm_group')
+               ->set('perm_members', ':perm_members')
+               ->set('perm_anon', ':perm_anon')
+               ->set('tid', ':tid')
+               ->set('show_owner', ':show_owner')
+               ->set('show_admins', ':show_admins')
+               ->set('show_adm_pages', ':show_adm_pages')
+               ->where('camp_id = :old_id')
+               ->setParameter('old_id', $this->oldID, Database::STRING);
         }
 
         if ($db->getCount($_TABLES['bannercampaigns'], 'camp_id', $this->camp_id, Database::STRING) > $allowed) {
@@ -612,7 +600,7 @@ class Campaign
         }
 
         $qb->setParameter('camp_id', $this->camp_id, Database::STRING)
-           ->setParameter('description', $this->dscp, Database::STRING)
+           ->setParameter('dscp', $this->dscp, Database::STRING)
            ->setParameter('enabled', $this->isEnabled(), Database::INTEGER)
            ->setParameter('hits', $this->hits, Database::INTEGER)
            ->setParameter('max_hits', $this->max_hits, Database::INTEGER)
@@ -628,6 +616,17 @@ class Campaign
            ->setParameter('show_owner', $this->show_owner, Database::INTEGER)
            ->setParameter('show_admins', $this->show_admins, Database::INTEGER)
            ->setParameter('show_adm_pages', $this->show_adm_pages, Database::INTEGER);
+        if (!is_null($this->pubStart)) {
+            $qb->setParameter('start', $this->pubStart->toMySQL(true), Database::STRING);
+        } else {
+            $qb->setParameter('start', NULL, Database::INTEGER);
+        }
+        if (!is_null($this->pubEnd)) {
+            $qb->setParameter('finish', $this->pubEnd->toMySQL(true), Database::STRING);
+        } else {
+            $qb->setParameter('finish', NULL, Database::INTEGER);
+        }
+
         try {
             $status = $qb->execute();
             if ($this->camp_id != $this->oldID) {
