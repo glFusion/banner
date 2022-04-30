@@ -985,8 +985,6 @@ function phpblock_banner_topic($A=array(), $param='')
     foreach ($opts as $key=>$name) {
         if (isset($param[$key]) && !empty($param[$key])) {
             $extra[$name] = $param[$key];
-        } else {
-            break;
         }
     }
     return BANNER_block_banner($extra);
