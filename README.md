@@ -3,8 +3,12 @@
 The Banner plugin for glFusion allows site administrators to display
 banner ads in the header, footer, blocks or within other content on their site.
 
+Version 1.0.0 includes a category for "headercode" to inject banners into the
+`head` section of your site. This way you can add simple javascript tracking
+codes using the Banner plugin instead of editing theme templates.
+
 ## Requirements
-* glFusion 1.6.0 or higher
+* glFusion 2.0.0 or higher
 * lgLib plugin 1.0.5 or higher
 
 ## Definitions
@@ -18,9 +22,6 @@ including a link to the advertiser's site. Banners can be one of several types:
 ad placement based on the "type" field in the category definition.
 * Campaign: An advertising campaign is used to control the number of banners
 for an advertiser, and the dates when ads will be displayed.
-
-## Placing Banners on Your Site
-Banners can be placed on your site by updating your layout templates, or by using a standard autotag.
 
 ### Template Changes
 There are two methods of getting banner ads into your templates, both using autotags: `{banner_<templatename>}` and `{adblock}`.
@@ -39,23 +40,6 @@ with a category of type "header" will be displayed in that area.
 
 The template name should be `banner_` + the template type, such as `header`, `footer`, `article`, etc.
 There must also be one or more banner categories of the same type containing the banners to display.
-
-For example, to display a banner in the upper right corner, replacing the default search box in the Nouveau theme, you can edit your header.html like so:
-```
-{!if banner_header}
-{banner_header}
-{!else}
-<form method="get" action="{site_url}/search.php">
-  <div>
-    <input id="header-textbox" type="text" name="query" maxlength="255" value="{$LANG09[10]}" title="{$LANG09[10]}" onfocus="if (this.value=='{$LANG09[10]}')this.value='';" onblur="if(this.value=='')this.value='{$LANG09[10]}';"/>
-    <input type="hidden" name="type" value="all" />
-    <input type="hidden" name="mode" value="search" />
-    <input type="hidden" name="results" value="{num_search_results}" />
-  </div>
-</form>
-{!endif}
-```
-You can add a similar variable named `banner_footer`. For other display locations you can create a variable name of your choice and use that as the "type" in the category definition for banners.
 
 #### Adblock Template Variable
 glFusion 1.6.0 and above includes a function that is called from lib-story.php to display an ad within story content.
@@ -84,7 +68,7 @@ Select "Yes" to have the banner plugin set template variables based on the categ
 E.g. If you have a category named "story" then you should have a template variable named `{banner_story}` in all your templates.
 Otherwise the plugin will increment the impression count for ads that are never actually displayed.
 
-**Note for glFusion 1.7.0 and higher: There is a flexible template-to-category mapping option for each category to control ad placement. This is the recommended method and this option should be set to "No".**
+**Note for glFusion 1.7.0 and higher: There is a flexible template-to-category mapping option for each category to control ad placement. That is the recommended method and this option should be set to "No".**
 
 #### Submissions from Site Members?
 Select "Yes" to allow site members to submit their own banners. Banners from non-admin users go into the submission queue for moderation.
@@ -108,15 +92,9 @@ Enter the default weight for banners. Each banner can have a higher or lower wei
 Enter the maximum number of ads to be shown in sideblocks for "block"-type ads.
 
 ### Display Control
-#### Show Ads in Admin Pages?
-Select "Yes" to have banners shown in admin pages (those under the /admin/ URL). Normally this should be set to "No".
-
 #### IP Addresses and User-Agents to not be shown ads
 To keep from inflating your impression counts you can enter multiple IP addresses and User-Agent strings here.
 Page requests from any of these addresses or containing any of these user-agent strings will not be shown ads.
-
-#### Show Ads to the Ad Owner or Ad Administrators?
-Select "Yes" if the ad owner or administrator should be shown their own ads.
 
 #### Count Clicks Made by the Ad Owner or Administrator?
 These should almost certainly be set to "No" except for initial testing.

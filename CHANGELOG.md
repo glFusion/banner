@@ -12,6 +12,9 @@ Release TBD
 - Remove max banners setting for campaings
 - Remove non-UTF-8 language files
 - Implement headercode category to add banner code to `head` section.
+- Use normal names for default campaigns and categories.
+- Let Campaigns control whether ads are shown to owners, admins, etc.
+- Refactor url validations, now done through separate call to admin index.php.
 
 ## Version 0.3.0
 Release 2017-10-06

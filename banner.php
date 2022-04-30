@@ -3,7 +3,7 @@
  * Table definitions and other static config variables.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
  * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php 
@@ -31,9 +31,9 @@ $_TABLES['banneraccount']       = $_DB_table_prefix . 'banneraccount';
 $_TABLES['bannertrans']         = $_DB_table_prefix . 'bannertrans';
 
 $_CONF_BANR['pi_name']           = 'banner';
-$_CONF_BANR['pi_version']        = '0.3.2';
-$_CONF_BANR['gl_version']        = '1.7.8';
-$_CONF_BANR['pi_url']            = 'http://www.leegarner.com';
+$_CONF_BANR['pi_version']        = '1.0.0';
+$_CONF_BANR['gl_version']        = '2.0.0';
+$_CONF_BANR['pi_url']            = 'https://glfusion.org';
 $_CONF_BANR['pi_display_name']   = 'Banner Ads';
 
 // Fixed config variables
@@ -48,4 +48,3 @@ $_CONF_BANR['icons'] = array(
     'reset'     => '<i class="uk-icon uk-icon-refresh"></i>',
 );
 
-?>
