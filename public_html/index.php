@@ -29,7 +29,7 @@ $action = 'campaigns';
 $expected = array(
     'savesubmission',
     'banners', 'editbanner',
-    'campaigns', 'campaignDetail', 'report',
+    'campaigns', 'campaignDetail',
     'edit', 'toggleEnabled', 'toggleEnabledCampaign',
     'deleteBanner', 'save',
     'action', 'view',
@@ -71,26 +71,6 @@ case 'deleteBanner':
     exit;
     break;
 
-case 'report':
-    // Send a broken banner report to the admin
-    if (!empty($bid)) {
-        $result = DB_query(
-            "SELECT url, title
-            FROM {$_TABLES['banner']}
-            WHERE bid = '$bid'"
-        );
-        list($url, $title) = DB_fetchArray($result);
-
-        $editurl = $_CONF['site_admin_url']
-                 . '/plugins/banner/index.php?edit=x&bid=' . $bid;
-        $msg = $LANG_BANNER['broken_txt1'] . LB . LB . "$title, <$url>". LB . LB
-                 .  $LANG_BANNER['click_to_edit'] . LB . '<' . $editurl . '>' . LB . LB
-                 .  $LANG_BANNER['broken_report_by'] . $_USER['username'] . ', IP: '
-                 . $_SERVER['REMOTE_ADDR'];
-        COM_mail($_CONF['site_mail'], $LANG_BANNER['broken_report'], $msg);
-        $message = array($LANG_BANNER['thanks'], $LANG_BANNER['thanks_for_report']);
-    }
-    break;
 default:
     $view = $action;
     break;
