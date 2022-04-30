@@ -607,7 +607,7 @@ class Banner
         $db = Database::getInstance();
         try {
             $status = $db->conn->executeUpdate(
-                "UPDATE {$_TABLES['banner']} SET enabled = ? WHERE camp_id = ?",
+                "UPDATE {$_TABLES['banner']} SET enabled = ? WHERE bid = ?",
                 array($newval, $this->bid),
                 array(Database::INTEGER, Database::STRING)
             );
