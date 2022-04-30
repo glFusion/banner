@@ -140,6 +140,7 @@ function banner_do_upgrade($dvlp=false)
         $current_ver = '1.0.0';
         $adding_show_fields = !BANR_tableHasColumn('bannercampaigns', 'show_admins');
         if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
+
         // Create the htmlheader mapping, if the admin hasn't removed that template
         $val = $db->getItem($_TABLES['bannercategories'], 'cid', array('cid' => 'HTMLHeader'));
         if ($val == $cid) {
@@ -241,14 +242,14 @@ function banner_do_upgrade_sql($version, $dvlp=false)
 
     $db = Database::getInstance();
     // Execute SQL now to perform the upgrade
-    COM_errorLOG("--Updating Banner to version $version");
+    Log::write('system', Log::INFO, "--Updating Banner to version $version");
     foreach($BANR_UPGRADE[$version] as $sql) {
         Log::write('system', Log::INFO, "Banner Plugin $version update: Executing SQL => $sql");
         try {
             $db->conn->executeUpdate($sql);
         } catch (\Exception $e) {
             Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
-            if (!$dvlp) return false;
+            //if (!$dvlp) return false;
         }
     }
     return true;
@@ -275,10 +276,9 @@ function BANR_remove_old_files()
         // public_html/banner
         $_CONF['path_html'] . 'banner' => array(
             'docs/english/bannerform.legacy.html',
-	    'docs/english/campaignform.legacy.html',
-	    'docs/english/categoryform.legacy.html',
-	    'docs/english/config.legacy.html',
-
+            'docs/english/campaignform.legacy.html',
+            'docs/english/categoryform.legacy.html',
+            'docs/english/config.legacy.html',
         ),
         // admin/plugins/banner
         $_CONF['path_html'] . 'admin/plugins/banner' => array(

@@ -11,7 +11,7 @@
  * @filesource
  */
 
-global $_TABLES;
+global $_TABLES, $_SQL, $BANR_UPGRADE;
 
 $_SQL = array();
 $_SQL['bannercategories'] = "CREATE TABLE {$_TABLES['bannercategories']} (
