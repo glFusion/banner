@@ -3,14 +3,18 @@
  * Class to handle advertising campaigns.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.2.1
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace Banner;
+use glFusion\Database\Database;
+use glFusion\Log\Log;
+use glFusion\FieldList;
+
 
 /**
  * Class to manage banner campaigns.
@@ -70,11 +74,11 @@ class Campaign
      * @var string */
     private $dscp = '';
 
-    /** Publication starting date.
+    /** Publication starting date. NULL indicates no limitation.
      * @var object */
     private $PubStart = NULL;
 
-    /** Publication ending date.
+    /** Publication ending date. NULL indicates no limitation.
      * @var object */
     private $PubEnd = NULL;
 
@@ -89,6 +93,18 @@ class Campaign
     /** Flag to indicate that this campaign's ads can be displaayed.
      * @var boolean */
     private $enabled = 1;
+
+    /** Flag to indicate that ads should be shown to the ad owner.
+     * @var boolean */
+    private $show_owner = 0;
+
+    /** Flag to indicate that ads should be shown to the plugin admins.
+     * @var boolean */
+    private $show_admins = 0;
+
+    /** Flag to indicate that ads should be shown in administration pages.
+     * @var boolean */
+    private $show_adm_pages = 0;
 
     /** Flag to indicate whether this item is new.
      * @var boolean */
@@ -122,8 +138,8 @@ class Campaign
             $this->perm_group = (int)$_CONF_BANR['default_permissions'][1];
             $this->perm_members = (int)$_CONF_BANR['default_permissions'][2];
             $this->perm_anon = (int)$_CONF_BANR['default_permissions'][3];
-            $this->setPubStart();
-            $this->setPubEnd();
+            /*$this->setPubStart();
+            $this->setPubEnd();*/
         }
     }
 
@@ -133,17 +149,22 @@ class Campaign
      *
      * @param   string  $id     ID of the campaign to retrieve
      */
-    public function Read($id)
+    public function Read(string $id)
     {
         global $_TABLES;
 
-        $A = DB_fetchArray(
-            DB_query(
+        $db = Database::getInstance();
+        try {
+            $A = $db->conn->executeQuery(
                 "SELECT * FROM {$_TABLES['bannercampaigns']}
-                WHERE camp_id='" . COM_sanitizeID($id, false) . "'", 1
-            ),
-            false
-        );
+                WHERE camp_id = ?",
+                array($id),
+                array(Database::STRING)
+            )->fetch(Database::ASSOCIATIVE);
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $A = NULL;
+        }
         if (!empty($A)) {
             $this->setVars($A);
             $this->isNew = false;
@@ -156,10 +177,11 @@ class Campaign
      *
      * @param   array   $A  Array of values, either from $_POST or database
      */
-    public function setVars($A, $fromDB=false)
+    public function setVars(?array $A=NULL, bool $fromDB=false) : self
     {
-        if (!is_array($A))
-            return;
+        if (!is_array($A)) {
+            return $this;
+        }
 
         $this->camp_id = $A['camp_id'];
         $this->setUID($A['owner_id']);
@@ -171,6 +193,9 @@ class Campaign
         $this->impressions = (int)$A['impressions'];
         $this->max_impressions = (int)$A['max_impressions'];
         $this->tid = $A['tid'];
+        $this->show_owner = isset($A['show_owner']) && $A['show_owner'] ? 1 : 0;
+        $this->show_admins = isset($A['show_admins']) && $A['show_admins'] ? 1 : 0;
+        $this->show_adm_pages = isset($A['show_adm_pages']) && $A['show_adm_pages'] ? 1 : 0;
 
         if ($fromDB) {
             $this->setPubStart($A['start']);
@@ -178,12 +203,12 @@ class Campaign
         } else {
             // Form, get values from two fields
             if (empty($A['start_date'])) {
-                $this->setPubStart(0);
+                $this->setPubStart(NULL);
             } else {
                 $this->setPubStart($A['start_date'] . ' ' . $A['start_time']);
             }
             if (empty($A['end_date'])) {
-                $this->setPubEnd(0);
+                $this->setPubEnd(NULL);
             } else {
                 $this->setPubEnd($A['end_date'] . ' ' . $A['end_time']);
             }
@@ -212,6 +237,7 @@ class Campaign
             $this->perm_members = (int)$A['perm_members'];
             $this->perm_anon = (int)$A['perm_anon'];
         }
+        return $this;
     }
 
 
@@ -221,7 +247,7 @@ class Campaign
      * @param   integer $uid    glFusion user ID
      * @return  object  $this
      */
-    public function setUID($uid)
+    public function setUID(int $uid) : self
     {
         $this->owner_id = (int)$uid;
         $this->uname = COM_getDisplayName($this->owner_id);
@@ -229,7 +255,7 @@ class Campaign
     }
 
 
-    public function getID()
+    public function getID() : string
     {
         return $this->camp_id;
     }
@@ -241,14 +267,15 @@ class Campaign
      * @param   string  $dt_str     MYSQL-formatted date/time string
      * @return  object  $this
      */
-    public function setPubStart($dt_str='')
+    public function setPubStart(?string $dt_str=NULL) : self
     {
         global $_CONF;
 
-        if (empty($dt_str)) {
-            $dt_str = BANR_MIN_DATE;
+        if (!empty($dt_str)) {
+            $this->PubStart = new \Date($dt_str, $_CONF['timezone']);
+        } else {
+            $this->PubStart = NULL;
         }
-        $this->PubStart = new \Date($dt_str, $_CONF['timezone']);
         return $this;
     }
 
@@ -259,14 +286,15 @@ class Campaign
      * @param   string  $dt_str     MYSQL-formatted date/time string
      * @return  object  $this
      */
-    public function setPubEnd($dt_str='')
+    public function setPubEnd(?string $dt_str = NULL) : self
     {
         global $_CONF;
 
-        if (empty($dt_str)) {
-            $dt_str = BANR_MAX_DATE;
+        if (!empty($dt_str)) {
+            $this->PubEnd = new \Date($dt_str, $_CONF['timezone']);
+        } else {
+            $this->PubEnd = NULL;
         }
-        $this->PubEnd = new \Date($dt_str, $_CONF['timezone']);
         return $this;
     }
 
@@ -276,12 +304,12 @@ class Campaign
      *
      * @return  string      Starting publication date
      */
-    public function getPubStart($fmt='')
+    public function getPubStart(?string $fmt=NULL)
     {
-        if ($fmt == '') {
-            return $this->PubStart;
+        if (!empty($fmt) && !is_null($this->PubStart)) {
+            return $this->PubStart->format($fmt, true);
         } else {
-            return $this->PubStart->format($fmt);
+            return $this->PubStart;
         }
     }
 
@@ -293,10 +321,10 @@ class Campaign
      */
     public function getPubEnd($fmt='')
     {
-        if ($fmt == '') {
-            return $this->PubEnd;
+        if (!empty($fmt) && !is_null($this->PubEnd)) {
+            return $this->PubEnd->format($fmt, true);
         } else {
-            return $this->PubEnd->format($fmt);
+            return $this->PubEnd;
         }
     }
 
@@ -321,12 +349,20 @@ class Campaign
         if ($id == '') return $oldval;
 
         $newval = $oldval == 0 ? 1 : 0;
-        DB_change(
-            $_TABLES['bannercampaigns'],
-            'enabled', $newval,
-            'camp_id', DB_escapeString(trim($id))
-        );
-        return DB_error() ? $oldval : $newval;
+        $db = Database::getInstance();
+        try {
+            $status = $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['bannercampaigns']}
+                SET enabled = ?
+                WHERE camp_id = ?",
+                array($newval, $id),
+                array(Database::INTEGER, Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $newval = $oldval;
+        }
+        return $newval;
     }
 
 
@@ -339,14 +375,50 @@ class Campaign
     {
         global $_TABLES;
 
-        if (self::isUsed($this->camp_id)) {
-            DB_delete(
-                $_TABLES['bannercampaigns'],
-                'camp_id',
-                DB_escapeString(trim($id))
-            );
+        if (!self::isUsed($this->camp_id)) {
+            $db = Database::getInstance();
+            try {
+                $db->conn->delete(
+                    $_TABLES['bannercampaigns'], array('camp_id' => $id), array(Database::STRING)
+                );
+            } catch (\Exception $e) {
+                Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            }
         }
         $this->camp_id = '';
+    }
+
+
+    /**
+     * Check if this campaign should show ads to the ad owner.
+     *
+     * @return  boolean     True/False
+     */
+    public function showOwner() : bool
+    {
+        return $this->show_owner ? 1 : 0;
+    }
+
+
+    /**
+     * Check if this campaign should show ads to site administrators.
+     *
+     * @return  boolean     True/False
+     */
+    public function showAdmins() : bool
+    {
+        return $this->show_admins ? 1 : 0;
+    }
+
+
+    /**
+     * Check if this campaign should show ads on administration pages.
+     *
+     * @return  boolean     True/False
+     */
+    public function showAdminPages() : bool
+    {
+        return $this->show_adm_pages ? 1 : 0;
     }
 
 
@@ -360,11 +432,8 @@ class Campaign
     {
         global $_TABLES;
 
-        return DB_count(
-            $_TABLES['banner'],
-            'camp_id',
-            DB_escapeString(trim($id))
-        ) > 0; 
+        $db = Database::getInstance();
+        return $db->getCount($_TABLES['banner'], 'camp_id', $id, Database::STRING) > 0;
     }
 
 
@@ -393,7 +462,7 @@ class Campaign
 
         $T->set_var(array(
             'pi_url'        => BANR_URL,
-            'help_url'      => BANNER_docURL('campaignform.html'),
+            'help_url'      => BANNER_docURL('campaignform'),
             'camp_id'       => $this->camp_id,
             'uname'         => $this->uname,
             'description'   => $this->dscp,
@@ -407,8 +476,7 @@ class Campaign
             'impressions'   => $this->impressions,
             'max_impressions'   => $this->max_impressions,
             'banner_ownerid'    => $this->owner_id,
-            'owner_username' => DB_getItem($_TABLES['users'],
-                                'username', "uid = '{$this->owner_id}'"),
+            'owner_username' => COM_getDisplayName($this->owner_id),
             'owner_selection' => COM_optionList($_TABLES['users'],'uid,username',
                                 $this->owner_id, 1, 'uid <> 1'),
             'group_dropdown' => SEC_getGroupDropdown(
@@ -418,6 +486,9 @@ class Campaign
                                 $this->perm_members,$this->perm_anon),
             'topic_list'    => $topics,
             'cancel_url'    => BANR_ADMIN_URL . '/index.php?view=campaigns',
+            'show_owner_chk' => $this->showOwner() ? 'checked="checked"' : '',
+            'show_admins_chk' => $this->showAdmins() ? 'checked="checked"' : '',
+            'show_adm_page_chk' => $this->showAdminPages() ? 'checked="checked"' : '',
         ) );
 
         if (self::isUsed($this->camp_id)) {
@@ -455,23 +526,54 @@ class Campaign
      *
      * @param   array   $A  Array of values from $_POST (optional)
      */
-    public function Save($A='')
+    public function Save(?array $A=NULL)
     {
         global $_TABLES, $LANG_BANNER;
 
-        if (is_array($A))
+        if (is_array($A)) {
             $this->setVars($A);
+        }
 
-        $start = $this->getPubStart()->toMySQL(true);
-        $finish = $this->getPubEnd()->toMySQL(true);
+        $db = Database::getInstance();
+        $qb = $db->conn->createQueryBuilder();
+
+        if (!is_null($this->pubStart)) {
+            $qb->setParameter('start', $this->pubStart->toMySQL(true), Database::STRING);
+        } else {
+            $qb->setParameter('start', NULL, Database::INTEGER);
+        }
+        if (!is_null($this->pubEnd)) {
+            $qb->setParameter('end', $this->pubEnd->toMySQL(true), Database::STRING);
+        } else {
+            $qb->setParameter('end', NULL, Database::INTEGER);
+        }
 
         if ($this->isNew) {
             // Creates a new ID if one not already provided
             $this->camp_id = COM_sanitizeID($this->camp_id, true);
             $allowed = 0;       // no existing campaign by this name allowed
-
-            $sql1 = "INSERT INTO {$_TABLES['bannercampaigns']}";
-            $sql3 = '';
+            $qb->insert($_TABLES['bannercampaigns'])
+                ->values([
+                    'camp_id' => ':camp_id',
+                    'description' => ':dscp',
+                    'start' => ':start',
+                    'finish' => ':finish',
+                    'enabled' => ':enabled',
+                    'hits' =>  ':hits',
+                    'max_hits' => ':max_hits',
+                    'impressions' => ':impressions',
+                    'max_impressions' => ':max_impressions',
+                    'owner_id' => ':owner_id',
+                    'group_id' => ':group_id',
+                    'perm_owner' => ':perm_owner',
+                    'perm_group' => ':perm_group',
+                    'perm_members' => ':perm_members',
+                    'perm_anon' => ':perm_anon',
+                    'tid' => ':tid',
+                    'show_owner' => ':show_owner',
+                    'show_admins' => ':show_admins',
+                    'show_adm_pages' => ':show_adm_pages',
+                ]);
         } else {
             $this->camp_id = COM_sanitizeID($this->camp_id, false);
             // If not changing the ID, then one existing record with this
@@ -482,42 +584,61 @@ class Campaign
             if ($this->camp_id == '')
                 return $LANG_BANNER['err_missing_id'];
 
-            $sql1 = "UPDATE {$_TABLES['bannercampaigns']}";
-            $sql3 = " WHERE camp_id='" . DB_escapeString($this->oldID) . "'";
+            $qb->update($_TABLES['bannercampaigns'])
+               ->set('camp_id = :camp_id')
+               ->set('description = :dscp')
+               ->set('start = :start')
+               ->set('finish = :finish')
+               ->set('enabled = :enabled')
+               ->set('hits = :hits')
+               ->set('max_hits = :max_hits')
+               ->set('impressions = :impressions')
+               ->set('max_impressions = :max_impressions')
+               ->set('owner_id = :owner_id')
+               ->set('group_id = :group_id')
+               ->set('perm_owner = :perm_owner')
+               ->set('perm_group = :perm_group')
+               ->set('perm_members = :perm_members')
+               ->set('perm_anon = :perm_anon')
+               ->set('tid = :tid')
+               ->set('show_owner = :show_owner')
+               ->set('show_admins = :show_admins')
+               ->set('show_adm_pages = :show_adm_pages')
+               ->where('camp_id = :camp_id');
         }
 
-        if (DB_count($_TABLES['bannercampaigns'], 'camp_id', $this->camp_id) > $allowed) {
+        if ($db->getCount($_TABLES['bannercampaigns'], 'camp_id', $this->camp_id, Database::STRING) > $allowed) {
             return $LANG_BANNER['err_dup_id'];;
         }
 
-        $sql2 = " SET
-                camp_id='" . DB_escapeString($this->camp_id) . "',
-                description='" . DB_escapeString($this->dscp) . "',
-                start = '$start',
-                finish = '$finish',
-                enabled = {$this->isEnabled()},
-                hits = '{$this->hits}',
-                max_hits = '{$this->max_hits}',
-                impressions= '{$this->impressions}',
-                max_impressions = '{$this->max_impressions}',
-                owner_id = '{$this->owner_id}',
-                group_id = '{$this->group_id}',
-                perm_owner = '{$this->perm_owner}',
-                perm_group = '{$this->perm_group}',
-                perm_members = '{$this->perm_members}',
-                perm_anon = '{$this->perm_anon}',
-                tid='" . DB_escapeString($this->tid) . "'";
-        $sql = $sql1 . $sql2 . $sql3;
-        //echo $sql;die;
-        DB_query($sql);
-        if (DB_error()) {
+        $qb->setParameter('camp_id', $this->camp_id, Database::STRING)
+           ->setParameter('description', $this->dscp, Database::STRING)
+           ->setParameter('enabled', $this->isEnabled(), Database::INTEGER)
+           ->setParameter('hits', $this->hits, Database::INTEGER)
+           ->setParameter('max_hits', $this->max_hits, Database::INTEGER)
+           ->setParameter('impressions', $this->impressions, Database::INTEGER)
+           ->setParameter('max_impressions', $this->max_impressions, Database::INTEGER)
+           ->setParameter('owner_id', $this->owner_id, Database::INTEGER)
+           ->setParameter('group_id', $this->group_id, Database::INTEGER)
+           ->setParameter('perm_owner', $this->perm_owner, Database::INTEGER)
+           ->setParameter('perm_group', $this->perm_group, Database::INTEGER)
+           ->setParameter('perm_members', $this->perm_members, Database::INTEGER)
+           ->setParameter('perm_anon', $this->perm_anon, Database::INTEGER)
+           ->setParameter('tid', $this->tid, Database::STRING)
+           ->setParameter('show_owner', $this->show_owner, Database::INTEGER)
+           ->setParameter('show_admins', $this->show_admins, Database::INTEGER)
+           ->setParameter('show_adm_pages', $this->show_adm_pages, Database::INTEGER);
+        try {
+            $status = $qb->execute();
+            if ($this->camp_id != $this->oldID) {
+                // Update banners that were associated with the old ID
+                Banner::changeCampaignId($this->oldID, $this->camp_id);
+            }
+            return '';
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             return $LANG_BANNER['err_saving_item'];
         }
-        if ($this->camp_id != $this->oldID) {
-            // Update banners that were associated with the old ID
-            DB_change($_TABLES['banner'], 'camp_id', $this->camp_id, 'camp_id', $this->oldID);
-        }
-        return '';
     }
 
 
@@ -581,19 +702,25 @@ class Campaign
      * Get an array of Banner objects associated with this campaign.
      * Sets the internal Banner variable to an array of Banner objects.
      */
-    public function getBanners()
+    public function getBanners() : void
     {
         global $_TABLES;
 
-        $sql = "SELECT bid
-                FROM {$_TABLES['banner']}
-                WHERE camp_id='{$this->camp_id}'";
-        $result = DB_query($sql);
-        if (!$result)
-            return false;
-
         $this->Banners = array();
-        while ($A = DB_fetchArray($result, false)) {
+        $db = Database::getInstance();
+        try {
+            $data = $db->conn->executeQuery(
+                "SELECT bid FROM {$_TABLES['banner']}
+                WHERE camp_id = ?",
+                array($this->camp_id),
+                array(Database::STRING)
+            )->fetchAll(Database::ASSOCIATIVE);
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $data = array();
+        }
+
+        foreach ($data as $A) {
             $this->Banners[] = new Banner($A['bid']);
         }
     }
@@ -604,12 +731,22 @@ class Campaign
      *
      * @param   string  $camp_id    Campaign ID
      */
-    public static function updateImpressions($camp_id)
+    public static function updateImpressions(string $camp_id) : void
     {
         global $_TABLES;
-        DB_query("UPDATE {$_TABLES['bannercampaigns']}
-                SET impressions=impressions+1
-                WHERE camp_id='" . DB_escapeString($camp_id) . "'");
+
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['bannercampaigns']}
+                SET impressions = impressions+1
+                WHERE camp_id = ?",
+                array($camp_id),
+                array(Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
     }
 
 
@@ -618,15 +755,22 @@ class Campaign
      *
      * @param   string  $camp_id    Campaign to update
      */
-    public static function updateHits($camp_id)
+    public static function updateHits(string $camp_id) : void
     {
         global $_TABLES;
 
-        // Update the campaign total hits
-        $sql = "UPDATE {$_TABLES['bannercampaigns']}
-                SET hits=hits+1
-                WHERE camp_id='" . DB_escapeString($camp_id) . "'";
-        DB_query($sql);
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['bannercampaigns']}
+                SET hits = hits+1
+                WHERE camp_id = ?",
+                array($camp_id),
+                array(Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
     }
  
 
@@ -749,31 +893,32 @@ class Campaign
         $base_url = BANR_ADMIN_URL;
         switch($fieldname) {
         case 'edit':
-            $retval .= COM_createLink(
-                $_CONF_BANR['icons']['edit'],
-                "$base_url/index.php?editcampaign=" . urlencode($A['camp_id'])
-            );
+            $retval .= FieldList::edit(array(
+                'url' => "$base_url/index.php?editcampaign=" . urlencode($A['camp_id']),
+            ) );
             break;
 
         case 'enabled':
-            $switch = $fieldvalue == 1 ? 'checked="checked"' : '';
-            $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"camp_ena_check\"
-                id=\"togena{$A['camp_id']}\"
-                onclick='BANR_toggleEnabled(this, \"{$A['camp_id']}\",\"campaign\");' />\n";
+            $retval .= FieldList::checkbox(array(
+                'name' => 'camp_ena_check',
+                'id' => "togena{$A['camp_id']}",
+                'checked' => $fieldvalue == 1,
+                'onclick' => "BANR_toggleEnabled(this, '{$A['camp_id']}','campaign');",
+            ) );
             break;
 
         case 'delete':
             if (self::isUsed($A['camp_id'])) {
-                $retval .= COM_createLink(
-                    $_CONF_BANR['icons']['delete'],
-                    "$base_url/index.php?delete=x&item=campaign&amp;camp_id={$A['camp_id']}",
-                    array(
+                $retval .= FieldList::delete(array(
+                    'delete_url' => "$base_url/index.php?delete=x&item=campaign&amp;camp_id={$A['camp_id']}",
+                    'attr' => array(
                         'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
-                    )
-                );
+                    ),
+                ) );
             } else {
-                $retval .= '<i class="uk-icon uk-icon-trash-o uk-text-muted tooltip"
-                    title="' . $LANG_BANNER['cannot_delete'] . '"></i>';
+                $retval .= FieldList::info(array(
+                    'title' => $LANG_BANNER['cannot_delete'],
+                ) );
             }
             break;
 
@@ -782,9 +927,10 @@ class Campaign
             break;
 
         case 'camp_id':
-            $retval = COM_createLink($A['camp_id'],
-                "{$base_url}/index.php?view=banners&camp_id="
-                . urlencode($A['camp_id']));
+            $retval = COM_createLink(
+                $A['camp_id'],
+                "{$base_url}/index.php?view=banners&camp_id=" . urlencode($A['camp_id'])
+            );
             break;
 
         case 'hits':
@@ -808,4 +954,3 @@ class Campaign
 
 }
 
-?>

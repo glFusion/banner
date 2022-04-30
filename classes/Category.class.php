@@ -3,14 +3,17 @@
  * Class to handle banner categories.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v1.00
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace Banner;
+use glFusion\FieldList;
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 
 
 /**
@@ -141,10 +144,18 @@ class Category
     {
         global $_TABLES;
 
-        $A = DB_fetchArray(DB_query(
-            "SELECT * FROM {$_TABLES['bannercategories']}
-            WHERE cid='".DB_escapeString($id)."'", 1), false);
-        if (!empty($A)) {
+        $db =  Database::getInstance();
+        try {
+            $A = $db->conn->executeQuery(
+                "SELECT * FROM {$_TABLES['bannercategories']} WHERE cid = ?",
+                array($id),
+                array(Database::STRING)
+            )->fetch(Database::ASSOCIATIVE);
+        } catch (\Excepton $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $A = NULL;
+        }
+        if (is_array($A)) {
             $this->setVars($A);
             $this->oldcid = $this->cid;
             $this->isNew = false;
@@ -191,15 +202,20 @@ class Category
         global $_TABLES;
 
         $newval = $oldval == 0 ? 1 : 0;
-        DB_query("UPDATE {$_TABLES['bannercategories']}
-                SET `$field` = $newval
-                WHERE cid = '" . DB_escapeString($id) . "'");
-        if (!DB_error()) {
-            Cache::clear('cats');
-            return $newval;
-        } else {
-            return $oldval;
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['bannercategories']}
+                SET `$field` = ?
+                WHERE cid = ?",
+                array($newval, $cid),
+                array(Database::INTEGER, Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('systeem', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $newval = $oldval;
         }
+        return $newval;
     }
 
 
@@ -255,8 +271,11 @@ class Category
         }
 
         if (!self::isUsed($this->cid)) {
-            DB_delete($_TABLES['bannercategories'],
-                'cid', DB_escapeString($this->cid));
+            Database::getInstance()->conn->delete(
+                $_TABLES['bannercategories'],
+                array('cid' => $this->cid),
+                array(Database::STRING)
+            );
             Cache::clear('cats');
         }
     }
@@ -268,15 +287,16 @@ class Category
      * @param   string  $id     Category ID to check
      * @return  boolean         True if the category is in use, fales otherwise.
      */
-    public static function isUsed($id)
+    public static function isUsed(string $id) : bool
     {
         global $_TABLES;
 
-        if (DB_count($_TABLES['banner'], 'cid', $id) > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return Database::getInstance()->getCount(
+            $_TABLES['banner'],
+            array('cid'),
+            array($id),
+            array(Database::STRING)
+        ) > 0;
     }
 
 
@@ -300,7 +320,7 @@ class Category
         ) );
 
         $T->set_var(array(
-            'help_url'      => BANNER_docURL('categoryform.html'),
+            'help_url'      => BANNER_docURL('categoryform'),
             'cancel_url'    => BANR_ADMIN_URL . '/index.php?view=categories',
         ));
 
@@ -371,6 +391,8 @@ class Category
             $this->setVars($A);
         }
 
+        $db = Database::getInstance();
+        $qb = $db->conn->createQueryBuilder();
         if ($this->isNew) {
             // Make sure there's a valid category ID
             if ($this->cid == '') {
@@ -378,44 +400,67 @@ class Category
             }
 
             // Make sure there's not a duplicate ID
-            if (DB_count(
+            if ($db->getCount(
                 $_TABLES['bannercategories'],
                 'cid',
-                $this->cid
+                $this->cid,
+                Database::STRING
             ) > 0) {
                 return $LANG_BANNER['duplicate_cid'];
             }
-            $sql1 = "INSERT INTO {$_TABLES['bannercategories']} SET ";
-            $sql3 = '';
+
+            $qb->insert($_TABLES['bannercategories'])
+               ->setValue('cid', ':cid')
+               ->setValue('type', ':type')
+               ->setValue('category', ':category')
+               ->setValue('description', ':dscp')
+               ->setValue('tid', ':tid')
+               ->setValue('enabled', ':enabled')
+               ->setValue('centerblock', ':centerblock')
+               ->setvalue('grp_view', ':grp_view')
+               ->setValue('max_img_height', ':max_img_height')
+               ->setValue('max_img_width', ':max_img_width');
         } else {
             if ($this->cid == '') {
                 $this->cid = $this->oldcid;
             }
-            $sql1 = "UPDATE {$_TABLES['bannercategories']} SET ";
-            $sql3 = " WHERE cid='" . DB_escapeString($this->oldcid) . "'";
+            $qb->update($_TABLES['bannercategories'])
+               ->set('cid', ':cid')
+               ->set('type', ':type')
+               ->set('category', ':category')
+               ->set('description', ':dscp')
+               ->set('tid', ':tid')
+               ->set('enabled', ':enabled')
+               ->set('centerblock', ':centerblock')
+               ->set('grp_view', ':grp_view')
+               ->set('max_img_height', ':max_img_height')
+               ->set('max_img_width', ':max_img_width')
+               ->where('cid = :oldcid');
         }
-        $sql2 = "cid='" . DB_escapeString($this->cid) . "',
-                type='".DB_escapeString($this->type)."',
-                category='".DB_escapeString($this->category)."',
-                description='".DB_escapeString($this->dscp)."',
-                tid='".DB_escapeString($this->tid)."',
-                enabled = '{$this->isEnabled()}',
-                centerblock = '{$this->centerblock}',
-                grp_view = '{$this->grp_view}',
-                max_img_height = '{$this->max_img_height}',
-                max_img_width = '{$this->max_img_width}'";
-        //echo $sql1 . $sql2 . $sql3;die;
-        DB_query($sql1 . $sql2 . $sql3);
-        if (DB_error()) {
+        $qb->setParameter('cid', $this->cid, Database::STRING)
+           ->setParameter('type', $this->type, Database::STRING)
+           ->setParameter('category', $this->category, Database::STRING)
+           ->setParameter('description', $this->dscp, Database::STRING)
+           ->setParameter('tid', $this->tid, Database::STRING)
+           ->setParameter('enabled', $this->enabled, Database::INTEGER)
+           ->setParameter('centerblock', $this->centerblock, Database::INTEGER)
+           ->setParameter('grp_view', $this->grp_view, Database::INTEGER)
+           ->setParameter('max_img_height', $this->max_img_height, Database::INTEGER)
+           ->setParameter('max_img_width', $this->max_img_width, Database::INTEGER);
+        try {
+            $qb->execute();
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             return $LANG_BANNER['err_saving_item'];
         }
+
         if ($this->centerblock) {
             // Disable other centerblock categories if this one is set
             self::unsetCenterblock($this->cid);
         }
         if ($this->oldcid != $this->cid) {
             // Update banners that were associated with the old ID
-            DB_change($_TABLES['banner'], 'cid', $this->cid, 'cid', $this->oldcid);
+            Banner::changeCategoryId($this->oldcid, $this->cid);
         }
         if (isset($_POST['map']) && is_array($_POST['map'])) {
             Mapping::saveAll($_POST['map'], $this->cid);
@@ -425,14 +470,22 @@ class Category
     }
 
 
-    private static function unsetCenterblock($except)
+    private static function unsetCenterblock(string $except)
     {
         global $_TABLES;
 
-        $sql = "UPDATE {$_TABLES['bannercategories']}
-            SET centerblock = 0
-            WHERE cid <> '" . DB_escapeString($except) . "'";
-        DB_query($sql);
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['bannercategories']}
+                SET centerblock = 0
+                WHERE cid <> ?",
+                array($except),
+                array(Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
     }
 
 
@@ -619,18 +672,24 @@ class Category
     {
         global $_TABLES;
 
-        $sql = "SELECT c.cid, c.category, c.tid, c.type, c.grp_view, c.centerblock, c.enabled,
+        $db = Database::getInstance();
+        try {
+            $data = $db->conn->executeQuery(
+                "SELECT c.cid, c.category, c.tid, c.type, c.grp_view, c.centerblock, c.enabled,
                         t.topic as topic_text
                 FROM {$_TABLES['bannercategories']} c
                 LEFT JOIN {$_TABLES['topics']} t
                     ON t.tid = c.tid
-                ORDER BY c.category";
-        //echo $sql;die;
-        $result = DB_query($sql);
-        while ($A = DB_fetchArray($result)) {
-            $data_arr[] = $A;
+                ORDER BY c.category"
+            )->fetchAllAssociative();
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $data = NULL;
         }
-        return $data_arr;
+        if (!is_array($data)) {
+            $data = array();
+        }
+        return $data;
     }
 
 
@@ -646,12 +705,21 @@ class Category
         $cats = Cache::get($cache_key);
         if ($cats === NULL) {
             $cats = array();
-            $sql = "SELECT * FROM {$_TABLES['bannercategories']}";
-            $res = DB_query($sql);
-            while ($A = DB_fetchArray($res, false)) {
-                $C = new self();
-                $C->setVars($A);
-                $cats[$A['cid']] = $C;
+            $db = Database::getInstance();
+            try {
+                $data = $db->conn->executeQuery(
+                    "SELECT * FROM {$_TABLES['bannercategories']}"
+                )->fetchAllAssociative();
+            } catch (\Exception $e) {
+                Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+                $data = NULL;
+            }
+            if (is_array($data)) {
+                foreach ($data as $A) {
+                    $C = new self();
+                    $C->setVars($A);
+                    $cats[$A['cid']] = $C;
+                }
             }
             Cache::set($cache_key, $cats, 'cats');
         }
@@ -679,49 +747,42 @@ class Category
         $access = 3;
         switch ($fieldname) {
         case 'edit':
-            $retval = COM_createLink(
-                $_CONF_BANR['icons']['edit'],
-                "$admin_url?editcategory&amp;cid=" . urlencode($A['cid'])
-            );
+            $retval = FieldList::edit(array(
+                'url' => "$admin_url?editcategory&amp;cid=" . urlencode($A['cid']),
+            ) );
             break;
 
         case 'enabled':
-            if ($A['enabled'] == '1') {
-                $switch = 'checked="checked"';
-            } else {
-                $switch = '';
-            }
-            $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"cat_ena_check\"
-                id=\"togena{$A['cid']}\"
-                onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"category\");' />\n";
+            $retval = FieldList::checkbox(array(
+                'name' => 'cat_ena_check',
+                'id' => "togena{$A['cid']}",
+                'checked' => (int)$fieldvalue == 1,
+                'onclick' => "BANR_toggleEnabled(this, '{$A['cid']}','category');",
+            ) );
             break;
 
         case 'delete':
             if (!Category::isRequired($A['type']) && !Category::isUsed($A['cid'])) {
-                $retval .= COM_createLink(
-                    $_CONF_BANR['icons']['delete'],
-                    "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
-                    array(
+                $retval .= FieldList::delete(array(
+                    'delete_url' => "$admin_url?delete=x&item=category&amp;cid={$A['cid']}",
+                    'attr' => array(
                         'onclick' => "return confirm('{$LANG_BANNER['ok_to_delete']}');",
                     )
-                );
+                ) );
             } else {
-                $retval .= '<i class="uk-icon uk-icon-trash-o uk-text-muted tooltip"
-                    title="' . $LANG_BANNER['cannot_delete'] . '"></i>';
+                $retval = FieldList::info(array(
+                    'title' => $LANG_BANNER['cannot_delete'],
+                ) );
             }
             break;
 
         case 'centerblock':
-            if ($fieldvalue == '1') {
-                $switch = 'checked="checked"';
-                //$newval = 0;
-            } else {
-                $switch = '';
-                //$newval = 1;
-            }
-            $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"catcb_ena_check\"
-                id=\"togcatcb{$A['cid']}\"
-                onclick='BANR_toggleEnabled(this, \"{$A['cid']}\",\"cat_cb\");' />\n";
+            $retval .= FieldList::checkbox(array(
+                'id' => "togcatcb{$A['cid']}",
+                'name' => 'catcb_ena_check',
+                'checked' => (int)$fieldvalue == 1,
+                'onclick' => "BANR_toggleEnabled(this, '{$A['cid']}','cat_cb');",
+            ) );
             break;
 
         case 'access':
@@ -735,8 +796,10 @@ class Category
         case 'category':
             $indent = isset($A['indent']) ? (int)$A['indent'] : 1;
             $indent = ($indent - 1) * 20;
-            $cat = COM_createLink($A['category'],
-                        "$admin_url?banners=x&category=" . urlencode($A['cid']));
+            $cat = COM_createLink(
+                $A['category'],
+                $admin_url . 'banners=x&category=' . urlencode($A['cid'])
+            );
             $retval = "<span style=\"padding-left:{$indent}px;\">$cat</span>";
             break;
 
@@ -762,4 +825,3 @@ class Category
 
 }
 
-?>

@@ -14,6 +14,9 @@
 if (!defined ('GVERSION')) {
     die ('This file can not be used on its own.');
 }
+use glFusion\Database\Database;
+use glFusion\Log\Log;
+
 
 /** Global configuration array, in case this is included within a function
  *   @global array */
@@ -123,16 +126,19 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
 
     // Check if there are no featured articles in this topic
     // and if so then place it at the top of the page
+    $db = Database::getInstance();
     if ($topic != "") {
-        $wherenames = array('tid', 'featured', 'draft_flag');
-        $wherevalues = array($topic, 1, 0);
+        $names = array('tid', 'featured', 'draft_flag');
+        $values = array($topic, 1, 0);
+        $types = array(Database::STRING, Database::INTEGER, Database::INTEGER);
         $options['tid'] = $topic;
     } else {
-        $wherenames = array('featured', 'draft_flag');
-        $wherevalues = array(1, 0);
+        $names = array('featured', 'draft_flag');
+        $values = array(1, 0);
+        $types = array(Database::INTEGER, Database::INTEGER);
     }
 
-    $story_count = DB_count($_TABLES['stories'], $wherenames, $wherevalues);
+    $story_count = $db->getCount($_TABLES['stories'], $names, $values, $types);
     if ($story_count == 0 && $cntrblkpos == 2) {
         // If the centerblock comes after the featured story, and there
         // are no stories, put the centerblock at the top.
@@ -206,6 +212,8 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
        }
     } else if ($op == 'parse') {
         $banner = '';
+        $db = Database::getInstance();
+        $qb = $db->conn->createQueryBuilder();
 
         switch( $autotag['tag'] ) {
         case 'banner':
@@ -234,43 +242,60 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             break;
 
         case 'bannercategory' :
-            // Get all banners under a specific category
+            // Get all banners under a specific categorya
             $cid = COM_applyFilter($autotag['parm1']);
             if (!empty($cid)) {
-                // if there's a cid, join that table
+                $qb->leftJoin('b', $_TABLES['bannercategories'], 'c', 'b.cid = c.cid')
+                   ->andWhere('c.cid = :cid')
+                   ->andWhere(COM_getPermSQL('', 0, 2, 'c'));
+                       /*// if there's a cid, join that table
                 $cid_sql = "LEFT JOIN {$_TABLES['bannercategories']} AS c
                     ON b.cid=c.cid
                     WHERE c.cid='{$cid}' " .
                         COM_getPermSQL('AND', 0, 2, 'c') .
                          ' AND ';
             } else {
-                $cid_sql = ' WHERE ';
+                $cid_sql = ' WHERE ';*/
             }
-            $result = DB_query("SELECT b.bid
-                    FROM {$_TABLES['banner']} AS b
+
+            $qb->select('b.bid')
+               ->from($_TABLES['banner'], 'b')
+               ->where('(b.publishstart IS NULL OR b.publishstart < NOW()')
+               ->andWhere('(b.publishend IS NULL OR b.publishend > NOW())')
+               ->orderBy('RAND()');
+                    /*"SELECT b.bid FROM {$_TABLES['banner']} b
                     $cid_sql
                     (b.publishstart IS NULL OR b.publishstart < NOW())
                     AND (b.publishend IS NULL OR b.publishend > NOW())
-                    ORDER BY RAND()");
-            $T = new Template(BANR_PI_PATH . '/templates');
-            $T->set_file('block', 'bannercategory.thtml');
-            $T->set_block('block', 'bannerRow', 'BRow');
-            while ($A = DB_fetchArray($result, false)) {
-                $B = new Banner\Banner($A['bid']);
-                $T->set_var(array(
-                    'banner'    => $B->BuildBanner(),
-                    'category'  => $B->getCid(),
-                    'banner_id' => $B->getBid(),
-                    'campaign'  => $B->getCampId(),
-                ) );
-                $B->updateImpressions();
-                $T->parse('BRow', 'bannerRow', true);
+                    ORDER BY RAND()");*/
+            try {
+                $stmt = $qb->execute()->fetchAll(Database::ASSOCIATIVE);
+            } catch (\Exception $e) {
+                Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+                $data = array();
             }
-            $T->parse('output','block');
-            $banner = $T->finish($T->get_var('output'));
+            if (!empty($data)) {
+                $T = new Template(BANR_PI_PATH . '/templates');
+                $T->set_file('block', 'bannercategory.thtml');
+                $T->set_block('block', 'bannerRow', 'BRow');
+                foreach ($data as $A) {
+                    $B = new Banner\Banner($A['bid']);
+                    $T->set_var(array(
+                        'banner'    => $B->BuildBanner(),
+                        'category'  => $B->getCid(),
+                        'banner_id' => $B->getBid(),
+                        'campaign'  => $B->getCampId(),
+                    ) );
+                    $B->updateImpressions();
+                    $T->parse('BRow', 'bannerRow', true);
+                }
+                $T->parse('output','block');
+                $banner = $T->finish($T->get_var('output'));
+            } else {
+                $banner = '';
+            }
             break;
         }
-
         $content = str_replace($autotag['tagstr'], $banner, $content);
         return $content;
     }
@@ -292,72 +317,6 @@ function plugin_chkVersion_banner()
 
 
 /**
- * Shows the statistics for the banner plugin on stats.php.
- * If $showsitestats is 1 then we are to only print the overall stats in the
- * 'site statistics box' otherwise we show the detailed stats
- *
- * @param   integer $showsitestats  Flag to let us know which stats to get
- * @param   string                  HTML for the stats section
- */
-/*function plugin_showstats_banner ($showsitestats)
-{
-    global $_CONF, $_TABLES, $LANG_BANNER;
-
-    USES_lib_admin();
-    USES_banner_class_banner();
-
-    $retval = '';
-
-    $result = DB_query ("SELECT bid
-        FROM {$_TABLES['banner']}
-        WHERE (hits > 0)
-        AND (publishstart IS NULL OR publishstart < NOW())
-        AND (publishend IS NULL OR publishend > NOW())" .
-        COM_getPermSQL ('AND') .
-        " ORDER BY hits DESC LIMIT 10");
-    $nrows  = DB_numRows ($result);
-    if ($nrows > 0) {
-        $header_arr = array(
-            array('text'         => $LANG_BANNER['title'],
-                  'field'        => 'title',
-                  'header_class' => 'stats-header-title'
-            ),
-            array('text'         => $LANG_BANNER['banner'],
-                  'field'        => 'banner',
-                  'header_class' => 'stats-header-title'
-            ),
-            array('text'         => $LANG_BANNER['hits'],
-                  'field'        => 'hits',
-                  'header_class' => 'stats-header-count',
-                  'field_class'  => 'stats-list-count'
-            )
-        );
-        $data_arr = array();
-        $text_arr = array('has_menu' => false,
-                          'title'    => $LANG_BANNER['stats_headline'],
-        );
-        $B = new Banner\Banner();
-        for ($i = 0; $i < $nrows; $i++) {
-            list($bid) = DB_fetchArray ($result);
-            $B->Read($bid);
-            $data_arr[] = array(
-                'title' => $B->getTitle(),
-                'banner' => $B->BuildBanner('', 200, 0, false),
-                'hits' => COM_numberFormat($B->getHits()),
-            );
-        }
-        $retval .= ADMIN_simpleList ('', $header_arr, $text_arr, $data_arr);
-    } else {
-        $retval .= COM_startBlock ($LANG_BANNER['stats_headline']);
-        $retval .= $LANG_BANNER['stats_no_hits'];
-        $retval .= COM_endBlock ();
-    }
-
-    return $retval;
-}*/
-
-
-/**
  * New stats plugin API function for proper integration with the site stats.
  *
  * @return  array   Array(item text, item count)
@@ -366,17 +325,26 @@ function plugin_statssummary_banner ()
 {
     global $LANG_BANNER, $_TABLES;
 
-    $result = DB_query("SELECT COUNT(*) AS count, SUM(hits) AS clicks
-        FROM {$_TABLES['banner']}
-        WHERE (publishstart IS NULL OR publishstart < NOW())
-        AND (publishend IS NULL OR publishend > NOW())" .
-        COM_getPermSQL ('AND')
-    );
-    $A = DB_fetchArray ($result);
+    $db = Database::getInstance();
+    try {
+        $data = $db->conn->executeQuery(
+            "SELECT COUNT(*) AS count, SUM(hits) AS clicks
+            FROM {$_TABLES['banner']}
+            WHERE (publishstart IS NULL OR publishstart < NOW())
+            AND (publishend IS NULL OR publishend > NOW())" .
+            COM_getPermSQL ('AND')
+        )->fetch(Database::ASSOCIATIVE);
+    } catch (\Exception $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $data = NULL;
+    }
 
-    $item_count = COM_NumberFormat($A['count'])
-        . ' (' . COM_NumberFormat((int)$A['clicks']) . ')';
-
+    if (!empty($data)) {
+        $item_count = COM_NumberFormat($data['count'])
+        . ' (' . COM_NumberFormat((int)$data['clicks']) . ')';
+    } else {
+        $item_count = 0;
+    }
     return array($LANG_BANNER['pi_name'], $item_count);
 }
 
@@ -409,7 +377,7 @@ function plugin_getadminoption_banner()
     global $_TABLES, $LANG_BANNER;
 
     if (SEC_hasRights('banner.edit,banner.delete', 'OR')) {
-        $total_banner = (int)DB_count($_TABLES['banner']);
+        $total_banner = Database::getInstance()->getCount($_TABLES['banner']);
         return array(
             $LANG_BANNER['pi_name'],
             BANR_ADMIN_URL . '/index.php',
@@ -429,27 +397,47 @@ function plugin_user_delete_banner ($uid)
 {
     global $_TABLES, $_CONF_BANR;
 
+    $db = Database::getInstance();
     if ($_CONF_BANR['delete_banner'] == 1) {
         // delete the banner
-        DB_delete($_TABLES['banner'], 'owner_id', $uid);
+        try {
+            $db->conn->delete($_TABLES['banner'], array('owner_id' => (int)$uid));
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+            $data = NULL;
+        }
     } else {
         // assign ownership to a user from the Banner Admin group
-        $rootgroup = (int)DB_getItem(
-            $_TABLES['groups'],
-            'grp_id',
-            "grp_name = 'Root'"
-        );
-        $result = DB_query("SELECT DISTINCT ug_uid
+        $rootgroup = (int)$db->getItem($_TABLES['groups'], 'grp_id', array('grp_name' => 'Root'));
+        try {
+            $data = $db->conn->executeQuery(
+                "SELECT DISTINCT ug_uid
                 FROM {$_TABLES['group_assignments']}
-                WHERE ug_main_grp_id = $rootgroup
+                WHERE ug_main_grp_id = ?
                 ORDER BY ug_uid
-                LIMIT 1");
-        $A = DB_fetchArray ($result);
-        $rootuser = (int)$A['ug_uid'];
-        if ($rootuser > 0) {
-            DB_query("UPDATE {$_TABLES['banner']}
-                SET owner_id = '$rootuser'
-                WHERE owner_id = $uid");
+                LIMIT 1",
+                array($rootgroup),
+                array(Database::INTEGER)
+            )->fetch(Database::ASSOCIATIVE);
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+            $data = NULL;
+        }
+        if ($data !== NULL) {
+            $rootuser = $data['ug_uid'];
+            if ($rootuser > 0) {
+                try {
+                    $db->conn->executeUpdate(
+                        "UPDATE {$_TABLES['banner']}
+                        SET owner_id = ?
+                        WHERE owner_id = ?",
+                        array($rootuser, $uid),
+                        array(Database::INTEGER, Database::INTEGER)
+                    );
+                } catch (\Exception $e) {
+                    Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+                }
+            }
         }
     }
 }
@@ -474,9 +462,17 @@ function plugin_user_move_banner($origUID, $destUID)
         'bannersubmission',
         'banneraccount',
     );
+    $db = Database::getInstance();
     foreach ($tables as $table) {
-        DB_query("UPDATE {$_TABLES[$table]}
-            SET uid = $destUID WHERE uid = $origUID", 1);
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES[$table]} SET uid = ? WHERE uid = ?",
+                array($destUID, $origUID),
+                array(Database::INTEGER, Database::INTEGER)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        }
     }
 }
 
@@ -507,22 +503,36 @@ function plugin_enablestatechange_banner($enabled)
 
     $enabled = $enabled == 1 ? 1 : 0;
     $blockfns = array('phpblock_banner_');
+    $db = Database::getInstance();
 
     // If trying to enable the plugin but lgLib is not available,
     // take no action and return
     if ($enabled && !in_array('lglib', $_PLUGINS)) {
         // Re-disable the plugin
-        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'banner');
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['plugins']} SET pi_enabled = 0 WHERE pi_name = 'banner'"
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        }
         $enable = false;
         $enabled = 0;
     }
 
     if ($enabled == 0) {
         foreach ($blockfns as $blockfn) {
-        $sql = "UPDATE {$_TABLES['blocks']}
-                SET is_enabled=$enabled
-                WHERE phpblockfn like '{$blockfn}%'";
-        DB_query($sql);
+            try {
+                $db->conn->executeUpdate(
+                    "UPDATE {$_TABLES['blocks']}
+                    SET is_enabled = 0
+                    WHERE phpblockfn like ?",
+                    array('%' . $blockfn . '%'),
+                    array(Database::STRING)
+                );
+            } catch (\Exception $e) {
+                Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+            }
         }
     }
 }
@@ -542,7 +552,15 @@ function plugin_itemdeleted_banner($id, $type)
     // If the lgLib plugin is disabled or removed, disable thie plugin
     if ($type == 'lglib' && $id == '*') {
         plugin_enablestatechange_banner(false);
-        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'banner');
+        try {
+            Database::getInstance()->executeUpdate(
+                "UPDATE {$_TABLES['plugins']}
+                SET pi_enabled = 0
+                WHERE pi_name = 'banner'"
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        }
     }
 }
 
@@ -558,7 +576,7 @@ function plugin_submissioncount_banner()
 
     $retval = 0;
     if (plugin_ismoderator_banner ()) {
-        $retval = DB_count($_TABLES['bannersubmission']);
+        $retval = Database::getInstance()->getCount($_TABLES['bannersubmission']);
     }
     return $retval;
 }
@@ -872,6 +890,7 @@ function plugin_displayadblock_banner($plugin, $counter)
         'limit' => '1',
         'cid' => $Cats,
     );
+
     $bids = Banner\Banner::getBannerIDs($options);
     if (is_array($bids) && !empty($bids)) {
         $B = new Banner\Banner($bids[0]);
@@ -1078,10 +1097,11 @@ function Xplugin_getuseroption_banner()
     $uid = (int)$_USER['uid'];
     if ($uid < 2) return '';
 
-    $banner_cnt = (int)DB_count(
+    $banner_cnt = Database::getInstance()->getCount(
         $_TABLES['banner'],
         'owner_id',
-        $uid
+        $uid,
+        Database::INTEGER
     );
     //if ($banner_cnt > 0) {
         $retval = array(
@@ -1127,12 +1147,17 @@ function plugin_configmanager_select_defgrpsubmit_banner()
     global $_TABLES;
 
     $A = array();
-    $query = "SELECT grp_id, grp_name FROM {$_TABLES['groups']}";
-    $result = DB_query($query);
-    if ($result && DB_numRows($result) > 0) {
-        while ($row = DB_fetchArray($result)) {
-            $A[$row['grp_name']] = $row['grp_id'];
-        }
+    $db = Database::getInstance();
+    try {
+        $data = $db->conn->executeQuery(
+            "SELECT grp_id, grp_name FROM {$_TABLES['groups']}"
+        )->fetchAll(Database::ASSCIATIVE);
+    } catch (\Exception $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $data = array();
+    }
+    foreach ($data as $row) {
+        $A[$row['grp_name']] = $row['grp_id'];
     }
     return $A;
 }
@@ -1143,45 +1168,6 @@ function plugin_configmanager_select_defgrpsubmit_banner()
 //  Public Plugin-Specific Functions Follow
 //
 ////////////////////////////////////////////
-
-
-/**
- * Create a user dropdown list, optionally including or excluding
- * a specific comma-separated list of user ids.
- * Returns the <option> clauses only.
- *
- * @deprecated
- * @param  integer $sel    ID of selected user, 0 for none.
- * @param  string  $users  Comma separated list of users to include/exclude
- * @param  string  $not    'NOT' to exclude the users in $sel, blank to include
- * @return string          HTML for options in a select list.
- */
-function XBANNER_UserDropdown($sel=0, $users='', $not='')
-{
-    global $_TABLES;
-
-    $sel = (int)$sel;
-
-    $sql = "SELECT uid,username
-            FROM {$_TABLES['users']}
-            WHERE uid <> 1 ";
-    if ($users != '') {
-        $not = $not == '' ? '' : 'NOT ';
-        $sql .= "AND uid $not IN (" .
-                DB_escapeString($users). ") ";
-    }
-    $sql .= " ORDER BY username ASC";
-    $result = DB_query($sql);
-    if (!$result)
-        return '';
-
-    $retval = '';
-    while ($row = DB_fetcharray($result)) {
-        $selected = $row['uid'] == $sel ? ' selected' : '';
-        $retval .= "<option value=\"{$row['uid']}\" $selected>{$row['username']}</option>\n";
-    }
-    return $retval;
-}
 
 
 /**

@@ -13,6 +13,8 @@
 
 global $_DB_dbms;
 require_once __DIR__ . "/sql/{$_DB_dbms}_install.php";
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 
 
 /**
@@ -26,6 +28,7 @@ function banner_do_upgrade($dvlp=false)
     global $_TABLES, $_CONF_BANR, $_PLUGIN_INFO, $BANR_UPGRADE;
 
     $pi_name = $_CONF_BANR['pi_name'];
+    $db = Database::getInstance();
 
     if (isset($_PLUGIN_INFO[$_CONF_BANR['pi_name']])) {
         $code_ver = plugin_chkVersion_banner();
@@ -65,14 +68,26 @@ function banner_do_upgrade($dvlp=false)
         // but was added in the upgrade to 0.1.0.
         // an error is to be expected and ignored.
         $current_ver = '0.1.4';
-        DB_query("ALTER TABLE {$_TABLES['bannersubmission']}
-            ADD `max_impressions` int(11) NOT NULL default '0'
-            AFTER `impressions`", 1);
+        try {
+            $db->conn->executeQuery(
+                "ALTER TABLE {$_TABLES['bannersubmission']}
+                ADD `max_impressions` int(11) NOT NULL default '0'
+                AFTER `impressions`"
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        }
 
         // 'tid' was added in 0.1.1, but not to the submission table
-        DB_query("ALTER TABLE {$_TABLES['bannersubmission']}
-            ADD `tid` varchar(20) default 'all'
-            AFTER `weight`", 1);
+        try {
+            $db->conn->executeQuery(
+                "ALTER TABLE {$_TABLES['bannersubmission']}
+                ADD `tid` varchar(20) default 'all'
+                AFTER `weight`"
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        }
 
         if (!banner_do_update_version($current_ver)) return false;
     }
@@ -105,7 +120,7 @@ function banner_do_upgrade($dvlp=false)
                 'footer' => '20090010100000001',
             ) as $tpl=>$cid
         ) {
-            $val = DB_getItem($_TABLES['bannercategories'], 'cid', "cid='$cid'");
+            $val = $db->getItem($_TABLES['bannercategories'], 'cid', array('cid' => $cid));
             if ($val == $cid) {
                 $BANR_UPGRADE[$current_ver][] = "INSERT INTO {$_TABLES['banner_mapping']}
                     (tpl, cid) VALUES ('$tpl', '$cid')";
@@ -123,7 +138,39 @@ function banner_do_upgrade($dvlp=false)
 
     if (!COM_checkVersion($current_ver, '1.0.0')) {
         $current_ver = '1.0.0';
+        $adding_show_fields = !BANR_tableHasColumn('bannercampaigns', 'show_admins');
         if (!banner_do_upgrade_sql($current_ver, $dvlp)) return false;
+        // Create the htmlheader mapping, if the admin hasn't removed that template
+        $val = $db->getItem($_TABLES['bannercategories'], 'cid', array('cid' => 'HTMLHeader'));
+        if ($val == $cid) {
+            $BANR_UPGRADE[$current_ver][] = "INSERT INTO {$_TABLES['banner_mapping']}
+                (tpl, cid) VALUES ('htmlheader', '$cid')";
+        }
+        // Set the show_admins and show_owner campaign fields from the config,
+        // if not already done.
+        if ($adding_show_fields) {
+            if ($_CONF_BANR['adshow_admins'] != 0) {
+                try {
+                    $db->conn->executeUpdate("UPDATE {$_TABLES['bannercampaigns']} SET show_admins = 1");
+                } catch (\Exception $e) {
+                    Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+                }
+            }
+            if ($_CONF_BANR['adshow_owner'] != 0) {
+                try {
+                    $db->conn->executeUpdate("UPDATE {$_TABLES['bannercampaigns']} SET show_owner = 1");
+                } catch (\Exception $e) {
+                    Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+                }
+            }
+            if ($_CONF_BANR['show_in_admin'] != 0) {
+                try {
+                    $db->conn->executeUpdate("UPDATE {$_TABLES['bannercampaigns']} SET show_adm_pages = 1");
+                } catch (\Exception $e) {
+                    Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+                }
+            }
+        }
         if (!banner_do_update_version($current_ver)) return false;
     }
 
@@ -154,19 +201,21 @@ function banner_do_update_version($version)
 {
     global $_TABLES, $_CONF_BANR;
 
-    // now update the current version number.
-    DB_query("UPDATE {$_TABLES['plugins']} SET
-            pi_version = '{$version}',
-            pi_gl_version = '{$_CONF_BANR['gl_version']}',
-            pi_homepage = '{$_CONF_BANR['pi_url']}'
-        WHERE pi_name = 'banner'");
-
-    if (DB_error()) {
-        COM_errorLog("Error updating the banner Plugin version to $version",1);
-        return false;
-    } else {
-        COM_errorLog("Succesfully updated the banner Plugin version to $version!",1);
+    $db = Database::getInstance();
+    try {
+        $db->conn->executeUpdate(
+            "UPDATE {$_TABLES['plugins']} SET
+            pi_version = ?,
+            pi_gl_version = ?,
+            pi_homepage = ?
+            WHERE pi_name = 'banner'",
+            array($_CONF_BANR['pi_version'], $_CONF_BANR['gl_version'], $_CONF_BANR['pi_url']),
+            array(Database::STRING, Database::STRING, Database::STRING)
+        );
         return true;
+    } catch (\Exception $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        return false;
     }
 }
 
@@ -190,13 +239,15 @@ function banner_do_upgrade_sql($version, $dvlp=false)
         return true;
     }
 
+    $db = Database::getInstance();
     // Execute SQL now to perform the upgrade
     COM_errorLOG("--Updating Banner to version $version");
     foreach($BANR_UPGRADE[$version] as $sql) {
-        COM_errorLOG("Banner Plugin $version update: Executing SQL => $sql");
-        DB_query($sql, '1');
-        if (DB_error()) {
-            COM_errorLog("SQL Error during Banner Plugin update",1);
+        Log::write('system', Log::INFO, "Banner Plugin $version update: Executing SQL => $sql");
+        try {
+            $db->conn->executeUpdate($sql);
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
             if (!$dvlp) return false;
         }
     }
@@ -253,5 +304,31 @@ function BANR_remove_old_files()
             }
         }
     }
+}
+
+
+/**
+ * Check if a column exists in a table
+ *
+ * @param   string  $table      Table Key, defined in shop.php
+ * @param   string  $col_name   Column name to check
+ * @return  boolean     True if the column exists, False if not
+ */
+function BANR_tableHasColumn(string $table, string $col_name) : bool
+{
+    global $_TABLES;
+
+    $db = Database::getInstance();
+    try {
+        $count = $db->conn->executeQuery(
+            "SHOW COLUMNS FROM {$_TABLES[$table]} LIKE ?",
+            array($col_name),
+            array(Database::STRING)
+        )->rowCount();
+    } catch (\Exception $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $count = 0;
+    }
+    return $count > 0;
 }
 

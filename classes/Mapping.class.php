@@ -12,6 +12,9 @@
  * @filesource
  */
 namespace Banner;
+use glFusion\Database\Database;
+use glFusion\Log\Log;
+
 
 /**
  * Class to handle category to template mappings.
@@ -109,7 +112,7 @@ class Mapping
      *
      * @return  integer     1 if shown only once, 0 if not
      */
-    public function showOnce()
+    public function showOnce() : bool
     {
         return $this->once ? 1 : 0;
     }
@@ -121,21 +124,28 @@ class Mapping
      * @param   string  $tpl    Template name
      * @param   string  $cid    Category ID
      */
-    public function Read($tpl, $cid)
+    public function Read(string $tpl, string $cid) : self
     {
         global $_TABLES;
 
-        $sql = "SELECT * FROM {$_TABLES['banner_mapping']}
-            WHERE tpl = '" . DB_escapeString($tpl) . "'
-            AND cid = '" . DB_escapeString($cid) . "'
-            LIMIT 1";
-        $res = DB_query($sql);
-        if ($res && DB_numRows($res) == 1) {
-            $A = DB_fetchArray($res, false);
-            if (!empty($A)) {
-                $this->setVars($A);
-            }
+        $db = Database::getInstance();
+        try {
+            $data = $db->conn->executeQuery(
+                "SELECT * FROM {$_TABLES['banner_mapping']}
+                WHERE tpl = ?
+                AND cid = ?
+                LIMIT 1",
+                array($tpl, $cid),
+                array(Database::STRING, Database::STRING)
+            )->fetch(Database::ASSOCIATIVE);
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $data = NULL;
         }
+        if (is_array($data)) {
+            $this->setVars($A);
+        }
+        return $this;
     }
 
 
@@ -171,10 +181,16 @@ class Mapping
         global $_TABLES;
 
         $M = array();
-        $sql = "SELECT * FROM {$_TABLES['banner_mapping']}";
-        $res = DB_query($sql);
-        if ($res && DB_numRows($res) > 0) {
-            while ($A = DB_fetchArray($res, false)) {
+        try {
+            $data = Database::getInstance()
+                ->conn->executeQuery("SELECT * FROM {$_TABLES['banner_mapping']}")
+                ->fetchAllAssociative();
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $data = NULL;
+        }
+        if (is_array($data)) {
+            foreach ($data as $A) {
                 $key = $A['tpl'] . '_' . $A['cid'];
                 $M[$key] = new self();
                 $M[$key]->setVars($A);
@@ -241,28 +257,49 @@ class Mapping
     {
         global $_TABLES;
 
-        $tpl = DB_escapeString($A['tpl']);
-        $cid = DB_escapeString($A['cid']);
+        $db = Database::getInstance();
         if (isset($A['enabled']) && $A['enabled']) {
             $M = new self($A['tpl'], $A['cid']);
             $M->setVars($A);
-
-            $sql = "INSERT INTO {$_TABLES['banner_mapping']} SET
-                        tpl = '$tpl',
-                        cid = '$cid',
-                        pos = {$M->getPos()},
-                        once = {$M->showOnce()},
-                        in_content = {$M->showInContent()}
-                    ON DUPLICATE KEY UPDATE
-                        pos = {$M->getPos()},
-                        once = {$M->showOnce()},
-                        in_content = {$M->showInContent()}";
+            try {
+                $db->conn->executeUpdate(
+                    "INSERT INTO {$_TABLES['banner_mapping']} SET
+                    tpl = ?'$tpl',
+                    cid = ?'$cid',
+                    pos = ?{$M->getPos()},
+                    once = ?{$M->showOnce()},
+                    in_content = ?{$M->showInContent()}",
+                    array($tpl, $cid, $M->getPos(), $M->showInContent()),
+                    array(Database::STRING, Database::STRING, Database::INTEGER, Database::INTEGER)
+                );
+            } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $k) {
+                try {
+                    $db->conn->executeUpdate(
+                        "INSERT INTO {$_TABLES['banner_mapping']} SET
+                            pos = ?{$M->getPos()},
+                        once = ?{$M->showOnce()},
+                        in_content = ?{$M->showInContent()}",
+                        array($cid, $M->getPos(), $M->showInContent()),
+                        array(Database::STRING, Database::INTEGER, Database::INTEGER)
+                    );
+                } catch (\Exception $e) {
+                    Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+                }
+            } catch (\Exception $e) {
+                Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            }
         } else {
-            $sql = "DELETE FROM {$_TABLES['banner_mapping']}
-                    WHERE tpl = '$tpl' AND cid = '$cid'";
+            try {
+                $db->conn->delete(
+                    $_TABLES['banner_mapping'],
+                    array('tpl', 'cid'),
+                    array($tpl, $cid),
+                    array(Database::STRING, DatabaseString)
+                );
+            } catch (\Exception $e) {
+                Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            }
         }
-        //echo $sql;die;
-        DB_query($sql);
     }
 
 

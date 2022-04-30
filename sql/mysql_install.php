@@ -31,24 +31,29 @@ $_SQL['bannercategories'] = "CREATE TABLE {$_TABLES['bannercategories']} (
 
 // Common table structure for both banners and submissions
 $banner_def =
-" `bid` varchar(40) NOT NULL default '',
-  `cid` varchar(32) default NULL,
-  `camp_id` varchar(40) default NULL,
-  `ad_type` int(4) default '0',
-  `notes` text,
-  `title` varchar(96) default NULL,
-  `impressions` int(11) NOT NULL default '0',
-  `max_impressions` int(11) NOT NULL default '0',
-  `hits` int(11) NOT NULL default '0',
-  `max_hits` int(11) NOT NULL default '0',
-  `publishstart` datetime default '0000-01-01 00:00:00',
-  `publishend` datetime default '9999-12-31 23:59:59',
-  `date` datetime default NULL,
-  `enabled` tinyint(1) default '1',
-  `owner_id` mediumint(8) unsigned NOT NULL default '1',
-  `options` text,
-  `weight` int(2) unsigned default '5',
-  `tid` varchar(20) default 'all'";
+" `bid` varchar(40) NOT NULL DEFAULT '',
+  `cid` varchar(32) DEFAULT NULL,
+  `camp_id` varchar(40) DEFAULT NULL,
+  `ad_type` int(4) DEFAULT 0,
+  `notes` text DEFAULT NULL,
+  `title` varchar(96) DEFAULT NULL,
+  `impressions` int(11) NOT NULL DEFAULT 0,
+  `max_impressions` int(11) NOT NULL DEFAULT 0,
+  `hits` int(11) NOT NULL DEFAULT 0,
+  `max_hits` int(11) NOT NULL DEFAULT 0,
+  `publishstart` datetime DEFAULT '0000-01-01 00:00:00',
+  `publishend` datetime DEFAULT '9999-12-31 23:59:59',
+  `date` datetime DEFAULT NULL,
+  `enabled` tinyint(1) DEFAULT 1,
+  `owner_id` mediumint(8) unsigned NOT NULL DEFAULT 1,
+  `options` text DEFAULT NULL,
+  `weight` int(2) unsigned DEFAULT 5,
+  `tid` varchar(20) DEFAULT 'all',
+  `html_status` varchar(127) NOT NULL DEFAULT '',
+  `dt_validated` datetime DEFAULT NULL,
+  PRIMARY KEY (`bid`),
+  KEY `banner_category` (`cid`),
+  KEY `banner_date` (`date`)";
 
 $_SQL['banner'] = "CREATE TABLE {$_TABLES['banner']} (
   $banner_def,
@@ -79,6 +84,8 @@ $_SQL['bannercampaigns'] = "CREATE TABLE {$_TABLES['bannercampaigns']} (
   `perm_members` tinyint(1) unsigned NOT NULL default '2',
   `perm_anon` tinyint(1) unsigned NOT NULL default '2',
   `tid` varchar(20) default 'all',
+  `show_owner` tinyint(1) unsigned not null default 0,
+  `show_admins` tinyint(1) unsigned not null default 0,
   PRIMARY KEY  (`camp_id`)
 ) ENGINE=MyISAM";
 
@@ -95,20 +102,20 @@ $_SQL['banner_mapping'] = "CREATE TABLE `{$_TABLES['banner_mapping']}` (
 $DEFVALUES['bannercategories'] = "INSERT INTO `{$_TABLES['bannercategories']}`
         (cid, type, category, description, max_img_width, max_img_height)
     VALUES
-        ('20090010100000000','header','Header','Header Banners',468,60),
-        ('20090010100000001','footer','Footer','Footer Banners',468,60),
-        ('20090010100000002','block','Block','Block Banners',140,400),
+        ('header','header','Header','Header Banners',468,60),
+        ('footer','footer','Footer','Footer Banners',468,60),
+        ('block','block','Block','Block Banners',140,400),
         ('htmlheader','htmlheader','HTMLHeader','HEAD Section Banners',140,400)";
 
 $DEFVALUES['bannercampaigns'] = "INSERT INTO `{$_TABLES['bannercampaigns']}`
         (camp_id, description)
     VALUES
-        ('20090010100000000', 'Default System Campaign')";
+        ('default', 'Default System Campaign')";
 $DEFVALUES['banner_mapping'] = "INSERT INTO {$_TABLES['banner_mapping']}
         (tpl, cid, once)
     VALUES
-        ('header', '20090010100000000', 1),
-        ('footer', '20090010100000001', 1),
+        ('header', 'header', 1),
+        ('footer', 'header', 1),
         ('banner_htmlheader', 'htmlheader', 1)";
 
 $BANR_UPGRADE = array(
@@ -195,12 +202,16 @@ $BANR_UPGRADE = array(
 '1.0.0' => array(
     "INSERT INTO `{$_TABLES['bannercategories']}`
         (cid, type, category, description, max_img_width, max_img_height)
-    VALUES
-        ('htmlheader','htmlheader','HTMLHeader','HEAD Section Banners',140,400)",
+        VALUES ('htmlheader','htmlheader','HTMLHeader','HEAD Section Banners',140,400)",
+    "INSERT INTO {$_TABLES['banner_mapping']} (tpl, cid, once)
+        VALUES ('banner_htmlheader', 'htmlheader', 0)",
+    "ALTER TABLE {$_TABLES['bannercampaigns']} ADD show_owner tinyint(1) unsigned not null default 0",
+    "ALTER TABLE {$_TABLES['bannercampaigns']} ADD show_admins tinyint(1) unsigned not null default 0",
+    "ALTER TABLE {$_TABLES['banner']} ADD `html_status` varchar(127) NOT NULL DEFAULT '' AFTER `tid`",
+    "ALTER TABLE {$_TABLES['banner']} ADD `dt_validated` datetime DEFAULT NULL AFTER `html_status`",
+    "ALTER TABLE {$_TABLES['bannersubmission']} ADD `html_status` varchar(127) NOT NULL DEFAULT '' AFTER `tid`",
+    "ALTER TABLE {$_TABLES['bannersubmission']} ADD `dt_validated` datetime DEFAULT NULL AFTER `html_status`",
+
     ),
-    "INSERT INTO {$_TABLES['banner_mapping']}
-        (tpl, cid, once)
-    VALUES
-        ('banner_htmlheader', 'htmlheader', 0)",
 );
 
