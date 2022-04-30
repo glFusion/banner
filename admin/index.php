@@ -26,7 +26,7 @@ USES_lib_admin();
 $action = '';
 $actionval = '';
 $expected = array(
-    'save', 'delete', 'delitem', 'validate',
+    'save', 'delete', 'delitem', 'validate_all',
     'edit', 'moderate', 'cancel',
     'editcampaign', 'editcategory', 'editbanner',
     'banners', 'categories', 'campaigns',
@@ -70,6 +70,14 @@ if (isset($_REQUEST['bid'])) {
 }
 
 switch ($action) {
+case 'validate_all':
+    $Banners = Banner\Banner::getAll();
+    foreach ($Banners as $Banner) {
+        $Banner->validateUrl();
+    }
+    echo COM_refresh(BANR_ADMIN_URL . '/index.php');
+    break;
+
 case 'toggleEnabled':
     $B = new Banner\Banner($_REQUEST['bid']);
     $B->toggleEabled($_REQUEST['newval']);

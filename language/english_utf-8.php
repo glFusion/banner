@@ -71,6 +71,7 @@ $LANG_BANNER = array(
 'validate_banner' => 'Validate Banner',
 'categories'    => 'Categories',
 'validate_now'  => 'Validate now',
+'validate'      => 'Validate',
 'html_status'   => 'HTML Status',
 'html_status_na' => 'HTTP Response is not checked for HTML or script banners, or banners with no URL configured.',
 'validate_instr' => '<p>To validate all banner displayed, please click on the "Validate now" banner below. Please note that this might take some time depending on the amount of banner displayed.</p>',
@@ -161,6 +162,9 @@ $LANG_BANNER = array(
 'at_dscp_banner' => 'Include a specific banner in the content',
 'at_dscp_randombanner' => 'Include a random banner in the content',
 'at_dscp_bannercategory' => 'Include a random banner from a specific category in the content',
+'show_owner' => 'Show ads to the owner?',
+'show_admins' => 'Show ads to administrators?',
+'show_adm_pages' => 'Include in admin pages?',
 );
 
 ###############################################################################

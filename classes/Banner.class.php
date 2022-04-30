@@ -11,6 +11,9 @@
  * @filesource
  */
 namespace Banner;
+use glFusion\Log\Log;
+use glFusion\Database\Database;
+use glFusion\FieldList;
 
 
 /**
@@ -128,6 +131,14 @@ class Banner
      * These depend on the banner type.
      * @var array */
     private $options = array();
+
+    /** Last HTML validation status.
+     * @var string */
+    private $html_status = '';
+
+    /** Last HTML validation datetime.
+     * @var string */
+    private $dt_validated = '';
 
     /** Database table name currently in use, submission vs. prod.
      * Default is prod.
@@ -332,7 +343,7 @@ class Banner
         global $_CONF;
 
         if (empty($dt_str)) {
-            $dt_str = BANR_MIN_DATE;
+            $dt_str = $_CONF['_now']->toMySQL(true);
         }
         $this->pubstart = new \Date($dt_str, $_CONF['timezone']);
         return $this;
@@ -429,6 +440,25 @@ class Banner
     }
 
 
+    public function setHtmlStatus(string $status) : self
+    {
+        $this->html_status = $status;
+        return $this;
+    }
+
+
+    public function setValidationDate(?string $dt=NULL) : self
+    {
+        global $_CONF;
+
+        if ($dt === NULL) {
+            $dt = $_CONF['_now']->toMySQL(true);
+        }
+        $this->dt_validated = $dt;
+        return $this;
+    }
+
+
     /**
      * Read a banner record from the database.
      *
@@ -439,18 +469,23 @@ class Banner
     {
         global $_TABLES;
 
-        $A = DB_fetchArray(
-            DB_query(
+        $db = Database::getInstance();
+        try {
+            $data = $db->conn->executeQuery(
                 "SELECT * FROM {$_TABLES[$this->table]}
-                WHERE bid='".DB_escapeString($bid)."'"
-            ),
-            false
-        );
-        if (!empty($A)) {
+                WHERE bid = ?",
+                array($bid),
+                array(Database::STRING)
+            )->fetch(Database::ASSOCIATIVE);
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $data = NULL;
+        }
+        if (is_array($data)) {
             $this->isNew = false;
-            $this->setVars($A, true);
+            $this->setVars($data, true);
 
-            // Save the old ID for use in Update()
+            // Save the old ID for use in Update() if needed.
             $this->oldID = $this->bid;
         }
         return $this;
@@ -496,7 +531,9 @@ class Banner
             $this->weight = (int)$A['weight'];
             $this->setPubStart($A['publishstart'])
                 ->setPubEnd($A['publishend'])
-                ->setDate($A['date']);
+                ->setDate($A['date'])
+                ->setHtmlStatus($A['html_status'])
+                ->setValidationDate($A['dt_validated']);
         } else {
             // Coming from a form
             $this->options = self::$default_opts;
@@ -567,10 +604,18 @@ class Banner
         }
 
         $newval = $oldval == 0 ? 1 : 0;
-        DB_change($_TABLES['banner'],
-                'enabled', $newval,
-                'bid', DB_escapeString($this->bid));
-        return DB_error() ? $oldval : $newval;
+        $db = Database::getInstance();
+        try {
+            $status = $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['banner']} SET enabled = ? WHERE camp_id = ?",
+                array($newval, $this->bid),
+                array(Database::INTEGER, Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $newval = $oldval;
+        }
+        return $newval;
     }
 
 
@@ -579,7 +624,7 @@ class Banner
      *
      * @return  object  $this
      */
-    public function updateImpressions()
+    public function updateImpressions() : self
     {
         global $_TABLES, $_CONF_BANR, $_USER;
 
@@ -596,9 +641,16 @@ class Banner
             return $this;
         }
 
-        DB_query("UPDATE {$_TABLES['banner']}
-                SET impressions=impressions+1
-                WHERE bid='{$this->bid}'");
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['banner']} SET impressions=impressions+1 WHERE bid = ?",
+                array($this->bid),
+                array(Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
 
         Campaign::updateImpressions($this->camp_id);
         return $this;
@@ -608,7 +660,7 @@ class Banner
     /**
      * Increment the hit count.
      */
-    public function updateHits()
+    public function updateHits() : self
     {
         global $_TABLES, $_CONF_BANR, $_USER;
 
@@ -619,14 +671,19 @@ class Banner
             ||
             ($_CONF_BANR['cntclicks_owner'] == 0 && $this->owner_id == $_USER['uid'])
         ) {
-            return;
+            return $this;
         }
 
-        // Update the banner and campaign hits if not excluded
-        $sql = "UPDATE {$_TABLES['banner']}
-                SET hits=hits+1
-                WHERE bid='{$this->bid}'";
-        DB_query($sql);
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['banner']} SET hits=hits+1 WHERE bid = ?",
+                array($this->bid),
+                array(Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
         Campaign::updateHits($this->camp_id);
         return $this;
     }
@@ -647,12 +704,13 @@ class Banner
             @unlink($_CONF_BANR['img_dir'] . '/' . $filename);
         }
 
-        DB_delete(
-            $_TABLES[$this->table],
-            'bid',
-            DB_escapeString(trim($this->bid))
-        );
-        BANNER_auditLog("{$_USER['uid']} deleted banner id {$this->bid}");
+        $db = Database::getInstance();
+        try {
+            $db->conn->delete($_TABLES[$this->table], array('bid' => $this->bid), array(Database::STRING));
+            BANNER_auditLog("{$_USER['uid']} deleted banner id {$this->bid}");
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
     }
 
 
@@ -701,7 +759,7 @@ class Banner
      * @param   array   $A  Array of values from $_POST or database
      * @return  string      Error message, empty if successful
      */
-    public function Save($A = array())
+    public function Save(?array $A=NULL)
     {
         global $_CONF, $_GROUPS, $_TABLES, $_USER, $MESSAGE,
                 $_CONF_BANR, $LANG12, $LANG_BANNER;
@@ -723,7 +781,7 @@ class Banner
             }
         }
 
-        if (!empty($A)) {
+        if (is_array($A)) {
             $this->setVars($A);
         }
 
@@ -732,13 +790,15 @@ class Banner
             $this->bid = COM_makesid();
         }
 
+        $db = Database::getInstance();
+
         // Make sure this isn't a duplicate ID.  If this is a user submission,
-        // we also have to make sure this ID isn't in the main table
-        // If updating a banner, check if the ID is in use, if it's changing
+        // we also have to make sure this ID isn't in the main table.
+        // If updating a banner, check if the ID is in use, if it's changing.
         $allowed = ($this->isNew || $this->bid != $this->oldID) ? 0 : 1;
-        $num1 = DB_count($_TABLES['banner'], 'bid', $this->bid);
+        $num1 = $db->getCount($_TABLES['banner'], 'bid', $this->bid, Database::STRING);
         if ($this->_isSubmission()) {
-            $num2 = DB_count($_TABLES['bannersubmission'], 'bid', $this->bid);
+            $num2 = $db->getCount($_TABLES['bannersubmission'], 'bid', $this->bid, Database::STRING);
         } else {
             $num2 = 0;
         }
@@ -828,44 +888,88 @@ class Banner
 
         $options = serialize($this->options);
 
+        $qb = $db->conn->createQueryBuilder();
+
+        $values = array(
+            'bid' => Database::STRING,
+            'cid' => Database::STRING,
+            'camp_id' => Database::STRING,
+            'ad_type' => Database::INTEGER,
+            'options' => Database::STRING,
+            'title' => Database::STRING,
+            'notes' => Database::STRING,
+            //'publishstart' => ':pubstart',
+            //'publishend' => ':pubend',
+            'enabled' => Database::INTEGER,
+            'hits' => Database::STRING,
+            'max_hits' => Database::INTEGER,
+            'impressions' => Database::INTEGER,
+            'max_impressions' => Database::INTEGER,
+            'owner_id' => Database::INTEGER,
+            'weight' => Database::INTEGER,
+            'tid' => Database::STRING,
+            'html_status' => Database::STRING,
+            'dt_validated' => Database::STRING,
+        );
+
         // Determine if this is an INSERT or UPDATE
         if ($this->isNew) {
-            $sql1 = "INSERT INTO {$_TABLES[$this->table]} SET
-                date = '{$_CONF_BANR['_now']->toMySQL(true)}', ";
-            $sql3 = '';
+            $qb->insert($_TABLES[$this->table])
+               ->setValue('date', ':date')
+               ->setParameter('date', $_CONF['_now']->toMySQL(true), Database::STRING);
+            foreach ($values as $name=>$type) {
+                $qb->setValue($name, ':' . $name);
+            }
         } else {
-            $sql1 = "UPDATE {$_TABLES[$this->table]} SET ";
-            $sql3 = " WHERE bid='" . DB_escapeString($this->oldID) . "'";
+            $qb->update($_TABLES[$this->table])
+               ->where('bid = :oldbid')
+               ->setParameter('oldbid', $this->oldID, Database::STRING);
+            foreach ($values as $name=>$type) {
+                $qb->set($name, ':' . $name);
+            }
         }
-        $sql2 = "bid = '" . DB_escapeString($this->bid) . "',
-                cid = '" . DB_escapeString($this->cid) . "',
-                camp_id = '" . DB_escapeString($this->camp_id) . "',
-                ad_type = {$this->ad_type},
-                options = '" . DB_escapeString($options) . "',
-                title = '" . DB_escapeString($this->title). "',
-                notes = '" . DB_escapeString($this->notes). "',
-                publishstart = '" . $this->pubstart->toMySQL(true) . "',
-                publishend = '" . $this->pubend->toMySQL(true) . "',
-                enabled = {$this->enabled},
-                hits = {$this->hits},
-                max_hits = {$this->max_hits},
-                impressions = {$this->impressions},
-                max_impressions = {$this->max_impressions},
-                owner_id = {$this->owner_id},
-                weight = {$this->weight},
-                tid='" . DB_escapeString($this->tid) . "'";
-        //echo "$sql1 $sql2 $sql3";die;
-        DB_query($sql1 . $sql2 . $sql3);
-        if (!DB_error()) {
-            $category = DB_getItem($_TABLES['bannercategories'], "category",
-                    "cid='{$this->cid}'");
-            COM_rdfUpToDateCheck('banner', $category, $this->bid);
+        $qb->setParameter('bid', $this->bid, Database::STRING)
+            ->setParameter('cid', $this->cid, Database::STRING)
+            ->setParameter('camp_id', $this->camp_id, Database::STRING)
+            ->setParameter('ad_type', $this->ad_type, Database::INTEGER)
+            ->setParameter('options', $options, Database::STRING)
+            ->setParameter('title', $this->title, Database::STRING)
+            ->setParameter('notes', $this->notes, Database::STRING)
+            ->setParameter('enabled', $this->enabled, Database::INTEGER)
+            ->setParameter('hits', $this->hits, Database::INTEGER)
+            ->setParameter('max_hits', $this->max_hits, Database::INTEGER)
+            ->setParameter('impressions', $this->impressions, Database::INTEGER)
+            ->setParameter('max_impressions', $this->max_impressions, Database::INTEGER)
+            ->setParameter('owner_id', $this->owner_id, Database::INTEGER)
+            ->setParameter('weight', $this->weight, Database::INTEGER)
+            ->setParameter('tid', $this->tid, Database::STRING)
+            ->setParameter('html_status', $this->html_status, Database::STRING);
+        if (empty($this->dt_validated)) {
+            $qb->setParameter('dt_validated', NULL, Database::INTEGER);
+        } else {
+            $qb->setParameter('dt_validated', $this->dt_validated, Database::STRING);
+        }
+        if (is_null($this->pubstart)) {
+            $qb->setParameter('publishstart', NULL, Database::INTEGER);
+        } else {
+            $qb->setParameter('publishstart', $this->getPubStart()->toMySQL(true), Database::STRING);
+        }
+        if (is_null($this->pubend)) {
+            $qb->setParameter('publishend', NULL, Database::INTEGER);
+        } else {
+            $qb->setParameter('publishend', $this->getPubEnd()->toMySQL(true), Database::STRING);
+        }
+        try {
+            $qb->execute();
+            //$category = $db->getItem($_TABLES['bannercategories'], 'category', array('cid' => $this->cid));
+            //COM_rdfUpToDateCheck('banner', $category, $this->bid);
             if ($this->isNew && $_CONF_BANR['notification'] == 1) {
                 // Notify the administrator
                 $this->Notify();
             }
             return '';
-        } else {
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             return 'Database error saving banner';
         }
     }
@@ -888,37 +992,49 @@ class Banner
             return $banners;
         }
 
+        $db = Database::getInstance();
+        $qb = $db->conn->createQueryBuilder();
+        $now = $_CONF_BANR['_now']->toMySQL(true);
+        $qb->select('b.bid', 'b.weight*RAND() AS score')
+           ->from($_TABLES['banner'], 'b')
+           ->leftJoin('b', $_TABLES['bannercategories'], 'c', 'b.cid = c.cid')
+           ->leftJoin('b', $_TABLES['bannercampaigns'], 'camp', 'b.camp_id = camp.camp_id')
+           ->where('b.enabled = 1')
+           ->andWhere('c.enabled = 1')
+           ->andWhere('b.publishstart IS NULL OR b.publishstart < :now')
+           ->andWhere('b.publishend IS NULL OR b.publishend  > :now')
+           ->andWhere('b.max_hits = 0 OR b.hits < b.max_hits')
+           ->andWhere('b.max_impressions = 0 OR b.impressions < b.max_impressions')
+           ->andWhere('camp.start IS NULL OR camp.start < :now')
+           ->andWhere('camp.finish IS NULL OR camp.finish > :now')
+           ->andWhere('camp.hits < camp.max_hits OR camp.max_hits = 0')
+           ->andWhere('camp.max_impressions = 0 OR camp.impressions < camp.max_impressions')
+           ->andWhere('b.owner_id <> :uid OR camp.show_owner = 1')
+           ->orderBy('score', 'DESC')
+           ->setParameter('now', $now, Database::STRING)
+           ->setParameter('uid', $_USER['uid'], Database::INTEGER);
+
         if (!is_array($fields)) $fields = array();
-        $sql_cond = '';
-        $limit_clause = '';
-        $topic_sql = '';
         if (!isset($fields['topic'])) {
-            // If not set, add the current topic for topic_sql
+            // If not set, add the current topic.
             $fields['topic'] = \Topic::currentID();
         }
         foreach ($fields as $field=>$value) {
-            if (!is_array($value)) {
-                $value = DB_escapeString($value);
-            }
             switch(strtolower($field)) {
             case 'type':
             case 'cid':
                 if (is_array($value)) {
-                    $sql_vals = array();
-                    foreach ($value as $t) {
-                        $t = DB_escapeString($t);
-                        $sql_vals[] = "c.{$field} = '$t'";
-                    }
-                    $sql_vals = implode(' OR ', $sql_vals);
+                    $qb->andWhere('c.' . $field . ' IN (:' . $field . ')')
+                       ->setParameter($field, $value, Database::PARAM_STR_ARRAY);
                 } else {
-                    $t = DB_escapeString($value);
-                    $sql_vals = "c.{$field} = '$t'";
+                    $qb->andWhere('c.' . $field . ' = :' . $field)
+                       ->setParameter($field, $value, Database::STRING);
                 }
-                $sql_cond = " AND ($sql_vals) ";
                 break;
             case 'category':
             case 'centerblock':
-                $sql_cond .= " AND c.{$field} = '$value'";
+                $qb->andWhere('c.' . $field . ' = :' . $field)
+                   ->setParameter($field, $value, Database::STRING);
                 break;
             case 'tid':
             case 'topic':
@@ -930,63 +1046,42 @@ class Banner
                 if (COM_onFrontpage()) {
                     $tids[] = 'homeonly';
                 }
-                $tids = "'" . implode("','", $tids) . "'";
-                $topic_sql .= " AND c.tid IN ($tids)
-                        AND camp.tid IN ($tids)
-                        AND b.tid IN ($tids)";
+                $qb->andWhere('c.tid IN (:tids)')
+                   ->andWhere('camp.tid IN (:tids)')
+                   ->andWhere('b.tid IN (:tids)')
+                   ->setParameter('tids', $tids, Database::PARAM_STR_ARRAY);
                 break;
             case 'campaign':
                 if ($value != '') {
-                    $sql_cond .= " AND camp.camp_id='$value' ";
+                    $qb->andWhere('camp.camp_id = :camp_id')
+                       ->setParameter('camp_id', $value, Database::STRING);
                 }
                 break;
             case 'limit':
-                $value = (int)$value;
-                $limit_clause = " LIMIT $value";
+                $qb->setFirstResult(0)->setMaxResults($value);
                 break;
             default:
-                $field = DB_escapeString($field);
-                $sql_cond .= " AND b.{$field} = '$value'";
+                $qb->andWhere($field . '= :' . $field)
+                   ->setParameter($field, $value, Database::STRING);
                 break;
             }
         }
 
-        // Eliminate ads owned by the current user
-        if ($_CONF_BANR['adshow_owner'] == 0) {
-            $sql_cond .= " AND b.owner_id <> '" . (int)$_USER['uid'] . "'";
+        if (plugin_isadmin_banner()) {
+            $qb->andWhere('camp.show_admins = 1');
         }
-        $now = $_CONF_BANR['_now']->toMySQL(true);
-        $sql = "SELECT b.bid, weight*RAND() as score
-                FROM {$_TABLES['banner']} b
-                LEFT JOIN {$_TABLES['bannercategories']} c
-                    ON c.cid = b.cid
-                LEFT JOIN {$_TABLES['bannercampaigns']} camp
-                    ON camp.camp_id = b.camp_id
-                WHERE b.enabled = 1
-                AND c.enabled = 1
-                AND camp.enabled = 1
-                AND (b.publishstart < '$now')
-                AND (b.publishend  > '$now')
-                AND (b.max_hits = 0 OR b.hits < b.max_hits)
-                AND (b.max_impressions = 0 OR b.impressions < b.max_impressions)
-                AND (camp.start IS NULL OR camp.start < '$now')
-                AND (camp.finish IS NULL OR camp.finish > '$now')
-                AND (camp.hits < camp.max_hits OR camp.max_hits = 0)
-                AND (camp.max_impressions = 0
-                    OR camp.impressions < camp.max_impressions) "
-                . COM_getPermSQL('AND', 0, 2, 'camp')
-                . SEC_buildAccessSql('AND', 'c.grp_view')
-                . $sql_cond
-                . $topic_sql
-                . ' ORDER BY score DESC '
-                . $limit_clause;
-        //echo $sql;die;
-        //COM_errorLog($sql);
-        $result = DB_query($sql, 1);
-        if ($result) {
-            while ($A = DB_fetchArray($result, false)) {
-                $banners[] = $A['bid'];
-            }
+        if (self::_inAdminUrl()) {
+            $qb->andWhere('camp.show_adm_pages = 1');
+        }
+
+        try {
+            $data = $qb->execute()->fetchAll(Database::ASSOCIATIVE);
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $data = array();
+        }
+        foreach ($data as $A) {
+            $banners[] = $A['bid'];
         }
         return $banners;
     }
@@ -997,29 +1092,80 @@ class Banner
      *
      * @return  array   Array of banner records
      */
-    public static function GetNewest()
+    public static function getNewest()
     {
         global $_TABLES, $_CONF_BANR;
 
-        $A = array();
+        $bids = array();
         if (!self::CanShow()) {
-            return $A;
+            return $bids;
         }
         $now = $_CONF_BANR['_now']->toMySQL(true);
 
-        $sql = "SELECT bid
-                FROM {$_TABLES['banner']}
-                WHERE (date >= (DATE_SUB('$now',
-                        INTERVAL {$_CONF_BANR['newbannerinterval']} DAY)))
-                AND (publishstart < '$now')
-                AND (publishhend > '$now') " .
-                COM_getPermSQL('AND') .
-                ' ORDER BY date DESC LIMIT 15';
-        $result = DB_query($sql);
-        while ($row = DB_fetchArray($result)) {
-            $A[] = $row['bid'];
+        $db = Database::getInstance();
+        try {
+                //COM_getPermSQL('AND') .
+            $data = $db->conn->executeQuery(
+                "SELECT bid FROM {$_TABLES['banner']}
+                WHERE (date >= (DATE_SUB(:now,
+                        INTERVAL :interval DAY)))
+                AND (publishstart < :now)
+                AND (publishhend > :now)
+                ORDER BY date DESC LIMIT 15",
+                array('now' => $now, 'interval' => $_CONF_BANR['newbannerinterval']),
+                array(Database::STRING, Database::INTEGER)
+            )->fetchAll(Database::ASSOCIATIVE);
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $data = array();
         }
-        return $A;
+        foreach ($data as $A) {
+            $bids[] = $A['bid'];
+        }
+        return $bids;
+    }
+
+
+    /**
+     * Get all banners into an array indexed by banner ID.
+     *
+     * @return  array       Array of Banner objects
+     */
+    public static function getAll() : array
+    {
+        global $_TABLES;
+
+        $db = Database::getInstance();
+        try {
+                //COM_getPermSQL('AND') .
+            $data = $db->conn->executeQuery(
+                "SELECT * FROM {$_TABLES['banner']}",
+            )->fetchAll(Database::ASSOCIATIVE);
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $data = array();
+        }
+        foreach ($data as $A) {
+            $bids[$A['bid']] = new self;
+            $bids[$A['bid']]->setVars($A, true);
+            $bids[$A['bid']]->setIsNew(false);  // force, normally done by Read()
+        }
+        return $bids;
+    }
+
+
+    /**
+     * Get the URL to which this banner redirects, if any.
+     *
+     * @return  string      URL value, empty string if not set
+     */
+    public function getUrl() : string
+    {
+        if (isset($this->options['url'])) {
+            return $this->options['url'];
+        } else {
+            return '';
+        }
     }
 
 
@@ -1155,8 +1301,12 @@ class Banner
             }
         }
 
-        $max_days = (int)DB_getItem($_TABLES['banneraccount'],
-                        'days_balance', "uid=$uid");
+        $db = Database::getInstance();
+        $max_days = (int)$db->getItem(
+            $_TABLES['banneraccount'],
+            'days_balance',
+            array('uid' => $uid)
+        );
         return $max_days;
     }
 
@@ -1166,37 +1316,52 @@ class Banner
      *
      * @return  string  Response, or empty if no test performed.
      */
-    public function validateUrl()
+    public function validateUrl() : string
     {
-        global $LANG_BANNER_STATUS, $LANG_BANNER;
+        global $LANG_BANNER_STATUS, $LANG_BANNER, $_TABLES;
 
         // Have to have a valid url to check
-        if ($this->options['url'] == '') {
-            return 'n/a&nbsp;<i class="tooltip uk-icon uk-icon-question-circle" title="' .
-                $LANG_BANNER['html_status_na'] .
-                '"></i>';
-        }
-
-        // Get the header and response code
-        $ch = curl_init();
-        curl_setopt_array(
-            $ch,
-            array(
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_URL => $this->options['url'],
-                CURLOPT_HEADER => true,
-                CURLOPT_NOBODY => true,
-            )
-        );
-        curl_exec($ch);
-        $response = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if (array_key_exists($response, $LANG_BANNER_STATUS)) {
-            return $response . ' ' . $LANG_BANNER_STATUS[$response];
+        if (!isset($this->options['url']) || empty($this->options['url'])) {
+            $retval = 'n/a';
         } else {
-            return $LANG_BANNER['unknown'];
+            // Get the header and response code
+            $ch = curl_init();
+            curl_setopt_array(
+                $ch,
+                array(
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_URL => $this->options['url'],
+                    CURLOPT_HEADER => true,
+                    CURLOPT_NOBODY => true,
+                )
+            );
+            curl_exec($ch);
+            $response = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if (array_key_exists($response, $LANG_BANNER_STATUS)) {
+                $retval = $response . ' ' . $LANG_BANNER_STATUS[$response];
+            } else {
+                $retval = $LANG_BANNER['unknown'];
+            }
         }
+        $this->setHtmlStatus($retval)
+             ->setValidationDate();
+
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeQuery(
+                "UPDATE {$_TABLES['banner']} SET
+                html_status = ?,
+                dt_validated = ?
+                WHERE bid = ?",
+                array($this->html_status, $this->dt_validated, $this->bid),
+                array(Database::STRING, Database::STRING, Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
+        return $retval;
     }
 
 
@@ -1412,9 +1577,13 @@ class Banner
      * @param   array   $A  All form variables
      * @return  boolean     True if valid, False otherwise
      */
-    public function Validate($A)
+    public function Validate(?array $A=NULL) : bool
     {
         global $LANG_BANNER;
+
+        if ($A === NULL) {
+            return true;
+        }
 
         $this->errors = array();
 
@@ -1498,27 +1667,11 @@ class Banner
             }
         }
 
-        // See if this is a banner admin, and we shouldn't show it.
-        // plugin_isadmin_banner() stores a static var, so it's low overhead
-        if (
-            $_CONF_BANR['adshow_admins'] == 0 &&
-            plugin_isadmin_banner()
-        ) {
-            return false;
-        }
-
         // Get the status from a session var, if it has been set.
         $canshow = SESS_getVar($sess_var);
         if ($canshow !== 0) {
             return $canshow;
         }
-
-        // Now check if this user or IP address is in the blocked lists
-        /*if (isset($_USER['uid']) && is_array($_CONF_BANR['users_dontshow'])) {
-            if (in_array($_USER['uid'], $_CONF_BANR['users_dontshow'])) {
-                return false;
-            }
-        }*/
 
         if (is_array($_CONF_BANR['ipaddr_dontshow'])) {
             $is_blocked_ip = false;
@@ -1573,6 +1726,25 @@ class Banner
         // Passed all the tests, ok to show banners
         SESS_setVar($sess_var, true);
         return true;
+    }
+
+
+    private static function _inAdminUrl() : bool
+    {
+        global $_CONF;
+
+        static $in_admin_url = NULL;
+
+        // Check if this is an admin URL and the banner should not be shown.
+        if ($in_admin_url === NULL) {
+            $urlparts = parse_url($_CONF['site_admin_url']);
+            if (stristr($_SERVER['REQUEST_URI'], $urlparts['path']) != false) {
+                $in_admin_url = true;
+            } else {
+                $in_admin_url = false;
+            }
+        }
+        return $in_admin_url;
     }
 
 
@@ -1681,6 +1853,7 @@ class Banner
                  $_TABLES, $_CONF, $_CONF_BANR;
 
         USES_lib_admin();
+        $db = Database::getInstance();      // for replacing DB_escapeString()
 
         $uid = (int)$_USER['uid'];
         $retval = '';
@@ -1747,7 +1920,7 @@ class Banner
         );
 
         $is_admin = $isadmin ? 1 : 0;
-        /*if ($is_admin) {;
+        if ($is_admin) {;
             $validate = '';
             $token = SEC_createToken();
 
@@ -1758,22 +1931,25 @@ class Banner
                     'sort' => false
                 );
             } else {
-                $dovalidate_url = BANR_ADMIN_URL . '/index.php';
+                $btn = FieldList::button(array(
+                    'name' => 'validate_all',
+                    'size' => 'mini',
+                    'style' => 'success',
+                    'text' => $LANG_BANNER['validate'],
+                ) );
+                //$dovalidate_url = BANR_ADMIN_URL . '/index.php';
                     //'/index.php?validate=validate&amp;'. CSRF_TOKEN.'='.$token;
-                $dovalidate_text = '<button class="lgButton green" name="validate">' .
-                    $LANG_BANNER['validate_now'] . '</button>';
-                $form_arr['top'] = COM_createLink($dovalidate_text, $dovalidate_url);
+                //$dovalidate_text = '<button class="lgButton green" name="validate">' .
+                //    $LANG_BANNER['validate_now'] . '</button>';
+                //$form_arr['top'] = COM_createLink($dovalidate_text, $dovalidate_url);
+                //$btn = COM_createLink($dovalidate_text, $dovalidate_url);
                 $header_arr[] = array(
-                    'text' => $LANG_BANNER['html_status'],
+                    'text' => $btn,
                     'field' => 'beforevalidate',
-                    'sort' => false
+                    'sort' => false,
                 );
             }
-            $text_arr = array(
-                'has_extras' => true,
-                'form_url' => BANR_ADMIN_URL . '/index.php?item=banner',
-            );
-        }*/
+        }
 
         $text_arr = array(
             'has_extras' => true,
@@ -1790,7 +1966,7 @@ class Banner
         );
         $where = '';
         if ($camp_id != '') {
-            $where = " AND b.camp_id = '" . DB_escapeString($camp_id) . "'";
+            $where = " AND b.camp_id = " . $db->conn->quote($camp_id);
         }
         $query_arr = array(
             'table' => 'banner',
@@ -1803,6 +1979,7 @@ class Banner
                     b.max_impressions as max_impressions,
                     b.publishstart AS publishstart,
                     b.publishend AS publishend, b.owner_id,
+                    b.html_status, b.dt_validated,
                     $is_admin as isAdmin
                 FROM {$_TABLES['banner']} AS b
                 LEFT JOIN {$_TABLES['bannercategories']} AS c
@@ -1852,31 +2029,27 @@ class Banner
 
         switch($fieldname) {
         case 'edit':
-            $retval = COM_createLink(
-                $_CONF_BANR['icons']['edit'],
-                $base_url . '/index.php?editbanner&amp;bid=' .$A['bid']
-            );
+            $retval = FieldList::edit(array(
+                'url' => $base_url . '/index.php?editbanner&amp;bid=' .$A['bid'],
+            ) );
             break;
 
         case 'enabled':
-            if ($A['enabled'] == '1') {
-                $switch = 'checked="checked"';
-            } else {
-                $switch = '';
-            }
-            $retval .= "<input type=\"checkbox\" $switch value=\"1\" name=\"banr_ena_check\"
-                    id=\"togena{$A['bid']}\"
-                    onclick='BANR_toggleEnabled(this, \"{$A['bid']}\",\"banner\");' />\n";
+            $retval = FieldList::checkbox(array(
+                'name' => 'banr_ena_chk',
+                'id' => "togena{$A['bid']}",
+                'checked' => (int)$fieldvalue == 1,
+                'onclick' => "BANR_toggleEnabled(this, '{$A['bid']}','banner');",
+            ) );
             break;
 
         case 'delete':
-            $retval = COM_createLink(
-                $_CONF_BANR['icons']['delete'],
-                "$base_url/index.php?bid={$A['bid']}&delete=banner",
+            $retval = FieldList::delete(array(
+                'delete_url' => "$base_url/index.php?bid={$A['bid']}&delete=banner",
                 array(
                      'onclick' => "return confirm('Do you really want to delete this item?');",
-                 )
-             );
+                 ),
+            ) );
             break;
 
         case 'dovalidate':
@@ -1884,11 +2057,22 @@ class Banner
             $retval = $B->validateURL();
             break;
 
-        /*case 'beforevalidate';
-            $retval = $LANG_BANNER['before_validate'];
+        case 'beforevalidate':
+            if ($A['html_status'] == 'n/a') {
+                $retval = $A['html_status'] . '&nbsp;' . FieldList::info(array(
+                    'title' => $LANG_BANNER['html_status_na'],
+                ) );
+            } else {
+                if ($A['html_status'] == '200 OK') {
+                    $cls = '';
+                } else {
+                    $cls = 'uk-text-danger';
+                }
+                $retval = '<span class="tooltip ' . $cls . '" title="' . $A['dt_validated'] . '">' . $A['html_status'] . '</span>';
+            }
             break;
 
-        case 'camp_id':
+/*        case 'camp_id':
             $retval = COM_createLink(
                 $A['camp_id'],
                 "{$base_url}/index.php?campaigns=x&camp_id=" . urlencode($A['camp_id'])
@@ -1930,6 +2114,57 @@ class Banner
         return $retval;
     }
 
+
+    /**
+     * Change the campaign ID for all banners when the Campaign is changed.
+     *
+     * @param   string  $old_id     Old campaign ID
+     * @param   string  $new_id     New ID
+     * @return  boolean     True on success, False on error
+     */
+    public static function changeCampaignId(string $old_id, string $new_id) : bool
+    {
+        global $_TABLES;
+
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['banner']} SET camp_id = ? WHERE camp_id = ?",
+                array($new_id, $old_id),
+                array(Database::STRING, Database::STRING)
+            );
+            return true;
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
+    }
+
+
+    /**
+     * Change the category name for all banners when the Category is changed.
+     *
+     * @param   string  $old_id     Old campaign ID
+     * @param   string  $new_id     New ID
+     * @return  boolean     True on success, False on error
+     */
+    public static function changeCategoryId(string $old_id, string $new_id) : bool
+    {
+        global $_TABLES;
+
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['banner']} SET cid = ? WHERE cid = ?",
+                array($new_id, $old_id),
+                array(Database::STRING, Database::STRING)
+            );
+            return true;
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
+    }
+
 }
 
-?>

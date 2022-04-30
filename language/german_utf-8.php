@@ -163,6 +163,10 @@ $LANG_BANNER = array(
 'at_dscp_banner' => 'Include a specific banner in the content',
 'at_dscp_randombanner' => 'Include a random banner in the content',
 'at_dscp_bannercategory' => 'Include a random banner from a specific category in the content',
+'validate' => 'Validate',
+'show_owner' => 'Show ads to the owner?',
+'show_admins' => 'Show ads to administrators?',
+'show_adm_pages' => 'Include in admin pages?',
 );
 
 ###############################################################################
