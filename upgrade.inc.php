@@ -271,7 +271,7 @@ function BANR_remove_old_files()
             'language/german.php',
             'language/german_formal.php',
             // 1.0.0
-            'banner_funtions.php',
+            'banner_functions.php',
             'classes/Image.class.php',
             'classes/image.class.php',
             'classes/bannerlist.class.php',
