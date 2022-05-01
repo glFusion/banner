@@ -39,7 +39,7 @@ class Menu
         }
         $menu_arr = array(
             array(
-                'url'  => BANR_URL . '/index.php?edit=x',
+                'url'  =>  Config::get('url') . '/index.php?edit=x',
                 'text' => $LANG_BANNER['banners'],
                 'active' => $view == 'banners' ? true : false,
             ),
@@ -80,17 +80,17 @@ class Menu
 
         $menu_arr = array(
             array(
-                'url'  => BANR_ADMIN_URL . '/index.php',
+                'url'  => Config::get('admin_url') . '/index.php',
                 'text' => $LANG_BANNER['banners'],
                 'active' => $view == 'banners' ? true : false,
             ),
             array(
-                'url'  => BANR_ADMIN_URL . '/index.php?categories=x',
+                'url'  => Config::get('admin_url') . '/index.php?categories=x',
                 'text' => $LANG_BANNER['categories'],
                 'active' => $view == 'categories' ? true : false,
             ),
             array(
-                'url'  => BANR_ADMIN_URL . '/index.php?campaigns=x',
+                'url'  => Config::get('admin_url') . '/index.php?campaigns=x',
                 'text' => $LANG_BANNER['campaigns'],
                 'active' => $view == 'campaigns' ? true : false,
             ),
