@@ -1213,16 +1213,16 @@ function BANNER_docURL($file, $lang='')
     $doc_url = '';
     if ($file != '') {
         $file .= '.html';
-        if (!is_file($_CONF['path_html'] . Config::PI_NAME . "/docs/$doclang/$file")) {
-            $doclang = 'english';
+        if (!is_file($_CONF['path_html'] . Config::PI_NAME . "/docs/$lang/$file")) {
+            $lang = 'english';
         }
-        $doc_url = Config::get('url') . "/docs/$doclang/$file";
+        $doc_url = Config::get('url') . "/docs/$lang/$file";
     } else {
         // just getting the config document directory
         if (!is_dir($doc_path)) {
-            $doclang = 'english';
+            $lang = 'english';
         }
-        $doc_url = Config::get('url') . "/docs/$doclang/";
+        $doc_url = Config::get('url') . "/docs/$lang/";
     }
     return $doc_url;
 }
