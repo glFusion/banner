@@ -202,13 +202,13 @@ class Campaign
             $this->setPubEnd($A['finish']);
         } else {
             // Form, get values from two fields
-            if (empty($A['start_date'])) {
-                $this->setPubStart(NULL);
+            if (!isset($A['start_dt_limit'])) {
+                $this->setPubStart();
             } else {
                 $this->setPubStart($A['start_date']);
             }
-            if (empty($A['end_date'])) {
-                $this->setPubEnd(NULL);
+            if (!isset($A['end_dt_limit'])) {
+                $this->setPubEnd();
             } else {
                 $this->setPubEnd($A['end_date']);
             }
@@ -271,10 +271,15 @@ class Campaign
     {
         global $_CONF;
 
-        if (!empty($dt_str)) {
-            $this->pubStart = new \Date($dt_str, $_CONF['timezone']);
+        if ($dt_str === NULL) {
+            $this->pubstart = NULL;
+        } elseif (empty($dt_str)) {
+            $this->pubstart = clone $_CONF['_now'];
         } else {
-            $this->pubStart = NULL;
+            if ($dt_str > BANR_MAX_DATE) {
+                $dt_str = BANR_MAX_DATE;
+            }
+            $this->pubstart = new \Date($dt_str, $_CONF['timezone']);
         }
         return $this;
     }
@@ -290,10 +295,15 @@ class Campaign
     {
         global $_CONF;
 
-        if (!empty($dt_str)) {
-            $this->pubEnd = new \Date($dt_str, $_CONF['timezone']);
-        } else {
+        if ($dt_str === NULL) {
             $this->pubEnd = NULL;
+        } elseif (empty($dt_str)) {
+            $this->pubEnd = clone $_CONF['_now'];
+        } else {
+            if ($dt_str > BANR_MAX_DATE) {
+                $dt_str = BANR_MAX_DATE;
+            }
+            $this->pubEnd = new \Date($dt_str, $_CONF['timezone']);
         }
         return $this;
     }
@@ -306,10 +316,14 @@ class Campaign
      */
     public function getPubStart(?string $fmt=NULL)
     {
-        if (!empty($fmt) && !is_null($this->pubStart)) {
+        global $_CONF;
+
+        if ($fmt == NULL) {
+            return $this->pubStart;
+        } elseif (!is_null($this->pubStart)) {
             return $this->pubStart->format($fmt, true);
         } else {
-            return $this->pubStart;
+            return $_CONF['_now']->format($fmt, true);
         }
     }
 
@@ -319,17 +333,26 @@ class Campaign
      *
      * @return  string      Ending publication date
      */
-    public function getPubEnd($fmt='')
+    public function getPubEnd(string $fmt=NULL)
     {
-        if (!empty($fmt) && !is_null($this->pubEnd)) {
+        global $_CONF;
+
+        if ($fmt === NULL) {
+            return $this->pubEnd;
+        } elseif (!is_null($this->pubEnd)) {
             return $this->pubEnd->format($fmt, true);
         } else {
-            return $this->pubEnd;
+            return $_CONF['_now']->format($fmt, true);
         }
     }
 
 
-    public function isEnabled()
+    /**
+     * Check if this campaign is enabled.
+     *
+     * @return  integer     1 if enabled, 0 if not
+     */
+    public function isEnabled() : int
     {
         return $this->enabled ? 1 : 0;
     }
@@ -457,6 +480,33 @@ class Campaign
 
         if ($this->isNew && $this->camp_id == '') {
             $this->camp_id = COM_makeSid();
+        }
+
+        if ($this->pubStart == NULL) {
+            $T->set_var(array(
+                'start_dt_limit_chk'    => '',
+                'startdt_sel_show'      => 'none',
+                'startdt_txt_show'      => '',
+            ) );
+        } else {
+            $T->set_var(array(
+                'start_dt_limit_chk'    => 'checked="checked"',
+                'startdt_sel_show'      => '',
+                'startdt_txt_show'      => 'none',
+            ) );
+        }
+        if ($this->pubEnd == NULL) {
+            $T->set_var(array(
+                'end_dt_limit_chk'      => '',
+                'enddt_sel_show'        => 'none',
+                'enddt_txt_show'        => '',
+            ) );
+        } else {
+            $T->set_var(array(
+                'end_dt_limit_chk'      => 'checked="checked"',
+                'enddt_sel_show'        => '',
+                'enddt_txt_show'        => 'none',
+            ) );
         }
 
         $T->set_var(array(

@@ -26,3 +26,19 @@ var BANR_toggleEnabled = function(cbox, id, type) {
     });
     return false;
 };
+
+function BANR_toggleDateField(val, id)
+{
+	var dates_id = "#sp_" + id + "date";
+	var no_rest_id = dates_id + "_nolimit";
+    if (val) {
+        // A date limit is in effect
+		$(dates_id).show();
+		$(no_rest_id).hide();
+    } else {
+        // Unchecked, no date limit
+		$(dates_id).hide();
+		$(no_rest_id).show();
+    }
+}
+

@@ -21,21 +21,6 @@ function updateCat(cat_id)
     }
 }
 
-function toggleDateField(val, id)
-{
-console.log(val);
-console.log(id);
-    if (val) {
-        // A date limit is in effect
-        document.getElementById(id+"date").style.display = '';
-        document.getElementById(id+"date_nolimit").style.display = 'none';
-    } else {
-        // Unchecked, no date limit
-        document.getElementById(id+"date").style.display = 'none';
-        document.getElementById(id+"date_nolimit").style.display = '';
-    }
-}
-
 function BANR_changeType(value)
 {
     // Defaults, override in the switch
@@ -78,7 +63,6 @@ function BANR_changeType(value)
 
    }
 }
-        
 </script>
 
 <p>{$LANG_BANNER['edit_details']}</p>
@@ -93,7 +77,7 @@ function BANR_changeType(value)
       <span id="bid" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input required name="bid" id="f_bid" type="text" 
+      <input required name="bid" id="f_bid" type="text"
         size="40" maxlength="40" value="{banner_id}" />
       <i class="uk-icon uk-icon-warning uk-text-danger tooltip" title="{$LANG_BANNER['required']}"></i>
     </div>
@@ -104,7 +88,7 @@ function BANR_changeType(value)
       <span id="title" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input required name="title" id="f_title" type="text" 
+      <input required name="title" id="f_title" type="text"
         size="48" maxlength="96" value="{banner_title}" />
       <i class="uk-icon uk-icon-warning uk-text-danger tooltip" title="{$LANG_BANNER['required']}"></i>
     </div>
@@ -149,21 +133,15 @@ function BANR_changeType(value)
     </label>
     <div class="uk-form-controls">
       <input type="checkbox" name="start_dt_limit" id="start_dt_limit" value="1"
-        {start_dt_limit_chk} onclick="toggleDateField(this.checked, 'start_');"/>
-      <span id="start_date_nolimit" style="display:{startdt_txt_show};">
+		class="uk-checkbox tooltip" title="{$LANG_BANR['chk_rem_dt_limit']}"
+        {start_dt_limit_chk} onclick="BANR_toggleDateField(this.checked, 'start_');"/>
+      <span id="sp_start_date_nolimit" style="display:{startdt_txt_show};">
         {$LANG_BANNER['no_dt_limit']}
       </span>
-      <span id="start_date" dir="ltr" style="display:{startdt_sel_show};">
-        <input type="text" name="start_date" id="dt_date"
-            class="uk-form-width-small"
-            data-uk-datepicker="{format:YYYY-MM-DD}"
-            title="{$LANG_PP['datepicker']}" data-uk-tooltip
-            value="{start_date}" maxlength="16" />&nbsp;
-        <input type="text" name="start_time" id="dt_time"
-            class="uk-form-width-small"
-            data-uk-timepicker="(format:24h}"
-            title="{$LANG_PP['datepicker']}" data-uk-tooltip
-            value="{start_time}" maxlength="16" />
+      <span id="sp_start_date" dir="ltr" style="display:{startdt_sel_show};">
+        <input type="text" name="start_date" id="start_date"
+            class="uk-form-width-medium popupcal"
+            value="{start_date}" />
       </span>
     </div>
   </div>
@@ -174,21 +152,14 @@ function BANR_changeType(value)
     </label>
     <div class="uk-form-controls">
       <input type="checkbox" name="end_dt_limit" id="end_dt_limit" value="1"
-        {end_dt_limit_chk} onclick="toggleDateField(this.checked, 'end_');"/>
-      <span id="end_date_nolimit" style="display:{enddt_txt_show};">
+        {end_dt_limit_chk} onclick="BANR_toggleDateField(this.checked, 'end_');"/>
+      <span id="sp_end_date_nolimit" style="display:{enddt_txt_show};">
         {$LANG_BANNER['no_dt_limit']}
       </span>
-      <span id="end_date" dir="ltr" style="display:{enddt_sel_show};">
-        <input type="text" name="end_date" id="dt_date"
-            class="uk-form-width-small"
-            data-uk-datepicker="{format:YYYY-MM-DD}"
-            title="{$LANG_PP['datepicker']}" data-uk-tooltip
-            value="{end_date}" maxlength="16" />&nbsp;
-        <input type="text" name="end_time" id="dt_time"
-            class="uk-form-width-small"
-            data-uk-timepicker="(format:24h}"
-            title="{$LANG_PP['datepicker']}" data-uk-tooltip
-            value="{end_time}" maxlength="16" />
+      <span id="sp_end_date" dir="ltr" style="display:{enddt_sel_show};">
+        <input type="text" name="end_date" id="end_date"
+            class="uk-form-width-medium popupcal"
+            value="{end_date}" />
         </span>
     </div>
   </div>
@@ -199,7 +170,7 @@ function BANR_changeType(value)
       <span id="enabled" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="enabled" id="f_enabled" type="checkbox" value="1" {ena_chk} /> 
+      <input name="enabled" id="f_enabled" type="checkbox" value="1" {ena_chk} />
     </div>
   </div>
 
@@ -208,7 +179,7 @@ function BANR_changeType(value)
       <span id="hits" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="hits" id="f_hits" type="text" size="11" 
+      <input name="hits" id="f_hits" type="text" size="11"
         value="{banner_hits}" />&nbsp;{$LANG_BANNER['warn_update_hits']}
     </div>
   </div>
@@ -218,7 +189,7 @@ function BANR_changeType(value)
       <span id="max_hits" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="max_hits" id="f_max_hits" type="text" size="11" 
+      <input name="max_hits" id="f_max_hits" type="text" size="11"
         value="{banner_maxhits}" />&nbsp;{$LANG_BANNER['zero_eq_unlimited']}
     </div>
   </div>
@@ -228,7 +199,7 @@ function BANR_changeType(value)
       <span id="impressions" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="impressions" id="f_impressions" type="text" size="11" 
+      <input name="impressions" id="f_impressions" type="text" size="11"
         value="{impressions}" />
       &nbsp;{$LANG_BANNER['warn_update_hits']}
     </div>
@@ -239,7 +210,7 @@ function BANR_changeType(value)
       <span id="max_impressions" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="max_impressions" id="f_max_impressions" type="text" 
+      <input name="max_impressions" id="f_max_impressions" type="text"
         size="11" value="{max_impressions}" />&nbsp;{$LANG_BANNER['zero_eq_unlimited']}
     </div>
   </div>
@@ -255,7 +226,7 @@ function BANR_changeType(value)
     </label>
     <div class="uk-form-controls">
       <input name="url" id="f_targeturl"
-        type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
+        type="text" dir="ltr" size="48" maxlength="{max_url_length}"
         value="{target_url}" /> {$LANG_BANNER['includehttp']}
     </div>
   </div>
@@ -277,7 +248,7 @@ function BANR_changeType(value)
       <span id="ad_type" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <select id="f_adtype" name="ad_type" 
+      <select id="f_adtype" name="ad_type"
         onchange="BANR_changeType(this.value)" />
         {adtype_select}
       </select>
@@ -302,8 +273,8 @@ function BANR_changeType(value)
       <span id="image_url" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="image_url" id="f_imageurl" 
-        type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
+      <input name="image_url" id="f_imageurl"
+        type="text" dir="ltr" size="48" maxlength="{max_url_length}"
         value="{image_url}" /> {$LANG_BANNER['includehttp']}
       <i class="uk-icon uk-icon-warning uk-text-danger tooltip" title="{$LANG_BANNER['required']}"></i>
     </div>
@@ -314,11 +285,11 @@ function BANR_changeType(value)
       <span id="dimensions" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="width" id="f_width" 
-        type="text" dir="ltr" size="4" maxlength="4" 
+      <input name="width" id="f_width"
+        type="text" dir="ltr" size="4" maxlength="4"
         value="{width}" /> {$LANG_BANNER['wide']} x
       <input name="height" id="f_height"
-        type="text" dir="ltr" size="4" maxlength="4" 
+        type="text" dir="ltr" size="4" maxlength="4"
         value="{height}" /> {$LANG_BANNER['high']}
     </div>
   </div>
@@ -328,8 +299,8 @@ function BANR_changeType(value)
       <span id="alt" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-      <input name="alt" id="f_alt" 
-        type="text" dir="ltr" size="48" maxlength="{max_url_length}" 
+      <input name="alt" id="f_alt"
+        type="text" dir="ltr" size="48" maxlength="{max_url_length}"
         value="{alt}" />
     </div>
   </div>
@@ -366,7 +337,6 @@ function BANR_changeType(value)
     </div>
   </div>
 
-  <i class="uk-icon uk-icon-warning uk-text-danger tooltip" title="{$LANG_BANNER['required']}"></i> {req_item_msg}
   </fieldset>
 
   <fieldset>
@@ -377,7 +347,7 @@ function BANR_changeType(value)
       <span id="owner" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
-{!if isAdmin} 
+{!if isAdmin}
       <select id="f_owner_id" name="owner_id">
         {owner_dropdown}
       </select>
@@ -393,7 +363,7 @@ function BANR_changeType(value)
       <button type="reset" class="uk-button uk-button-primary" value="{$LANG_BANNER['reset']}" name="reset">{$LANG_BANNER['reset']}</button>
       <a class="uk-button" href="{cancel_url}">{$LANG_ADMIN['cancel']}</a>
   {!if can_delete}
-      <button type="submit" class="uk-button uk-button-danger" name="delete" value="{$LANG_ADMIN['delete']}" 
+      <button type="submit" class="uk-button uk-button-danger" style="float:right;" name="delete" value="{$LANG_ADMIN['delete']}"
         onclick="return confirm('{$LANG_BANNER['confirm_delitem']}');">{$LANG_ADMIN['delete']}</button>
   {!endif}
   {submission_option}

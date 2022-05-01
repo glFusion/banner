@@ -181,8 +181,6 @@ class Banner
             $this->perm_members = (int)Config::get('default_permissions')[2];
             $this->perm_anon    = (int)Config::get('default_permissions')[3];
             $this->options = self::$default_opts;
-            $this->setPubStart();
-            $this->setPubEnd();
         }
     }
 
@@ -248,12 +246,16 @@ class Banner
      *
      * @return  string      Starting publication date
      */
-    public function getPubStart($fmt='')
+    public function getPubStart(?string $fmt=NULL)
     {
-        if ($fmt == '') {
+        global $_CONF;
+
+        if ($fmt == NULL) {
             return $this->pubstart;
+        } elseif (!is_null($this->pubstart)) {
+            return $this->pubstart->format($fmt, true);
         } else {
-            return $this->pubstart->format($fmt);
+            return $_CONF['_now']->format($fmt, true);
         }
     }
 
@@ -263,12 +265,16 @@ class Banner
      *
      * @return  string      Ending publication date
      */
-    public function getPubEnd($fmt='')
+    public function getPubEnd(?string $fmt=NULL)
     {
-        if ($fmt == '') {
+        global $_CONF;
+
+        if ($fmt == NULL) {
             return $this->pubend;
+        } elseif (!is_null($this->pubend)) {
+            return $this->pubend->format($fmt, true);
         } else {
-            return $this->pubend->format($fmt);
+            return $_CONF['_now']->format($fmt, true);
         }
     }
 
@@ -338,14 +344,20 @@ class Banner
      * @param   string  $dt_str     MYSQL-formatted date/time string
      * @return  object  $this
      */
-    public function setPubStart($dt_str=NULL)
+    public function setPubStart(?string $dt_str=NULL) : self
     {
         global $_CONF;
 
-        if (empty($dt_str)) {
-            $dt_str = $_CONF['_now']->toMySQL(true);
+        if ($dt_str === NULL) {
+            $this->pubstart = NULL;
+        } elseif (empty($dt_str)) {
+            $this->pubstart = clone $_CONF['_now'];
+        } else {
+            if ($dt_str > BANR_MAX_DATE) {
+                $dt_str = BANR_MAX_DATE;
+            }
+            $this->pubstart = new \Date($dt_str, $_CONF['timezone']);
         }
-        $this->pubstart = new \Date($dt_str, $_CONF['timezone']);
         return $this;
     }
 
@@ -356,14 +368,20 @@ class Banner
      * @param   string  $dt_str     MYSQL-formatted date/time string
      * @return  object  $this
      */
-    public function setPubEnd($dt_str=NULL)
+    public function setPubEnd(?string $dt_str=NULL) : self
     {
         global $_CONF;
 
-        if (empty($dt_str)) {
-            $dt_str = BANR_MAX_DATE;
+        if ($dt_str === NULL) {
+            $this->pubend = NULL;
+        } elseif (empty($dt_str)) {
+            $this->pubend = clone $_CONF['_now'];
+        } else {
+            if ($dt_str > BANR_MAX_DATE) {
+                $dt_str = BANR_MAX_DATE;
+            }
+            $this->pubend = new \Date($dt_str, $_CONF['timezone']);
         }
-        $this->pubend = new \Date($dt_str, $_CONF['timezone']);
         return $this;
     }
 
@@ -554,15 +572,15 @@ class Banner
             $this->options['target'] = isset($A['target']) ? $A['target'] : '';
 
             // Assemble the dates from component parts
-            if (!isset($A['start_dt_limit']) || $A['start_dt_limit'] != 1) {
-                $this->setPubStart(0);
+            if (!isset($A['start_dt_limit'])) {
+                $this->setPubStart();
             } else {
-                $this->setPubStart($A['start_date'] . ' ' . $A['start_time']);
+                $this->setPubStart($A['start_date']);
             }
-            if (!isset($A['end_dt_limit']) || $A['end_dt_limit'] != 1) {
-                $this->setPubEnd(0);
+            if (!isset($A['end_dt_limit'])) {
+                $this->setPubEnd();
             } else {
-                $this->setPubEnd($A['end_date'] . ' ' . $A['end_time']);
+                $this->setPubEnd($A['end_date']);
             }
 
             // Only admins can set some values, use the defaults for others
@@ -911,8 +929,8 @@ class Banner
             'options' => Database::STRING,
             'title' => Database::STRING,
             'notes' => Database::STRING,
-            //'publishstart' => ':pubstart',
-            //'publishend' => ':pubend',
+            'publishstart' => ':pubstart',
+            'publishend' => ':pubend',
             'enabled' => Database::INTEGER,
             'hits' => Database::STRING,
             'max_hits' => Database::INTEGER,
@@ -1340,6 +1358,8 @@ class Banner
                     CURLOPT_URL => $this->options['url'],
                     CURLOPT_HEADER => true,
                     CURLOPT_NOBODY => true,
+                    CURLOPT_USERAGENT =>
+                        'Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0"',
                 )
             );
             curl_exec($ch);
@@ -1493,10 +1513,8 @@ class Banner
             'sel'.$this->options['target'] => 'selected="selected"',
             'req_item_msg' => $LANG_BANNER['req_item_msg'],
             'perm_msg' => $LANG_ACCESS['permmsg'],
-            'start_date' => $this->getPubStart('Y-m-d'),
-            'start_time' => $this->getPubStart('H:i:s'),
-            'end_date' => $this->getPubEnd('Y-m-d'),
-            'end_time' => $this->getPubEnd('H:i:s'),
+            'start_date' => $this->getPubStart('Y-m-d H:i'),
+            'end_date' => $this->getPubEnd('Y-m-d H:i'),
             'saveaction' => $saveaction,
         ));
 
@@ -1545,7 +1563,7 @@ class Banner
 
         $T->set_var('gltoken_name', CSRF_TOKEN);
         $T->set_var('gltoken', SEC_createToken());
-        if ($this->pubstart->toMySQL(true) == BANR_MIN_DATE) {
+        if ($this->pubstart == NULL) {
             $T->set_var(array(
                 'start_dt_limit_chk'    => '',
                 'startdt_sel_show'      => 'none',
@@ -1558,7 +1576,7 @@ class Banner
                 'startdt_txt_show'      => 'none',
             ) );
         }
-        if ($this->pubend->toMySQL(true) == BANR_MAX_DATE) {
+        if ($this->pubend == NULL) {
             $T->set_var(array(
                 'end_dt_limit_chk'      => '',
                 'enddt_sel_show'        => 'none',
@@ -1894,6 +1912,7 @@ class Banner
                 'text' => $LANG_BANNER['weight'],
                 'field' => 'weight',
                 'sort' => true,
+                'align' => 'center',
             ),
             array(
                 'text' => $LANG_BANNER['pubstart'],
@@ -2050,7 +2069,7 @@ class Banner
         case 'delete':
             $retval = FieldList::delete(array(
                 'delete_url' => "$base_url/index.php?bid={$A['bid']}&delete=banner",
-                array(
+                'attr' => array(
                      'onclick' => "return confirm('Do you really want to delete this item?');",
                  ),
             ) );

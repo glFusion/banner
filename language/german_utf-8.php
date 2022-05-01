@@ -119,6 +119,7 @@ $LANG_BANNER = array(
 'duplicate_cid'     => 'Die Kategorie-ID ist bereits vergeben.',
 'duplicate_camp_id' => 'Die Kampagne-ID ist bereits vergeben.',
 'no_dt_limit'       => 'Keine Datums-Beschränkung',
+'chk_rem_dt_limit' => 'Check to remove date limitation',
 'reset'             => 'Reset',
 'confirm_delitem'   => 'Möchtest Du diesen Eintrag wirklich löschen?',
 'req_item_msg'  => ' = Pflichtfelder',

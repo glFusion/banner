@@ -118,6 +118,7 @@ $LANG_BANNER = array(
 'duplicate_cid'     => 'The category ID is not unique.',
 'duplicate_camp_id' => 'The campaign ID is not unique.',
 'no_dt_limit'       => 'No Date Restriction',
+'chk_rem_dt_limit' => 'Check to remove date limitation',
 'reset'             => 'Reset',
 'confirm_delitem'   => 'Are you sure you want to delete this item?',
 'req_item_msg'  => 'Items in <span class="required">red</span> are required.',

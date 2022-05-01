@@ -41,6 +41,11 @@
       <span id="start" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
+      <input type="checkbox" name="start_dt_limit" id="start_dt_limit" value="1"
+        {start_dt_limit_chk} onclick="BANR_toggleDateField(this.checked, 'start_');"/>
+      <span id="sp_start_date_nolimit" style="display:{startdt_txt_show};">
+        {$LANG_BANNER['no_dt_limit']}
+      </span>
       <span id="sp_start_date" dir="ltr" style="display:{startdt_sel_show};">
         <input type="text" name="start_date" id="start_date" value="{start_date}"
             class="uk-form-width-medium popupcal"/>
@@ -53,6 +58,11 @@
       <span id="finish" class="tooltip_cfg tooltipstered"></span>
     </label>
     <div class="uk-form-controls">
+      <input type="checkbox" name="end_dt_limit" id="end_dt_limit" value="1"
+        {end_dt_limit_chk} onclick="BANR_toggleDateField(this.checked, 'end_');"/>
+      <span id="sp_end_date_nolimit" style="display:{enddt_txt_show};">
+        {$LANG_BANNER['no_dt_limit']}
+      </span>
       <span id="sp_end_date" dir="ltr" style="display:{enddt_sel_show};">
         <input type="text" id="end_date" name="end_date" value="{end_date}"
             class="uk-form-width-medium popupcal"/>
@@ -167,7 +177,7 @@
       <button type="reset" class="uk-button" value="{$LANG_ADMIN['cancel']}" name="cancel"
         onclick="javascript: document.location.href='{cancel_url}'">{$LANG_ADMIN['cancel']}</button>
       {!if delete_option}
-      <button name="delete" type="submit" class="uk-button uk-button-danger" value="{$LANG_BANNER_ADMIN[37]}"
+      <button name="delete" type="submit" class="uk-button uk-button-danger" style="float:right;" value="{$LANG_BANNER_ADMIN[37]}"
         onclick="return confirm('{$LANG_BANNER['ok_to_delete']}');">{$LANG_BANNER_ADMIN[37]}</button>
       {!endif}
     </div>

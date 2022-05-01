@@ -41,8 +41,8 @@ $banner_def =
   `max_impressions` int(11) NOT NULL DEFAULT 0,
   `hits` int(11) NOT NULL DEFAULT 0,
   `max_hits` int(11) NOT NULL DEFAULT 0,
-  `publishstart` datetime DEFAULT '0000-01-01 00:00:00',
-  `publishend` datetime DEFAULT '9999-12-31 23:59:59',
+  `publishstart` datetime DEFAULT NULL,
+  `publishend` datetime DEFAULT NULL,
   `date` datetime DEFAULT NULL,
   `enabled` tinyint(1) DEFAULT 1,
   `owner_id` mediumint(8) unsigned NOT NULL DEFAULT 1,
@@ -201,11 +201,6 @@ $BANR_UPGRADE = array(
     "ALTER TABLE {$_TABLES['bannercampaigns']} DROP max_banners",
     ),
 '1.0.0' => array(
-    "INSERT INTO `{$_TABLES['bannercategories']}`
-        (cid, type, category, description, max_img_width, max_img_height)
-        VALUES ('htmlheader','htmlheader','HTMLHeader','HEAD Section Banners',140,400)",
-    "INSERT INTO {$_TABLES['banner_mapping']} (tpl, cid, once)
-        VALUES ('banner_htmlheader', 'htmlheader', 0)",
     "ALTER TABLE {$_TABLES['bannercampaigns']} ADD `show_owner` tinyint(1) unsigned NOT NULL DEFAULT 0",
     "ALTER TABLE {$_TABLES['bannercampaigns']} ADD `show_admins` tinyint(1) unsigned NOT NULL DEFAULT 0",
     "ALTER TABLE {$_TABLES['bannercampaigns']} ADD `show_adm_pages` tinyint(1) unsigned NOT NULL DEFAULT 0",
@@ -213,7 +208,18 @@ $BANR_UPGRADE = array(
     "ALTER TABLE {$_TABLES['banner']} ADD `dt_validated` datetime DEFAULT NULL AFTER `html_status`",
     "ALTER TABLE {$_TABLES['bannersubmission']} ADD `html_status` varchar(127) NOT NULL DEFAULT '' AFTER `tid`",
     "ALTER TABLE {$_TABLES['bannersubmission']} ADD `dt_validated` datetime DEFAULT NULL AFTER `html_status`",
-
+    "ALTER TABLE {$_TABLES['banner']} CHANGE publishstart publishstart datetime DEFAULT NULL",
+    "ALTER TABLE {$_TABLES['banner']} CHANGE publishend publishend datetime DEFAULT NULL",
+    "UPDATE {$_TABLES['banner']} SET publishstart=NULL WHERE publishstart < '1900-01-01'",
+    "UPDATE {$_TABLES['banner']} SET publishend =NULL WHERE publishend > '2038-01-01'",
+    "UPDATE {$_TABLES['bannercampaigns']} SET start=NULL WHERE start < '1900-01-01'",
+    "UPDATE {$_TABLES['bannercampaigns']} SET finish=NULL WHERE finish > '2038-01-01'",
+    // These inserts will throw a non-blocking error if already done.
+    "INSERT INTO `{$_TABLES['bannercategories']}`
+        (cid, type, category, description, max_img_width, max_img_height)
+        VALUES ('htmlheader','htmlheader','HTMLHeader','HEAD Section Banners',140,400)",
+    "INSERT INTO {$_TABLES['banner_mapping']} (tpl, cid, once)
+        VALUES ('banner_htmlheader', 'htmlheader', 0)",
     ),
 );
 
