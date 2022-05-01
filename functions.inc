@@ -20,8 +20,8 @@ use glFusion\Log\Log;
 // Define banner types.  This is done very early because they're used
 // in the language files
 define('BANR_PI_PATH', $_CONF['path'] . 'plugins/banner');
-define('BANR_MAX_DATE', '9999-12-31 23:59:59');
-define('BANR_MIN_DATE', '0000-01-01 00:00:00');
+define('BANR_MAX_DATE', '2037-12-30 23:59:59');
+define('BANR_MIN_DATE', '1900-01-01 00:00:00');
 
 $langfile = $_CONF['language'] . '.php';
 if (!file_exists(__DIR__ . '/language/' . $langfile)) {
