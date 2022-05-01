@@ -823,7 +823,7 @@ class Banner
                 isset($_FILES['bannerimage']['name']) &&
                 !empty($_FILES['bannerimage']['name'])
             ) {
-                $Img = new Image($this->bid, 'bannerimage');
+                $Img = new Upload($this->bid, 'bannerimage');
                 $Img->uploadFiles();
                 if ($Img->areErrors() > 0) {
                     $this->options['filename'] = '';
@@ -1227,21 +1227,14 @@ class Banner
 
         switch ($this->ad_type) {
         case self::TYPE_LOCAL:
-            // A bit of a kludge until LGLIB is updated for everyone.
-            // The service function returns the image width and height as well
-            // as the url.
             $filename = $this->getOpt('filename');
-            $status = LGLIB_invokeService('lglib', 'imageurl',
-                array(
-                    'filepath' => $_CONF_BANR['img_dir'] . '/' . $filename,
-                    'width'     => $width,
-                    'height'    => $height,
-                ),
-                $output, $svc_msg);
-            if ($status == PLG_RET_OK) {
-                $img_attr['width'] = $output['width'];
-                $img_attr['height'] = $output['height'];
-                $img = $output['url'];
+            $Img = new Images\Local($_CONF_BANR['img_dir'] . $filename);
+            $Img->withDestPath($_CONF['path_html'] . 'banner/images/banners/');
+            $Img->reSize($width, $height);
+            if ($Img->isValid()) {
+                $img_attr['width'] = $Img->getDestWidth();
+                $img_attr['height'] = $Img->getDestHeight();
+                $img = $_CONF_BANR['img_url'] . '/' . $Img->getFilename();
             }
             if (!empty($img)) {
                 $retval = COM_createImage($img, $alt, $img_attr);

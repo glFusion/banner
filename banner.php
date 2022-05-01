@@ -37,7 +37,9 @@ $_CONF_BANR['pi_url']            = 'https://glfusion.org';
 $_CONF_BANR['pi_display_name']   = 'Banner Ads';
 
 // Fixed config variables
-$_CONF_BANR['img_dir'] = $_CONF['path_html'] . $_CONF_BANR['pi_name'] . '/images/banners/';
+$_CONF_BANR['img_dir'] = $_CONF['path'] . 'data/' . $_CONF_BANR['pi_name'] . '/banners/';
+$_CONF_BANR['public_dir'] = $_CONF['path_html'] . $_CONF_BANR['pi_name'] . '/images/banners/';
+$_CONF_BANR['img_url'] = $_CONF['site_url'] . '/' . $_CONF_BANR['pi_name'] . '/images/banners';
 
 $_CONF_BANR['icons'] = array(
     'delete'    => '<i class="uk-icon uk-icon-remove uk-text-danger"></i>',

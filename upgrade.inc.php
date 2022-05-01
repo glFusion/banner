@@ -138,6 +138,16 @@ function banner_do_upgrade($dvlp=false)
 
     if (!COM_checkVersion($current_ver, '1.0.0')) {
         $current_ver = '1.0.0';
+        if (!is_dir($_CONF_BANR['img_dir'])) {
+            // Create the new private image path if it doesn't exist, and copy
+            // the existing banner images from pubic_html. Leave the original
+            // images alone, they won't bother anything.
+            $Fs = new \glFusion\FileSystem;
+            $Fs->dirCopy($_CONF_BANR['public_dir'], $_CONF_BANR['img_dir']);
+            // Delete the "thumbs" directory that got copied with the images.
+            \glFusion\FileSystem::deleteDir($_CONF_BANR['img_dir'] . 'thumbs');
+        }
+
         if (!BANR_tableHasColumn('bannercampaigns', 'show_admins')) {
             // Set the show_admins and show_owner campaign fields from the config,
             // if not already done.

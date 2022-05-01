@@ -194,6 +194,17 @@ function plugin_install_banner()
 
 
 /**
+ * Create image directories post-installation.
+ */
+function plugin_postinstall_banner()
+{
+    global $_CONF_BANR;
+
+    glFusion\FileSystem::mkDir($_CONF_BANR['img_dir']);
+}
+
+
+/**
  * Loads the configuration records for the Online Config Manager.
  *
  * @return  boolean     True = proceed with install, False = an error occured

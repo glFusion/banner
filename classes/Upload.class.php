@@ -16,7 +16,7 @@ namespace Banner;
  * Image-handling class.
  * @package banner
  */
-class Image extends \upload
+class Upload extends \upload
 {
     /** Path to actual image (without filename).
      * @var string */
@@ -101,6 +101,5 @@ class Image extends \upload
         return $this->filename;
     }
 
-}   // class Image
+}
 
-?>
