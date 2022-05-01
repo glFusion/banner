@@ -69,9 +69,6 @@ Otherwise the plugin will increment the impression count for ads that are never 
 
 **Note for glFusion 1.7.0 and higher: There is a flexible template-to-category mapping option for each category to control ad placement. That is the recommended method and this option should be set to "No".**
 
-#### Submissions from Site Members?
-Select "Yes" to allow site members to submit their own banners. Banners from non-admin users go into the submission queue for moderation.
-
 #### Send Notification Email?
 Select "Yes" to have an email sent to the site administrator when a non-admin user submits a banner.
 

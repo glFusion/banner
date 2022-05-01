@@ -305,7 +305,7 @@ function BANR_changeType(value)
     </div>
   </div>
 
-  {!if weight_select}
+{!if weight_select}
   <div class="uk-form-row">
     <label class="uk-form-label" for="f_weight">{$LANG_BANNER['weight']}
       <span id="weight" class="tooltip_cfg tooltipstered"></span>
@@ -316,15 +316,15 @@ function BANR_changeType(value)
       </select>
     </div>
   </div>
-  {!endif}
+{!endif}
 
   <div class="uk-form-row" id="currentimage">
-  {!if disp_img}
+{!if disp_img}
     <label class="uk-form-label" for="f_alt">{$LANG_BANNER['current_image']}</label>
     <div class="uk-form-controls">
-      {disp_img}
+      <div style="float:left;padding-right:20px;">{disp_img}</div><div>{size_dscp}</div>
     </div>
-  {!endif}
+{!endif}
   </div>
 
   <div class="uk-form-row" id="adcode">

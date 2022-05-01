@@ -91,6 +91,22 @@ class Category
 
 
     /**
+     * Get an instance of a category, leveraging a static cache var.
+     *
+     * @param   string  $cid    Category ID
+     * @return  object      Category object
+     */
+    public static function getInstance(string $cid) : self
+    {
+        static $Cats = array();
+        if (!array_key_exists($cid, $Cats)) {
+            $Cats[$cid] = new self($cid);
+        }
+        return $Cats[$cid];
+    }
+
+
+    /**
      * Get the category ID.
      *
      * @return  string      Category ID

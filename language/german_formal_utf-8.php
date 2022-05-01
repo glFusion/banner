@@ -168,6 +168,7 @@ $LANG_BANNER = array(
 'show_owner' => 'Show ads to the owner?',
 'show_admins' => 'Show ads to administrators?',
 'show_adm_pages' => 'Include in admin pages?',
+'render_size_dscp' => 'Displayed size %d pixels wide by %d pixels high,<br />based on category and image size limits.',
 );
 
 ###############################################################################

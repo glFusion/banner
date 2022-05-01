@@ -156,6 +156,14 @@ class Banner
         'rel' => 'sponsored,nofollow',
     );
 
+    /** Final calculated image height.
+     * @var integer */
+    private $r_height = 0;
+
+    /** Final calculated image width.
+     * @var integer */
+    private $r_width = 0;
+
 
     /**
      * Constructor.
@@ -1201,6 +1209,28 @@ class Banner
 
 
     /**
+     * Get the final calculated image width in pixels.
+     *
+     * @return  integer     Final image width
+     */
+    public function getRenderedWidth() : int
+    {
+        return $this->r_width;
+    }
+
+
+    /**
+     * Get the final calculated image height in pixels.
+     *
+     * @return  integer     Final image height
+     */
+    public function getRenderedHeight() : int
+    {
+        return $this->r_height;
+    }
+
+
+    /**
      * Creates the banner image and href link for display.
      * The $link parameter is true to create the full banner ad including
      * the link. False will show only the image, e.g. for admin listings.
@@ -1246,13 +1276,13 @@ class Banner
             $img_attr['data-uk-tooltip'] = '';
         }
 
-        $C = new Category($this->cid);
+        $C = Category::getInstance($this->cid);
         $width = (int)$this->getOpt('width');
-        if ($width == 0 && $C->getMaxWidth() > 0) {
+        if ($C->getMaxWidth() > 0) {
             $width = min($width, $C->getMaxWidth());
         }
         $height = (int)$this->getOpt('height');
-        if ($height == 0 && $C->getMaxHeight() > 0) {
+        if ($C->getMaxHeight() > 0) {
             $height = min($height, $C->getMaxHeight());
         }
 
@@ -1265,6 +1295,9 @@ class Banner
             if ($Img->isValid()) {
                 $img_attr['width'] = $Img->getDestWidth();
                 $img_attr['height'] = $Img->getDestHeight();
+                // Save for later use, if needed.
+                $this->r_height = $img_attr['width'];
+                $this->r_width = $img_attr['height'];
                 $img = Config::get('img_url') . '/' . $Img->getFilename();
             }
             if (!empty($img)) {
@@ -1465,6 +1498,7 @@ class Banner
             // Calculate display dimensions
             $disp_img = $this->BuildBanner('', 0, 0, false);
             $T->set_var('disp_img', $disp_img);
+            $T->set_var('size_dscp', sprintf($LANG_BANNER['render_size_dscp'], $this->r_height, $this->r_width));
             if (SEC_hasRights('banner.edit')) {
                 $T->set_var('can_delete', 'true');
             }
