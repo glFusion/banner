@@ -488,21 +488,6 @@ function plugin_enablestatechange_banner($enabled)
     $blockfns = array('phpblock_banner_');
     $db = Database::getInstance();
 
-    // If trying to enable the plugin but lgLib is not available,
-    // take no action and return
-    if ($enabled && !in_array('lglib', $_PLUGINS)) {
-        // Re-disable the plugin
-        try {
-            $db->conn->executeUpdate(
-                "UPDATE {$_TABLES['plugins']} SET pi_enabled = 0 WHERE pi_name = 'banner'"
-            );
-        } catch (\Exception $e) {
-            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
-        }
-        $enable = false;
-        $enabled = 0;
-    }
-
     if ($enabled == 0) {
         foreach ($blockfns as $blockfn) {
             try {
@@ -516,33 +501,6 @@ function plugin_enablestatechange_banner($enabled)
             } catch (\Exception $e) {
                 Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
             }
-        }
-    }
-}
-
-
-/**
- * Receives notification of anothe plugin's deletion.
- * This plugin relies on the LGLIB plugin.
- *
- * @param   mixed   $id     Item ID
- * @param   string  $type   Plugin Name
- */
-function plugin_itemdeleted_banner($id, $type)
-{
-    global $_TABLES;
-
-    // If the lgLib plugin is disabled or removed, disable thie plugin
-    if ($type == 'lglib' && $id == '*') {
-        plugin_enablestatechange_banner(false);
-        try {
-            Database::getInstance()->executeUpdate(
-                "UPDATE {$_TABLES['plugins']}
-                SET pi_enabled = 0
-                WHERE pi_name = 'banner'"
-            );
-        } catch (\Exception $e) {
-            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
         }
     }
 }
@@ -1094,7 +1052,7 @@ function Xplugin_getuseroption_banner()
  */
 function plugin_getconfigelementhelp_banner($option, $doclang='english')
 {
-    $url = LGLIB_getDocUrl('config', Config::PI_NAME, $doclang);
+    $url = BANNER_docUrl('config', $doclang);
 
     if (!empty($option)) {
         $url .= '#desc_' . $option;
@@ -1252,7 +1210,21 @@ function BANNER_docURL($file, $lang='')
     global $_CONF;
 
     if ($lang == '') $lang = $_CONF['language'];
-    return LGLIB_getDocUrl($file, Config::PI_NAME, $lang);
+    $doc_url = '';
+    if ($file != '') {
+        $file .= '.html';
+        if (!is_file($_CONF['path_html'] . Config::PI_NAME . "/docs/$doclang/$file")) {
+            $doclang = 'english';
+        }
+        $doc_url = Config::get('url') . "/docs/$doclang/$file";
+    } else {
+        // just getting the config document directory
+        if (!is_dir($doc_path)) {
+            $doclang = 'english';
+        }
+        $doc_url = Config::get('url') . "/docs/$doclang/";
+    }
+    return $doc_url;
 }
 
 

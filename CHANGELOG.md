@@ -17,6 +17,7 @@ Release TBD
 - Refactor url validations, now done through separate call to admin index.php.
 - Implement GD-based image resizing to support transparent PNG.
 - Use uniqid() to name images separately from banner IDs.
+- Remove dependency on LGLib plugin.
 
 ## Version 0.3.0
 Release 2017-10-06

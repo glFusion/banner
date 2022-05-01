@@ -9,7 +9,6 @@ codes using the Banner plugin instead of editing theme templates.
 
 ## Requirements
 * glFusion 2.0.0 or higher
-* lgLib plugin 1.0.5 or higher
 
 ## Definitions
 * Banner: An image or html/javascript snippet to display an ad on the site,

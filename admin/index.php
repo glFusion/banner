@@ -309,7 +309,7 @@ case 'editcampaign':
 
 case 'banners':
 default:
-    $camp_id = LGLIB_getVar($_GET, 'camp_id', 'string', '');
+    $camp_id = isset($_GET['camp_id']) ? $_GET['camp_id'] : '';
     if (isset($_GET['msg'])) {
         $msg = COM_applyFilter($_GET['msg'], true);
         if ($msg > 0) {
