@@ -12,6 +12,7 @@
  * @filesource
  */
 namespace Banner\Images;
+use glFusion\Log\Log;
 
 
 /**
@@ -272,7 +273,7 @@ class Local
         // Calculate the new dimensions
         self::reDim($this->d_width, $this->d_height, $expand);
         if ($this->status == false) {
-            Log::write('shop_system', Log::ERROR, __CLASS__ . ": Invalid image {$this->src_path}");
+            Log::write('system', Log::ERROR, __CLASS__ . ": Invalid image {$this->s_path}");
             return $this;
         }
 
@@ -289,7 +290,7 @@ class Local
 
         $JpegQuality = 85;
         if ($_CONF['debug_image_upload']) {
-            Log::write('shop_system', Log::ERROR, 
+            Log::write('system', Log::ERROR,
                 __METHOD__ . '(): ' .
                 ": Resizing using GD2: Src = " . $this->s_path . " mimetype = " . $this->mime_type
             );
@@ -310,16 +311,16 @@ class Local
             break;
         case 'image/x-targa' :
         case 'image/tga' :
-            Log::write('shop_system', Log::ERROR, "IMG_resizeImage: TGA files not supported by GD2 Libs");
+            Log::write('system', Log::ERROR, "IMG_resizeImage: TGA files not supported by GD2 Libs");
             return false;
         default :
-            Log::write('shop_system', Log::ERROR, "IMG_resizeImage: GD2 only supports JPG, PNG and GIF image types.");
+            Log::write('system', Log::ERROR, "IMG_resizeImage: GD2 only supports JPG, PNG and GIF image types.");
             $this->status = false;
             return $this;
         }
 
         if (!$image) {
-            Log::write('shop_system', Log::ERROR, "IMG_resizeImage: GD Libs failed to create working image.");
+            Log::write('system', Log::ERROR, "IMG_resizeImage: GD Libs failed to create working image.");
             $this->status = false;
             return $this;
         }
