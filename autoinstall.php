@@ -3,10 +3,10 @@
  * Provides automatic installation of the Banner plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.3.1
- * @license     http://opensource.org/licenses/gpl-2.0.php 
+ * @version     v1.0.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
@@ -19,45 +19,48 @@ global $_DB_dbms;
 
 require_once __DIR__ . '/functions.inc';
 require_once __DIR__ . '/sql/'. $_DB_dbms. '_install.php';
+use Banner\Config;
+use glFusion\Log\Log;
+use glFusion\Database\Database;
 
 // Plugin installation options
 $INSTALL_plugin['banner'] = array(
     'installer' => array(
-        'type'  => 'installer', 
-        'version' => '1', 
+        'type'  => 'installer',
+        'version' => '1',
         'mode'  => 'install',
     ),
 
     'plugin' => array(
-        'type'      => 'plugin', 
-        'name'      => $_CONF_BANR['pi_name'],
-        'ver'       => $_CONF_BANR['pi_version'], 
-        'gl_ver'    => $_CONF_BANR['gl_version'],
-        'url'       => $_CONF_BANR['pi_url'], 
-        'display'   => $_CONF_BANR['pi_display_name'],
+        'type'      => 'plugin',
+        'name'      => Config::PI_NAME,
+        'ver'       => Config::get('pi_version'),
+        'gl_ver'    => Config::get('gl_version'),
+        'url'       => Config::get('pi_url'),
+        'display'   => Config::get('pi_display_name'],
     ),
 
     array(
-        'type'  => 'table', 
-        'table' => $_TABLES['banner'], 
+        'type'  => 'table',
+        'table' => $_TABLES['banner'],
         'sql'   => $_SQL['banner'],
     ),
 
     array(
-        'type'  => 'table', 
-        'table' => $_TABLES['bannercategories'], 
+        'type'  => 'table',
+        'table' => $_TABLES['bannercategories'],
         'sql'   => $_SQL['bannercategories'],
     ),
 
     array(
-        'type'  => 'table', 
-        'table' => $_TABLES['bannersubmission'], 
+        'type'  => 'table',
+        'table' => $_TABLES['bannersubmission'],
         'sql'   => $_SQL['bannersubmission'],
     ),
 
     array(
-        'type'  => 'table', 
-        'table' => $_TABLES['bannercampaigns'], 
+        'type'  => 'table',
+        'table' => $_TABLES['bannercampaigns'],
         'sql'   => $_SQL['bannercampaigns'],
     ),
 
@@ -68,73 +71,73 @@ $INSTALL_plugin['banner'] = array(
     ),
 
     array(
-        'type'      => 'group', 
-        'group'     => 'banner Admin', 
+        'type'      => 'group',
+        'group'     => 'banner Admin',
         'desc'      => 'Users in this group can administer the Banner plugin',
-        'variable'  => 'admin_group_id', 
+        'variable'  => 'admin_group_id',
         'admin'     => true,
         'addroot'   => true,
     ),
 
     array(
-        'type'      => 'feature', 
-        'feature'   => 'banner.admin', 
+        'type'      => 'feature',
+        'feature'   => 'banner.admin',
         'desc'      => 'Banner Administrator',
         'variable'  => 'admin_feature_id',
     ),
 
     array(
-        'type'      => 'feature', 
-        'feature'   => 'banner.edit', 
+        'type'      => 'feature',
+        'feature'   => 'banner.edit',
         'desc'      => 'Banner Editor',
         'variable'  => 'edit_feature_id',
     ),
 
     array(
-        'type'      => 'feature', 
-        'feature'   => 'banner.submit', 
+        'type'      => 'feature',
+        'feature'   => 'banner.submit',
         'desc'      => 'Bypass Banner Submission Queue',
         'variable'  => 'submit_feature_id',
     ),
 
     array(
-        'type'      => 'feature', 
-        'feature'   => 'banner.moderate', 
+        'type'      => 'feature',
+        'feature'   => 'banner.moderate',
         'desc'      => 'Moderate Banner Submissions',
         'variable'  => 'moderate_feature_id',
     ),
 
     array(
-        'type'      => 'mapping', 
-        'group'     => 'admin_group_id', 
+        'type'      => 'mapping',
+        'group'     => 'admin_group_id',
         'feature'   => 'admin_feature_id',
         'log'       => 'Adding Admin feature to the admin group',
     ),
 
     array(
-        'type'      => 'mapping', 
-        'group'     => 'admin_group_id', 
+        'type'      => 'mapping',
+        'group'     => 'admin_group_id',
         'feature'   => 'edit_feature_id',
         'log'       => 'Adding Edit feature to the admin group',
     ),
 
     array(
-        'type'      => 'mapping', 
-        'group'     => 'admin_group_id', 
+        'type'      => 'mapping',
+        'group'     => 'admin_group_id',
         'feature'   => 'submit_feature_id',
         'log'       => 'Adding Submit feature to the admin group',
     ),
 
     array(
-        'type'      => 'mapping', 
-        'group'     => 'admin_group_id', 
+        'type'      => 'mapping',
+        'group'     => 'admin_group_id',
         'feature'   => 'moderate_feature_id',
         'log'       => 'Adding Moderate feature to the admin group',
     ),
 
     array(
-        'type'      => 'block', 
-        'name'      => 'banner_random', 
+        'type'      => 'block',
+        'name'      => 'banner_random',
         'title'     => 'Random Banner',
         'phpblockfn' => 'phpblock_banner_topic_random',
         'block_type' => 'phpblock',
@@ -143,8 +146,8 @@ $INSTALL_plugin['banner'] = array(
     ),
 
     array(
-        'type'      => 'block', 
-        'name'      => 'banner_block', 
+        'type'      => 'block',
+        'name'      => 'banner_block',
         'title'     => 'Banners',
         'phpblockfn' => 'phpblock_banner_topic',
         'block_type' => 'phpblock',
@@ -177,15 +180,11 @@ $INSTALL_plugin['banner'] = array(
  */
 function plugin_install_banner()
 {
-    global $INSTALL_plugin, $_CONF_BANR;
+    global $INSTALL_plugin;
 
-    $pi_name            = $_CONF_BANR['pi_name'];
-    $pi_display_name    = $_CONF_BANR['pi_display_name'];
-    $pi_version         = $_CONF_BANR['pi_version'];
+    Log::write('system', Log::INFO, "Attempting to install the " . Config::get('pi_display_name') . " plugin", 1);
 
-    COM_errorLog("Attempting to install the $pi_display_name plugin", 1);
-
-    $ret = INSTALLER_install($INSTALL_plugin[$pi_name]);
+    $ret = INSTALLER_install($INSTALL_plugin[Config::PI_NAME]);
     if ($ret > 0) {
         return false;
     }
@@ -198,9 +197,7 @@ function plugin_install_banner()
  */
 function plugin_postinstall_banner()
 {
-    global $_CONF_BANR;
-
-    glFusion\FileSystem::mkDir($_CONF_BANR['img_dir']);
+    glFusion\FileSystem::mkDir(Config::get('img_dir'));
 }
 
 
@@ -211,15 +208,18 @@ function plugin_postinstall_banner()
  */
 function plugin_load_configuration_banner()
 {
-    global $_CONF_BANR, $_TABLES;
+    global $_TABLES;
 
     require_once __DIR__ . '/install_defaults.php';
 
     // Get the admin group ID that was saved previously.
-    $group_id = (int)DB_getItem($_TABLES['groups'], 'grp_id', 
-            "grp_name='{$_CONF_BANR['pi_name']} Admin'");
+    $db = Database::getInstance();
+    $group_id = (int)$db->getItem(
+        $_TABLES['groups'],
+        'grp_id',
+        array('grp_name' => Config::PI_NAME . ' Admin')
+    );
 
     return plugin_initconfig_banner($group_id);
 }
 
-?>

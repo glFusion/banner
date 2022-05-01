@@ -6,7 +6,7 @@
  * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
  * @version     v1.0.0
- * @license     http://opensource.org/licenses/gpl-2.0.php 
+ * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
@@ -36,12 +36,10 @@ $_CONF_BANR['gl_version']        = '2.0.0';
 $_CONF_BANR['pi_url']            = 'https://glfusion.org';
 $_CONF_BANR['pi_display_name']   = 'Banner Ads';
 
-// Fixed config variables
-$_CONF_BANR['img_dir'] = $_CONF['path'] . 'data/' . $_CONF_BANR['pi_name'] . '/banners/';
-$_CONF_BANR['public_dir'] = $_CONF['path_html'] . $_CONF_BANR['pi_name'] . '/images/banners/';
-$_CONF_BANR['img_url'] = $_CONF['site_url'] . '/' . $_CONF_BANR['pi_name'] . '/images/banners';
+Banner\Config::set('pi_version', '1.0.0');
+Banner\Config::set('gl_version', '2.0.0');
 
-$_CONF_BANR['icons'] = array(
+$_CONF_BANR['xicons'] = array(
     'delete'    => '<i class="uk-icon uk-icon-remove uk-text-danger"></i>',
     'copy'      => '<i class="uk-icon uk-icon-clone"></i>',
     'edit'      => '<i class="uk-icon uk-icon-edit"></i>',

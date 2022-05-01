@@ -15,6 +15,7 @@ global $_DB_dbms;
 require_once __DIR__ . "/sql/{$_DB_dbms}_install.php";
 use glFusion\Database\Database;
 use glFusion\Log\Log;
+use Banner\Config;
 
 
 /**
@@ -25,18 +26,17 @@ use glFusion\Log\Log;
  */
 function banner_do_upgrade($dvlp=false)
 {
-    global $_TABLES, $_CONF_BANR, $_PLUGIN_INFO, $BANR_UPGRADE;
+    global $_TABLES, $_PLUGIN_INFO, $BANR_UPGRADE;
 
-    $pi_name = $_CONF_BANR['pi_name'];
     $db = Database::getInstance();
 
-    if (isset($_PLUGIN_INFO[$_CONF_BANR['pi_name']])) {
+    if (isset($_PLUGIN_INFO[Config::PI_NAME])) {
         $code_ver = plugin_chkVersion_banner();
-        if (is_array($_PLUGIN_INFO[$_CONF_BANR['pi_name']])) {
+        if (is_array($_PLUGIN_INFO[Config::PI_NAME])) {
             // glFusion 1.6.6+
-            $current_ver = $_PLUGIN_INFO[$_CONF_BANR['pi_name']]['pi_version'];
+            $current_ver = $_PLUGIN_INFO[Config::PI_NAME]['pi_version'];
         } else {
-            $current_ver = $_PLUGIN_INFO[$_CONF_BANR['pi_name']];
+            $current_ver = $_PLUGIN_INFO[Config::PI_NAME];
         }
         if (COM_checkVersion($current_ver, $code_ver)) {
             // Already updated to the code version, nothing to do
@@ -138,26 +138,26 @@ function banner_do_upgrade($dvlp=false)
 
     if (!COM_checkVersion($current_ver, '1.0.0')) {
         $current_ver = '1.0.0';
-        if (!is_dir($_CONF_BANR['img_dir'])) {
+        if (!is_dir(Config::get('img_dir'))) {
             // Create the new private image path if it doesn't exist, and copy
             // the existing banner images from pubic_html. Leave the original
             // images alone, they won't bother anything.
             $Fs = new \glFusion\FileSystem;
-            $Fs->dirCopy($_CONF_BANR['public_dir'], $_CONF_BANR['img_dir']);
+            $Fs->dirCopy(Config::get('public_dir'), $Config::get('img_dir'));
             // Delete the "thumbs" directory that got copied with the images.
-            \glFusion\FileSystem::deleteDir($_CONF_BANR['img_dir'] . 'thumbs');
+            \glFusion\FileSystem::deleteDir(Config::get('img_dir') . 'thumbs');
         }
 
         if (!BANR_tableHasColumn('bannercampaigns', 'show_admins')) {
             // Set the show_admins and show_owner campaign fields from the config,
             // if not already done.
-            if ($_CONF_BANR['adshow_admins'] != 0) {
+            if (Config::get('adshow_admins') != 0) {
                 $BANR_UPGRADE[$current_ver][] = "UPDATE {$_TABLES['bannercampaigns']} SET show_admins = 1";
             }
-            if ($_CONF_BANR['adshow_owner'] != 0) {
+            if (Config::get('adshow_owner') != 0) {
                 $BANR_UPGRADE[$current_ver][] = "UPDATE {$_TABLES['bannercampaigns']} SET show_owner = 1";
             }
-            if ($_CONF_BANR['show_in_admin'] != 0) {
+            if (Config::get('show_in_admin') != 0) {
                 $BANR_UPGRADE[$current_ver][] = "UPDATE {$_TABLES['bannercampaigns']} SET show_adm_pages = 1";
             }
         }
@@ -198,7 +198,7 @@ function banner_do_upgrade($dvlp=false)
  */
 function banner_do_update_version($version)
 {
-    global $_TABLES, $_CONF_BANR;
+    global $_TABLES;
 
     $db = Database::getInstance();
     try {
@@ -208,7 +208,7 @@ function banner_do_update_version($version)
             pi_gl_version = ?,
             pi_homepage = ?
             WHERE pi_name = 'banner'",
-            array($_CONF_BANR['pi_version'], $_CONF_BANR['gl_version'], $_CONF_BANR['pi_url']),
+            array(Config::get('pi_version'), Config::get('gl_version'), Config::get('pi_url')),
             array(Database::STRING, Database::STRING, Database::STRING)
         );
         return true;
@@ -228,7 +228,7 @@ function banner_do_update_version($version)
  */
 function banner_do_upgrade_sql($version, $dvlp=false)
 {
-    global $_TABLES, $_CONF_BANR, $BANR_UPGRADE;
+    global $_TABLES, $BANR_UPGRADE;
 
     // If no sql statements needed, return success
     if (
@@ -297,7 +297,7 @@ function BANR_remove_old_files()
     foreach ($paths as $path=>$files) {
         foreach ($files as $file) {
             if (is_file("$path/$file")) {
-                BANNER_auditLog("removing $path/$file");
+                Log::write('system', Log::INFO, "removing $path/$file");
                 @unlink("$path/$file");
             }
         }

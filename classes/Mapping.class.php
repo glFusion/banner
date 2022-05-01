@@ -52,7 +52,7 @@ class Mapping
      */
     public function __construct($tpl = '', $cid = '')
     {
-        global $_USER, $_GROUPS, $_CONF_BANR;
+        global $_USER, $_GROUPS;
 
         $tpl = COM_sanitizeID($tpl, false);
         $cid = COM_sanitizeID($cid, false);
@@ -143,7 +143,7 @@ class Mapping
             $data = NULL;
         }
         if (is_array($data)) {
-            $this->setVars($A);
+            $this->setVars($data);
         }
         return $this;
     }
@@ -157,7 +157,7 @@ class Mapping
      */
     public function setVars($A)
     {
-        global $_CONF_BANR, $_CONF;
+        global $_CONF;
 
         if (!is_array($A)) {
             return;
@@ -209,8 +209,6 @@ class Mapping
      */
     public static function Form($cid)
     {
-        global $_CONF_BANR;
-
         $A = PLG_supportAdblock();  // get all templates supporting ad blocks
         $M = self::loadAll();
         $T = new \Template(BANR_PI_PATH . '/templates/admin/');
@@ -264,23 +262,48 @@ class Mapping
             try {
                 $db->conn->executeUpdate(
                     "INSERT INTO {$_TABLES['banner_mapping']} SET
-                    tpl = ?'$tpl',
-                    cid = ?'$cid',
-                    pos = ?{$M->getPos()},
-                    once = ?{$M->showOnce()},
-                    in_content = ?{$M->showInContent()}",
-                    array($tpl, $cid, $M->getPos(), $M->showInContent()),
-                    array(Database::STRING, Database::STRING, Database::INTEGER, Database::INTEGER)
+                    tpl = ?,
+                    cid = ?,
+                    pos = ?,
+                    once = ?,
+                    in_content = ?",
+                    array(
+                        $M->getTpl(),
+                        $M->getCid(),
+                        $M->getPos(),
+                        $M->showOnce(),
+                        $M->showInContent(),
+                    ),
+                    array(
+                        Database::STRING,
+                        Database::STRING,
+                        Database::STRING,
+                        Database::INTEGER,
+                        Database::INTEGER,
+                    )
                 );
             } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $k) {
                 try {
                     $db->conn->executeUpdate(
-                        "INSERT INTO {$_TABLES['banner_mapping']} SET
-                            pos = ?{$M->getPos()},
-                        once = ?{$M->showOnce()},
-                        in_content = ?{$M->showInContent()}",
-                        array($cid, $M->getPos(), $M->showInContent()),
-                        array(Database::STRING, Database::INTEGER, Database::INTEGER)
+                        "UPDATE {$_TABLES['banner_mapping']} SET
+                            pos = ?,
+                            once = ?,
+                            in_content = ?
+                        WHERE tpl = ? AND cid = ?",
+                        array(
+                            $M->getPos(),
+                            $M->showOnce(),
+                            $M->showInContent(),
+                            $M->getTpl(),
+                            $M->getCid(),
+                        ),
+                        array(
+                            Database::STRING,
+                            Database::INTEGER,
+                            Database::INTEGER,
+                            Database::STRING,
+                            Database::STRING,
+                        )
                     );
                 } catch (\Exception $e) {
                     Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
@@ -292,9 +315,8 @@ class Mapping
             try {
                 $db->conn->delete(
                     $_TABLES['banner_mapping'],
-                    array('tpl', 'cid'),
-                    array($tpl, $cid),
-                    array(Database::STRING, DatabaseString)
+                    array('tpl' => $A['tpl'], 'cid'=>$A['cid']),
+                    array(Database::STRING, Database::STRING)
                 );
             } catch (\Exception $e) {
                 Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());

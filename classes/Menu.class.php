@@ -27,10 +27,10 @@ class Menu
      */
     public static function User($view='')
     {
-        global $_CONF, $LANG_ADMIN, $LANG_BANNER, $_CONF_BANR;
+        global $_CONF, $LANG_ADMIN, $LANG_BANNER;
 
         if (
-            isset($LANG_BANNER['admin_hdr_' . $view]) && 
+            isset($LANG_BANNER['admin_hdr_' . $view]) &&
             !empty($LANG_BANNER['admin_hdr_' . $view])
         ) {
             $hdr_txt = $LANG_BANNER['admin_hdr_' . $view];
@@ -44,14 +44,14 @@ class Menu
                 'active' => $view == 'banners' ? true : false,
             ),
         );
-            
+
         $T = new \Template(BANR_PI_PATH . '/templates');
         $T->set_file('title', 'banner_admin_title.thtml');
-        $T->set_var('title', 
-            $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . $_CONF_BANR['pi_version'] . ')');
+        $T->set_var('title',
+            $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . Config::get('pi_version') . ')');
         $retval = $T->parse('', 'title');
         $retval .= \ADMIN_createMenu(
-            $menu_arr, $hdr_txt, 
+            $menu_arr, $hdr_txt,
             plugin_geticon_banner()
         );
         return $retval;
@@ -66,7 +66,7 @@ class Menu
      */
     public static function Admin($view='')
     {
-        global $_CONF, $LANG_ADMIN, $LANG_BANNER, $_CONF_BANR;
+        global $_CONF, $LANG_ADMIN, $LANG_BANNER;
 
         if (
             isset($LANG_BANNER['admin_hdr_' . $view]) &&
@@ -83,7 +83,7 @@ class Menu
                 'url'  => BANR_ADMIN_URL . '/index.php',
                 'text' => $LANG_BANNER['banners'],
                 'active' => $view == 'banners' ? true : false,
-            ),        
+            ),
             array(
                 'url'  => BANR_ADMIN_URL . '/index.php?categories=x',
                 'text' => $LANG_BANNER['categories'],
@@ -104,12 +104,12 @@ class Menu
         $T->set_file('title', 'banner_admin_title.thtml');
         $T->set_var(
             'title',
-            $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . $_CONF_BANR['pi_version'] . ')'
+            $LANG_BANNER['banner_mgmt'] . ' (Ver. ' . Config::get('pi_version') . ')'
         );
         $retval = $T->parse('', 'title');
         $retval .= ADMIN_createMenu(
             $menu_arr,
-            $hdr_txt, 
+            $hdr_txt,
             plugin_geticon_banner()
         );
         return $retval;
@@ -125,11 +125,11 @@ class Menu
      */
     public static function siteHeader($title='', $meta='')
     {
-        global $_CONF_BANR, $LANGBANR;
+        global $LANG_BANNER;
 
         $retval = '';
 
-        switch($_CONF_BANR['displayblocks']) {
+        switch(Config::get('displayblocks')) {
         case 2:     // right only
         case 0:     // none
             $retval .= COM_siteHeader('none', $title, $meta);
@@ -153,11 +153,9 @@ class Menu
      */
     public static function siteFooter()
     {
-        global $_CONF_BANR;
-
         $retval = '';
 
-        switch($_CONF_BANR['displayblocks']) {
+        switch(Config::get('displayblocks')) {
         case 2 : // right only
         case 3 : // left and right
             $retval .= COM_siteFooter();

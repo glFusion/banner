@@ -67,7 +67,7 @@ case 'deleteBanner':
     if (!$B->isNew() && $B->getOwnerId() == $_USER['uid']) {
         $B->Delete();
     }
-    echo COM_refresh(BANR_URL);
+    echo COM_refresh( Config::get('url'));
     exit;
     break;
 
@@ -100,9 +100,9 @@ case 'campaignDetail':
     $C = new Banner\Campaign($_REQUEST['camp_id']);
     $C->getBanners();
     $menu_arr = array(
-        array('url' => BANR_URL . '/index.php?banners=x',
+        array('url' =>  Config::get('url') . '/index.php?banners=x',
               'text' => $LANG_BANNER['banners']),
-        array('url' => BANR_URL . '/index.php?campaigns=x',
+        array('url' =>  Config::get('url') . '/index.php?campaigns=x',
                 'text' => 'Campaigns'),
     );
     $content .= ADMIN_createMenu($menu_arr, $LANG_BANNER['banners'] . $validate_help, plugin_geticon_banner());

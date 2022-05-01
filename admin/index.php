@@ -22,6 +22,7 @@ if (!plugin_ismoderator_banner()) {
 }
 
 USES_lib_admin();
+use Banner\Config;
 
 $action = '';
 $actionval = '';
@@ -75,7 +76,7 @@ case 'validate_all':
     foreach ($Banners as $Banner) {
         $Banner->validateUrl();
     }
-    echo COM_refresh(BANR_ADMIN_URL . '/index.php');
+    echo COM_refresh(Config::get('admin_url') . '/index.php');
     break;
 
 case 'toggleEnabled':
@@ -138,9 +139,9 @@ case 'save':
         $status = $C->Save($_POST);
         if ($status != '') {
             COM_setMsg(BANNER_errorMessage($status));
-            COM_refresh(BANR_ADMIN_URL . '/index.php?editcategory&cid=' . $_POST['oldcid']);
+            COM_refresh(Config::get('admin_url') . '/index.php?editcategory&cid=' . $_POST['oldcid']);
         } else {
-            COM_refresh(BANR_ADMIN_URL . '/index.php?categories');
+            COM_refresh(Config::get('admin_url') . '/index.php?categories');
         }
         break;
 
@@ -156,7 +157,7 @@ case 'save':
                 $view = 'editcampaign';
             }
         } else {
-            COM_refresh(BANR_ADMIN_URL . '/index.php?campaigns');
+            COM_refresh(Config::get('admin_url') . '/index.php?campaigns');
         }
         break;
 

@@ -6,7 +6,7 @@
  * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
  * @package     banner
  * @version     v0.2.1
- * @license     http://opensource.org/licenses/gpl-2.0.php 
+ * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
@@ -31,4 +31,3 @@ if (is_array($bids) && !empty($bids)) {
         ->buildBanner();
 }
 
-?>

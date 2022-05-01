@@ -307,7 +307,7 @@ class Category
      */
     public function Edit()
     {
-        global $_CONF_BANR, $LANG_BANNER;
+        global $LANG_BANNER;
 
         if (!$this->canEdit()) {
             return COM_showMessage(6, 'banner');
@@ -321,7 +321,7 @@ class Category
 
         $T->set_var(array(
             'help_url'      => BANNER_docURL('categoryform'),
-            'cancel_url'    => BANR_ADMIN_URL . '/index.php?view=categories',
+            'cancel_url'    => Config::Get('admin_url') . '/index.php?view=categories',
         ));
 
         $delete_option = '';
@@ -440,13 +440,14 @@ class Category
         $qb->setParameter('cid', $this->cid, Database::STRING)
            ->setParameter('type', $this->type, Database::STRING)
            ->setParameter('category', $this->category, Database::STRING)
-           ->setParameter('description', $this->dscp, Database::STRING)
+           ->setParameter('dscp', $this->dscp, Database::STRING)
            ->setParameter('tid', $this->tid, Database::STRING)
            ->setParameter('enabled', $this->enabled, Database::INTEGER)
            ->setParameter('centerblock', $this->centerblock, Database::INTEGER)
            ->setParameter('grp_view', $this->grp_view, Database::INTEGER)
            ->setParameter('max_img_height', $this->max_img_height, Database::INTEGER)
-           ->setParameter('max_img_width', $this->max_img_width, Database::INTEGER);
+           ->setParameter('max_img_width', $this->max_img_width, Database::INTEGER)
+           ->setParameter('oldcid', $this->oldcid, Database::STRING);
         try {
             $qb->execute();
         } catch (\Exception $e) {
@@ -644,11 +645,11 @@ class Category
         );
 
         $text_arr = array(
-            'form_url' => BANR_ADMIN_URL . '/index.php?categories=x',
+            'form_url' => Config::get('admin_url') . '/index.php?categories=x',
         );
         $data_arr = self::_listCategories();
         $retval .= COM_createLink($LANG_BANNER['new_cat'],
-            BANR_ADMIN_URL . '/index.php?editcategory=0&cid=0',
+            Config::Get('admin_url') . '/index.php?editcategory=0&cid=0',
             array(
                 'class' => 'uk-button uk-button-success',
                 'style' => 'float:left',
@@ -739,10 +740,10 @@ class Category
      */
     public static function getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
     {
-        global $_CONF, $_TABLES, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
+        global $_CONF, $_TABLES, $LANG_ACCESS, $LANG_BANNER;
 
         $retval = '';
-        $admin_url = BANR_ADMIN_URL . '/index.php';
+        $admin_url = Config::get('admin_url') . '/index.php';
 
         $access = 3;
         switch ($fieldname) {

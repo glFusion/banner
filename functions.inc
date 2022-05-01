@@ -17,11 +17,6 @@ if (!defined ('GVERSION')) {
 use glFusion\Database\Database;
 use glFusion\Log\Log;
 
-
-/** Global configuration array, in case this is included within a function
- *   @global array */
-global $_CONF_BANR;
-
 // Define banner types.  This is done very early because they're used
 // in the language files
 define('BANR_PI_PATH', $_CONF['path'] . 'plugins/banner');
@@ -34,25 +29,6 @@ if (!file_exists(__DIR__ . '/language/' . $langfile)) {
 }
 /** Import the plugin's language file */
 require_once __DIR__ . '/language/' . $langfile;
-
-require_once $_CONF['path_system'] . 'classes/config.class.php';
-$ban_config = config::get_instance();
-$_CONF_BANR = $ban_config->get_config('banner');
-
-/** Import static config values */
-require_once __DIR__ . '/banner.php';
-if (file_exists(__DIR__ . '/config.php')) {
-    /** Import local configuration overrides, if any */
-    include_once __DIR__ . '/config.php';
-}
-
-$_CONF_BANR['_now'] = new Date('now', $_CONF['timezone']);
-
-define('BANR_ADMIN_URL',
-        $_CONF['site_admin_url'] . '/plugins/'.$_CONF_BANR['pi_name']);
-define('BANR_URL',
-        $_CONF['site_url'] . '/'.$_CONF_BANR['pi_name']);
-define('BANR_CLASSPATH', BANR_PI_PATH . '/classes');
 
 spl_autoload_register(function ($class)
 {
@@ -82,6 +58,14 @@ spl_autoload_register(function ($class)
         require $file;
     }
 });
+use Banner\Config;
+
+/** Import static config values */
+require_once __DIR__ . '/banner.php';
+if (file_exists(__DIR__ . '/config.php')) {
+    /** Import local configuration overrides, if any */
+    include_once __DIR__ . '/config.php';
+}
 
 
 /**
@@ -94,7 +78,7 @@ spl_autoload_register(function ($class)
  */
 function plugin_centerblock_banner($where=1, $page=1, $topic ='')
 {
-    global $_CONF_BANR, $_TABLES;
+    global $_TABLES;
 
     // Flag whether we're on the homepage or not
     $on_homepage = ($page == 1 && $topic == '') ? true : false;
@@ -102,8 +86,8 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
     // If centerblock not enabled, or just for homepage and
     // we're not on the homepage, just return
     if (
-        $_CONF_BANR['cb_enable'] == 0 ||
-        ($_CONF_BANR['cb_home'] == 1 && !$on_homepage)
+        Config::get('cb_enable') == 0 ||
+        (Config::get('cb_home') == 1 && !$on_homepage)
     ) {
         return '';
     }
@@ -112,12 +96,12 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
     $options = array('limit' => 1, 'centerblock' => 1);
 
     // Get the centerblock position.  May be overridden later
-    $cntrblkpos = $_CONF_BANR['cb_pos'];
+    $cntrblkpos = Config::get('cb_pos');
 
     // If we're not supposed to replace the homepage, then return.
     // Otherwise, do so.
     if ($where == 0 && $topic == '') {
-        if (!$_CONF_BANR['cb_replhome']) {
+        if (!Config::get('cb_replhome')) {
             return '';
         } else {
             $cntrblkpos = 0;
@@ -169,7 +153,7 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
         $banner = '';
     }
 
-    if ($_CONF_BANR['cb_replhome'] == 1 && $on_homepage) {
+    if (Config::get('cb_replhome') == 1 && $on_homepage) {
         // Replacing the homepage, and we're currently on the homepage
         echo COM_siteHeader() . $banner . COM_siteFooter(true);
         exit;
@@ -311,8 +295,7 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
  */
 function plugin_chkVersion_banner()
 {
-    global $_CONF_BANR;
-    return $_CONF_BANR['pi_version'];
+    return Config::get('pi_version');
 }
 
 
@@ -360,7 +343,7 @@ function plugin_cclabel_banner()
 
     if (SEC_hasRights ('banner.edit')) {
         return array ($LANG_BANNER['pi_name'],
-                      BANR_ADMIN_URL . '/index.php',
+                      Config::get('admin_url') . '/index.php',
                       plugin_geticon_banner ());
     }
     return false;
@@ -380,7 +363,7 @@ function plugin_getadminoption_banner()
         $total_banner = Database::getInstance()->getCount($_TABLES['banner']);
         return array(
             $LANG_BANNER['pi_name'],
-            BANR_ADMIN_URL . '/index.php',
+            Config::get('admin_url') . '/index.php',
             $total_banner
         );
     }
@@ -395,10 +378,10 @@ function plugin_getadminoption_banner()
  */
 function plugin_user_delete_banner ($uid)
 {
-    global $_TABLES, $_CONF_BANR;
+    global $_TABLES;
 
     $db = Database::getInstance();
-    if ($_CONF_BANR['delete_banner'] == 1) {
+    if (Config::get('delete_banner') == 1) {
         // delete the banner
         try {
             $db->conn->delete($_TABLES['banner'], array('owner_id' => (int)$uid));
@@ -696,15 +679,11 @@ function plugin_moderationapprove_banner($id)
  */
 function plugin_moderationdelete_banner($id)
 {
-    global $_CONF_BANR;
-
     $B = new Banner\Banner($id);
     $filename = $B->getOpt('filename');
-    if ($filename != NULL &&
-        file_exists($_CONF_BANR['img_dir'] . '/' . $filename)) {
-        @unlink($_CONF_BANR['img_dir'] . '/' . $filename);
+    if ($filename != NULL) {
+        @unlink(Config::get('img_dir') . $filename);
     }
-
     return '';
 }
 
@@ -717,7 +696,7 @@ function plugin_moderationdelete_banner($id)
  */
 function plugin_savesubmission_banner($A)
 {
-    global $_CONF, $_CONF_BANR, $LANG12;
+    global $_CONF, $LANG12;
 
     $B = new Banner\Banner();
     $retval = '';
@@ -749,7 +728,7 @@ function plugin_savesubmission_banner($A)
         return $retval;
     } else {
         echo COM_refresh($_CONF['site_url'] . '/index.php?msg=1&plugin=' .
-                $_CONF_BANR['pi_name']);
+                Config::PI_NAME);
     }
 }
 
@@ -765,12 +744,12 @@ function plugin_savesubmission_banner($A)
  */
 function Xplugin_submit_banner($A=array())
 {
-    global $_CONF_BANR, $LANG_BANNER, $_USER;
+    global $LANG_BANNER, $_USER;
     echo "here";die;
 
     // Make sure members can submit banners.  Anonymous users can never submit.
     if ( COM_isAnonUser() ||
-        ($_CONF_BANR['usersubmit'] == 0 && !SEC_hasRights('banner.submit')) ) {
+        (Config::get('usersubmit') == 0 && !SEC_hasRights('banner.submit')) ) {
         COM_accessLog("User {$_USER['username']} tried to illegally access the banner submission screen.");
         return BANNER_errorMessage($LANG_BANNER['access_denied_msg']);
     }
@@ -796,7 +775,7 @@ function Xplugin_submit_banner($A=array())
  */
 function plugin_geticon_banner()
 {
-    return BANR_URL . '/images/banner.png';
+    return  Config::get('url') . '/images/banner.png';
 }
 
 
@@ -810,14 +789,14 @@ function plugin_geticon_banner()
  * actually defined.  Therefore, the impression count will be incremented
  * for each banner that this function attempts to display.  If the
  * banner_ template vars are not defined in your templates, then set
- * $_CONF_BANR['templatevars'] to false.
+ * the 'templatevars' config option to false.
  *
  * @param   string  $templatename   Name of template, e.g. 'header'
  * @param   ref     $template       Reference to actual template
  */
 function plugin_templateSetVars_banner($templatename, &$template)
 {
-    global $_TABLES, $_CONF_BANR, $topic;
+    global $_TABLES, $topic;
 
     $templatenames = array();
     $options = array('limit' => '1');
@@ -825,7 +804,7 @@ function plugin_templateSetVars_banner($templatename, &$template)
     // We only operate on the 'footer' templatename since 'header' is
     // called twice (from COM_siteHeader() and COM_siteFooter()).
     // We'll just replace both {banner_header} and {banner_footer} at once.
-    if (isset($_CONF_BANR['templatevars']) && $_CONF_BANR['templatevars'] > 0) {
+    if (Config::get('templatevars') > 0) {
         if ($templatename == 'footer') {
             $templatenames = array('header','footer');
         } elseif ($templatename != 'header') {
@@ -877,7 +856,7 @@ function plugin_supportadblock_banner()
  */
 function plugin_displayadblock_banner($plugin, $counter)
 {
-    global $_CONF_BANR, $topic;
+    global $topic;
 
     if (!BANR_isMinVersion('0.3.0')) {
         return '';
@@ -915,8 +894,6 @@ function plugin_displayadblock_banner($plugin, $counter)
  */
 function plugin_autouninstall_banner ()
 {
-    global $_CONF_BANR;
-
     $out = array (
         // give the name of the tables, without $_TABLES
         'tables' => array(
@@ -950,10 +927,8 @@ function plugin_autouninstall_banner ()
         'vars'=> array(),
     );
 
-    if (isset($_CONF_BANR['templatevars'])) {
-        // Reset this value to avoid trying to display a banner on the final page.
-        $_CONF_BANR['templatevars'] = 0;
-    }
+    // Reset this value to avoid trying to display a banner on the final page.
+    $Config::set('templatevars', 0);
     return $out;
 }
 
@@ -969,8 +944,6 @@ function plugin_autouninstall_banner ()
  */
 function phpblock_banner_topic($A=array(), $param='')
 {
-    global $_CONF_BANR;
-
     $opts = array(
         'type',
         'limit',
@@ -978,7 +951,7 @@ function phpblock_banner_topic($A=array(), $param='')
     );
     $extra = array(
         'type' => 'block',
-        'limit' => $_CONF_BANR['block_limit'],
+        'limit' => Config::get('block_limit'),
         'topic' => '',
     );
     $param = explode(' ', $param);
@@ -1037,14 +1010,14 @@ function plugin_getheaderjs_banner()
  */
 function plugin_getheadercss_banner()
 {
-    global $_CONF, $_CONF_BANR;
+    global $_CONF;
 
     $styles = array();
     $files = array(
         'style.css',
     );
 
-    $path = "{$_CONF['path']}/plugins/{$_CONF_BANR['pi_name']}/css";
+    $path = Config::get('path') . 'css';
     foreach ($files as $file) {
         $styles[] = $path . '/' . $file;
     }
@@ -1089,7 +1062,7 @@ function plugin_getheadercode_banner()
  */
 function Xplugin_getuseroption_banner()
 {
-    global $LANG_BANNER, $_CONF, $_CONF_BANR, $_USER, $_TABLES;
+    global $LANG_BANNER, $_CONF, $_USER, $_TABLES;
 
     $retval = '';
     $uid = (int)$_USER['uid'];
@@ -1104,7 +1077,7 @@ function Xplugin_getuseroption_banner()
     //if ($banner_cnt > 0) {
         $retval = array(
             $LANG_BANNER['banners'],
-            BANR_URL . '/index.php?banners=x',
+             Config::get('url') . '/index.php?banners=x',
             $banner_cnt,
         );
     //}
@@ -1121,9 +1094,7 @@ function Xplugin_getuseroption_banner()
  */
 function plugin_getconfigelementhelp_banner($option, $doclang='english')
 {
-    global $_CONF_BANR;
-
-    $url = LGLIB_getDocUrl('config', $_CONF_BANR['pi_name'], $doclang);
+    $url = LGLIB_getDocUrl('config', Config::PI_NAME, $doclang);
 
     if (!empty($option)) {
         $url .= '#desc_' . $option;
@@ -1278,10 +1249,10 @@ function BANNER_block_banner($extra='')
  */
 function BANNER_docURL($file, $lang='')
 {
-    global $_CONF, $_CONF_BANR;
+    global $_CONF;
 
     if ($lang == '') $lang = $_CONF['language'];
-    return LGLIB_getDocUrl($file, $_CONF_BANR['pi_name'], $lang);
+    return LGLIB_getDocUrl($file, Config::PI_NAME, $lang);
 }
 
 
@@ -1295,62 +1266,21 @@ function BANNER_docURL($file, $lang='')
  */
 function BANR_isMinVersion($required = '')
 {
-    global $_CONF_BANR, $_PLUGIN_INFO;
+    global $_PLUGIN_INFO;
 
     // If not specified, use the current code version as required.
-    if ($required == '') $required = $_CONF_BANR['pi_version'];
+    if ($required == '') {
+        $required = Config::get('pi_version');
+    }
 
-    $pi_name = $_CONF_BANR['pi_name'];
-    if (isset($_PLUGIN_INFO[$pi_name])) {
-        if (is_array($_PLUGIN_INFO[$pi_name])) {
+    if (isset($_PLUGIN_INFO[Config::PI_NAME])) {
+        if (is_array($_PLUGIN_INFO[Config::PI_NAME])) {
             // glFusion > = 1.6.6
-            $installed = $_PLUGIN_INFO[$pi_name]['pi_version'];
+            $installed = $_PLUGIN_INFO[Config::PI_NAME]['pi_version'];
         } else {
-            $installed = $_PLUGIN_INFO[$pi_name];
+            $installed = $_PLUGIN_INFO[Config::PI_NAME];
         }
     }
     return COM_checkVersion($installed, $required);
-}
-
-
-/**
- * Log activity to a plugin-specific log file.
- *
- * @param   string  $logentry   Text to log
- */
-function BANNER_auditLog($logentry = '')
-{
-    global $_CONF, $_USER, $LANG01, $_CONF_BANR;
-
-    if ($logentry == '') {
-        return;
-    }
-
-    // A little sanitizing
-    $logentry = str_replace(
-            array('<?', '?>'),
-            array('(@', '@)'),
-            $logentry);
-
-    $timestamp = strftime( '%c' );
-    $logfile = $_CONF['path_log'] . $_CONF_BANR['pi_name'] . '.log';
-
-    // Can't open the log file?  Return an error
-    if (!$file = fopen($logfile, 'a')) {
-        return $LANG01[33] . $logfile . ' (' . $timestamp . ')<br />' . LB;
-    }
-
-    // Get the user name if it's not anonymous
-    if (!COM_isAnonUser()) {
-        $byuser = $_USER['uid'] . '-'.
-                COM_getDisplayName($_USER['uid'],
-                    $_USER['username'], $_USER['fullname']);
-    } else {
-        $byuser = 'anon';
-    }
-    $byuser .= '@' . $_SERVER['REMOTE_ADDR'];
-
-    // Write the log entry to the file
-    fputs($file, "$timestamp ($byuser) - $logentry\n");
 }
 

@@ -122,7 +122,7 @@ class Campaign
      */
     public function __construct($id='')
     {
-        global $_USER, $_TABLES, $_CONF_BANR;
+        global $_USER, $_TABLES;
 
         $this->isNew = true;    // Assume new entry until we read one
         $this->camp_id = $id;
@@ -133,11 +133,11 @@ class Campaign
             // Set default values
             $this->enabled = 1;
             $this->owner_id = (int)$_USER['uid'];
-            $this->group_id = (int)$_CONF_BANR['defgrpsubmit'];
-            $this->perm_owner = (int)$_CONF_BANR['default_permissions'][0];
-            $this->perm_group = (int)$_CONF_BANR['default_permissions'][1];
-            $this->perm_members = (int)$_CONF_BANR['default_permissions'][2];
-            $this->perm_anon = (int)$_CONF_BANR['default_permissions'][3];
+            $this->group_id = (int)Config::get('defgrpsubmit');
+            $this->perm_owner = (int)Config::get('default_permissions')[0];
+            $this->perm_group = (int)Config::get('default_permissions')[1];
+            $this->perm_members = (int)Config::get('default_permissions')[2];
+            $this->perm_anon = (int)Config::get('default_permissions')[3];
             /*$this->setPubStart();
             $this->setPubEnd();*/
         }
@@ -444,10 +444,9 @@ class Campaign
      */
     public function Edit()
     {
-        global $_CONF, $_CONF_BANR, $_TABLES, $LANG_ACCESS, $LANG_BANNER, $_SYSTEM;
+        global $_CONF, $_TABLES, $LANG_ACCESS, $LANG_BANNER, $_SYSTEM;
 
-        $T = new \Template($_CONF['path'] . 'plugins/' .
-                        $_CONF_BANR['pi_name'].'/templates');
+        $T = new \Template(Config::get('path') . 'templates');
         $T->set_file (array(
             'editform' => "admin/campaignedit.thtml",
             'tips' => 'tooltipster.thtml',
@@ -461,7 +460,7 @@ class Campaign
         }
 
         $T->set_var(array(
-            'pi_url'        => BANR_URL,
+            'pi_url'        =>  Config::get('url'),
             'help_url'      => BANNER_docURL('campaignform'),
             'camp_id'       => $this->camp_id,
             'uname'         => $this->uname,
@@ -483,7 +482,7 @@ class Campaign
                                 $this->perm_owner, $this->perm_group,
                                 $this->perm_members,$this->perm_anon),
             'topic_list'    => $topics,
-            'cancel_url'    => BANR_ADMIN_URL . '/index.php?view=campaigns',
+            'cancel_url'    => Config::get('admin_url') . '/index.php?view=campaigns',
             'show_owner_chk' => $this->showOwner() ? 'checked="checked"' : '',
             'show_admins_chk' => $this->showAdmins() ? 'checked="checked"' : '',
             'show_adm_page_chk' => $this->showAdminPages() ? 'checked="checked"' : '',
@@ -504,7 +503,7 @@ class Campaign
         if (!$this->isNew) {
             $this->getBanners();
             foreach ($this->Banners as $B) {
-                $url = COM_buildUrl(BANR_ADMIN_URL .
+                $url = COM_buildUrl(Config::get('admin_url') .
                         '/index.php?edit=banner&bid=' . $B->getBid());
                 $T->set_var('image', $B->BuildBanner('', 300, 300, false));
                 $T->set_var('ad_id', COM_createLink($B->getBid(), $url, array()));
@@ -771,7 +770,7 @@ class Campaign
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
         }
     }
- 
+
 
     /**
      * Create the admin list of campaigns to manage.
@@ -846,7 +845,7 @@ class Campaign
         $defsort_arr = array('field' => 'camp_id', 'direction' => 'asc');
         $text_arr = array(
             'has_extras' => true,
-            'form_url' => BANR_ADMIN_URL . "?view=campaigns"
+            'form_url' => Config::get('admin_url') . "?view=campaigns"
         );
         $query_arr = array(
             'table' => 'bannercampaigns',
@@ -858,7 +857,7 @@ class Campaign
         $form_arr = array();
 
         $retval .= COM_createLink($LANG_BANNER['new_camp'],
-            BANR_ADMIN_URL . '/index.php?editcampaign',
+            Config::get('admin_url') . '/index.php?editcampaign',
             array(
                 'class' => 'uk-button uk-button-success',
                 'style' => 'float:left',
@@ -886,10 +885,10 @@ class Campaign
      */
     public static function getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
     {
-        global $_CONF, $_TABLES, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
+        global $_CONF, $_TABLES, $LANG_ACCESS, $LANG_BANNER;
 
         $retval = '';
-        $base_url = BANR_ADMIN_URL;
+        $base_url = Config::get('admin_url');
         switch($fieldname) {
         case 'edit':
             $retval .= FieldList::edit(array(

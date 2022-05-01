@@ -43,7 +43,7 @@ class Upload extends \upload
      */
     public function __construct($bid, $varname='bannerimage')
     {
-        global $_CONF_BANR, $_CONF;
+        global $_CONF;
 
         $this->setContinueOnError(true);
         //$this->setLogFile($_CONF['path_log'] 'error.log');
@@ -51,12 +51,12 @@ class Upload extends \upload
         parent::__construct();       // call the parent constructor
 
         // Before anything else, check the upload directory
-        if (!$this->setPath($_CONF_BANR['img_dir'])) {
-            //$this->_addError('Failed to set path to '.$_CONF_BANR['img_dir']);
+        if (!$this->setPath(Config::get('img_dir'))) {
+            //$this->_addError('Failed to set path to '.Config::get('img_dir'));
             return;
         }
         $this->bid = $bid;
-        $this->pathImage = $_CONF_BANR['img_dir'];
+        $this->pathImage = Config::get('img_dir');
         $this->setAllowedMimeTypes(array(
             'image/pjpeg' => '.jpg,.jpeg',
             'image/jpeg'  => '.jpg,.jpeg',
@@ -66,8 +66,8 @@ class Upload extends \upload
         ) );
         $this->setMaxFileSize($_CONF['max_image_size']);
         $this->setMaxDimensions(
-            $_CONF_BANR['img_max_width'],
-            $_CONF_BANR['img_max_height']
+            Config::get('img_max_width'),
+            Config::get('img_max_height')
         );
         $this->setAutomaticResize(false);
         $this->setFieldName($varname);
@@ -86,7 +86,8 @@ class Upload extends \upload
             break;
         }
 
-        $this->filename = $this->bid . '.' . $this->ext;
+        //$this->filename = $this->bid . '.' . $this->ext;
+        $this->filename = uniqid() . '.' . $this->ext;
         $this->setFileNames($this->filename);
     }
 
