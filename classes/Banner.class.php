@@ -164,7 +164,7 @@ class Banner
      */
     public function __construct($bid='')
     {
-        global $_USER, $_GROUPS, $_CONF_BANR;
+        global $_USER;
 
         $bid = COM_sanitizeID($bid, false);
 
@@ -175,11 +175,11 @@ class Banner
             // Set defaults for new record
             $this->isNew        = 1;
             $this->owner_id     = $_USER['uid'];
-            $this->weight       = (int)$_CONF_BANR['def_weight'];
-            $this->perm_owner   = (int)$_CONF_BANR['default_permissions'][0];
-            $this->perm_group   = (int)$_CONF_BANR['default_permissions'][1];
-            $this->perm_members = (int)$_CONF_BANR['default_permissions'][2];
-            $this->perm_anon    = (int)$_CONF_BANR['default_permissions'][3];
+            $this->weight       = (int)Config::get('def_weight');
+            $this->perm_owner   = (int)Config::get('default_permissions')[0];
+            $this->perm_group   = (int)Config::get('default_permissions')[1];
+            $this->perm_members = (int)Config::get('default_permissions')[2];
+            $this->perm_anon    = (int)Config::get('default_permissions')[3];
             $this->options = self::$default_opts;
             $this->setPubStart();
             $this->setPubEnd();
@@ -503,7 +503,7 @@ class Banner
      */
     public function setVars($A='', $fromDB=false)
     {
-        global $_CONF_BANR, $_CONF, $_USER;
+        global $_CONF, $_USER;
 
         if (!is_array($A)) {
             return $this;
@@ -575,7 +575,7 @@ class Banner
                 $this->max_hits = (int)$A['max_hits'];
                 $this->owner_id = (int)$A['owner_id'];
             } else {
-                $this->weight = (int)$_CONF_BANR['def_weight'];
+                $this->weight = (int)Config::get('def_weight');
                 $this->owner_id = (int)$_USER['uid'];
             }
 
@@ -626,16 +626,16 @@ class Banner
      */
     public function updateImpressions() : self
     {
-        global $_TABLES, $_CONF_BANR, $_USER;
+        global $_TABLES, $_USER;
 
         // Don't update the count for ads show to admins or owners, if
         // so configured.
         if (
             $this->isNew()
             ||
-            ($_CONF_BANR['cntimpr_admins'] == 0 && plugin_isadmin_banner())
+            (Config::get('cntimpr_admins') == 0 && plugin_isadmin_banner())
             ||
-            ($_CONF_BANR['cntimpr_owner'] == 0 && $this->owner_id == $_USER['uid'])
+            (Config::get('cntimpr_owner') == 0 && $this->owner_id == $_USER['uid'])
 
         ) {
             return $this;
@@ -662,14 +662,14 @@ class Banner
      */
     public function updateHits() : self
     {
-        global $_TABLES, $_CONF_BANR, $_USER;
+        global $_TABLES, $_USER;
 
         // Don't update the count for ads show to admins or owners, if
         // so configured.
         if (
-            ($_CONF_BANR['cntclicks_admins'] == 0 && plugin_isadmin_banner())
+            (Config::get('cntclicks_admins') == 0 && plugin_isadmin_banner())
             ||
-            ($_CONF_BANR['cntclicks_owner'] == 0 && $this->owner_id == $_USER['uid'])
+            (Config::get('cntclicks_owner') == 0 && $this->owner_id == $_USER['uid'])
         ) {
             return $this;
         }
@@ -689,25 +689,36 @@ class Banner
     }
 
 
+    private function _deleteImages()
+    {
+        $filename = $this->getOpt('filename');
+        if (!empty($filename) && file_exists(Config::get('img_dir') . $filename)) {
+            // Delete the root image.
+            @unlink(Config::get('img_dir') . $filename);
+
+            // Delete all the resized public images
+            $fparts = pathinfo($filename);
+            $filespec = $fparts['filename'] . '*.' . $fparts['extension'];
+            foreach (glob(Config::get('public_dir') . $filespec) as $path) {
+                @unlink($path);
+            }
+        }
+    }
+
+
     /**
      * Delete the current banner.
      */
     public function Delete()
     {
-        global $_TABLES, $_CONF_BANR, $_USER;
+        global $_TABLES, $_USER;
 
-        $filename = $this->getOpt('filename');
-        if (
-            !empty($filename) &&
-            file_exists($_CONF_BANR['img_dir'] . '/' . $filename)
-        ) {
-            @unlink($_CONF_BANR['img_dir'] . '/' . $filename);
-        }
+        $this->_deleteImages();
 
         $db = Database::getInstance();
         try {
             $db->conn->delete($_TABLES[$this->table], array('bid' => $this->bid), array(Database::STRING));
-            BANNER_auditLog("{$_USER['uid']} deleted banner id {$this->bid}");
+            Log::write('system', Log::INFO, "{$_USER['uid']} deleted banner id {$this->bid}");
         } catch (\Exception $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
         }
@@ -761,14 +772,14 @@ class Banner
      */
     public function Save(?array $A=NULL)
     {
-        global $_CONF, $_GROUPS, $_TABLES, $_USER, $MESSAGE,
-                $_CONF_BANR, $LANG12, $LANG_BANNER;
+        global $_CONF, $_TABLES, $_USER, $MESSAGE,
+                $LANG12, $LANG_BANNER;
 
         if ($this->isNew) {
             if (
                 COM_isAnonUser() ||
                 (
-                    (!isset($_CONF_BANR['usersubmit']) || $_CONF_BANR['usersubmit'] == 0) &&
+                    !Config::get('usersubmit') &&
                     !SEC_hasRights('banner.submit')
                 )
             ) {
@@ -818,11 +829,13 @@ class Banner
             unset($this->options['ad_code']);
             unset($this->options['image_url']);
 
-            // Handle the file upload
             if (
                 isset($_FILES['bannerimage']['name']) &&
                 !empty($_FILES['bannerimage']['name'])
             ) {
+                // Handle the file upload.
+                // If there is an existing banner image, delete it first.
+                $this->_deleteImages();
                 $Img = new Upload($this->bid, 'bannerimage');
                 $Img->uploadFiles();
                 if ($Img->areErrors() > 0) {
@@ -836,7 +849,7 @@ class Banner
                 // is not specified.
                 if (!empty($this->options['filename'])) {
                     $sizes = @getimagesize
-                        ($_CONF_BANR['img_dir'] . '/' . $this->options['filename']
+                        (Config::get('img_dir') . $this->options['filename']
                     );
                     if (
                         $this->options['width'] == 0 ||
@@ -963,7 +976,7 @@ class Banner
             $qb->execute();
             //$category = $db->getItem($_TABLES['bannercategories'], 'category', array('cid' => $this->cid));
             //COM_rdfUpToDateCheck('banner', $category, $this->bid);
-            if ($this->isNew && $_CONF_BANR['notification'] == 1) {
+            if ($this->isNew && Config::get('notification') == 1) {
                 // Notify the administrator
                 $this->Notify();
             }
@@ -983,7 +996,7 @@ class Banner
      */
     public static function getBannerIds($fields=array())
     {
-        global $_TABLES, $_CONF_BANR, $_CONF, $_USER;
+        global $_TABLES, $_CONF, $_USER;
 
         $banners = array();
 
@@ -994,7 +1007,7 @@ class Banner
 
         $db = Database::getInstance();
         $qb = $db->conn->createQueryBuilder();
-        $now = $_CONF_BANR['_now']->toMySQL(true);
+        $now = $_CONF['_now']->toMySQL(true);
         $qb->select('b.bid', 'b.weight*RAND() AS score')
            ->from($_TABLES['banner'], 'b')
            ->leftJoin('b', $_TABLES['bannercategories'], 'c', 'b.cid = c.cid')
@@ -1094,13 +1107,13 @@ class Banner
      */
     public static function getNewest()
     {
-        global $_TABLES, $_CONF_BANR;
+        global $_TABLES, $_CONF;
 
         $bids = array();
         if (!self::CanShow()) {
             return $bids;
         }
-        $now = $_CONF_BANR['_now']->toMySQL(true);
+        $now = $_CONF['_now']->toMySQL(true);
 
         $db = Database::getInstance();
         try {
@@ -1112,7 +1125,7 @@ class Banner
                 AND (publishstart < :now)
                 AND (publishhend > :now)
                 ORDER BY date DESC LIMIT 15",
-                array('now' => $now, 'interval' => $_CONF_BANR['newbannerinterval']),
+                array('now' => $now, 'interval' => Config::get('newbannerinterval')),
                 array(Database::STRING, Database::INTEGER)
             )->fetchAll(Database::ASSOCIATIVE);
         } catch (\Exception $e) {
@@ -1184,7 +1197,7 @@ class Banner
      */
     public function buildBanner($title = '', $width=0, $height=0, $link = true)
     {
-        global $_CONF, $LANG_DIRECTION, $_CONF_BANR, $LANG_BANNER;
+        global $_CONF, $LANG_DIRECTION, $LANG_BANNER;
 
         $retval = '';
 
@@ -1201,7 +1214,7 @@ class Banner
         // Set the ad URL to the portal page only if there is a dest. URL
         $url = $this->getOpt('url');
         if (!empty($url)) {
-            $url = COM_buildUrl(BANR_URL . '/portal.php?id=' . $this->bid);
+            $url = COM_buildUrl( Config::get('url') . '/portal.php?id=' . $this->bid);
         }
         $a_attr = array(
             'target' => $this->getOpt('target', '_blank'),
@@ -1228,13 +1241,13 @@ class Banner
         switch ($this->ad_type) {
         case self::TYPE_LOCAL:
             $filename = $this->getOpt('filename');
-            $Img = new Images\Local($_CONF_BANR['img_dir'] . $filename);
+            $Img = new Images\Local(Config::get('img_dir') . $filename);
             $Img->withDestPath($_CONF['path_html'] . 'banner/images/banners/');
             $Img->reSize($width, $height);
             if ($Img->isValid()) {
                 $img_attr['width'] = $Img->getDestWidth();
                 $img_attr['height'] = $Img->getDestHeight();
-                $img = $_CONF_BANR['img_url'] . '/' . $Img->getFilename();
+                $img = Config::get('img_url') . '/' . $Img->getFilename();
             }
             if (!empty($img)) {
                 $retval = COM_createImage($img, $alt, $img_attr);
@@ -1277,18 +1290,19 @@ class Banner
      * @param   integer $uid    User ID, current user if zero
      * @return  integer         Max ad days available, -1 if unlimited
      */
-    public function MaxDaysAvailable($uid=0)
+    public function MaxDaysAvailable(?int $uid=NULL) : int
     {
-        global $_TABLES, $_CONF_BANR, $_USER, $_GROUPS;
+        global $_TABLES, $_USER, $_GROUPS;
 
-        if (!$_CONF_BANR['purchase_enabled'])
+        if (!Config::get('purchase_enabled')) {
             return -1;
+        }
 
         $uid = (int)$uid;
         if ($uid == 0)
             $uid = $_USER['uid'];
 
-        foreach ($_CONF_BANR['purchase_exclude_groups'] as $ex_grp) {
+        foreach (Config::get('purchase_exclude_groups') as $ex_grp) {
             if (array_key_exists($ex_grp, $_GROUPS)) {
                 return -1;
             }
@@ -1366,9 +1380,9 @@ class Banner
      */
     public function Edit($mode = 'edit')
     {
-        global $_CONF, $_GROUPS, $_TABLES, $_USER, $_CONF_BANR, $_PLUGINS,
-            $LANG_ACCESS, $MESSAGE, $LANG_BANNER, $LANG_ADMIN,
-            $LANG12, $_SYSTEM;
+        global $_CONF, $_TABLES, $_USER,
+            $LANG_ACCESS, $LANG_BANNER, $LANG_ADMIN,
+            $LANG12;
 
         $retval = '';
 
@@ -1376,12 +1390,12 @@ class Banner
         case 'edit':
         case 'editbanner':
             $saveaction = 'save';
-            $cancel_url = $this->isAdmin ? BANR_ADMIN_URL . '/index.php' :
+            $cancel_url = $this->isAdmin ? Config::get('admin_url') . '/index.php' :
                 BANR_RUL . '/index.php';
             break;
         case 'submit':
             $saveaction = 'savesubmission';
-            $cancel_url = BANR_URL . '/index.php';
+            $cancel_url =  Config::get('url') . '/index.php';
             break;
 
         case 'moderate':
@@ -1406,13 +1420,13 @@ class Banner
 
         $weight_select = '';
         if ($this->isAdmin) {
-            $T->set_var('action_url', BANR_ADMIN_URL . '/index.php');
+            $T->set_var('action_url', Config::get('admin_url') . '/index.php');
             for ($i = 1; $i < 11; $i++) {
                 $sel = $i == $this->weight ? 'selected="selected"' : '';
                 $weight_select .= "<option value=\"$i\" $sel>$i</option>\n";
             }
         } else {
-            $T->set_var('action_url', BANR_URL . '/index.php');
+            $T->set_var('action_url',  Config::get('url') . '/index.php');
         }
 
         $access = $this->Access();
@@ -1616,7 +1630,7 @@ class Banner
         if ($this->table == 'bannersubmission') {
             $mailbody .= "{$LANG_BANNER['banner_submissions']} <{$_CONF['site_admin_url']}/moderation.php>\n\n";
         } else {
-            $mailbody .= "{$LANG_BANNER['pi_name']} <" . BANR_URL .
+            $mailbody .= "{$LANG_BANNER['pi_name']} <" .  Config::get('url') .
                 '/index.php?category=' . urlencode ($A['category']) . ">\n\n";
         }
 
@@ -1636,7 +1650,7 @@ class Banner
      */
     public static function canShow()
     {
-        global $_CONF_BANR, $_CONF, $_USER;
+        global $_CONF, $_USER;
 
         // Set some static variables since this function can be called
         // multiple times per page load.
@@ -1646,7 +1660,7 @@ class Banner
         $sess_var = 'glf_banr_canshow';
 
         // Check if this is an admin URL and the banner should not be shown.
-        if ($_CONF_BANR['show_in_admin'] == 0) {
+        if (Config::get('show_in_admin') == 0) {
             if ($in_admin_url === NULL) {
                 $urlparts = parse_url($_CONF['site_admin_url']);
                 if (stristr($_SERVER['REQUEST_URI'], $urlparts['path']) != false) {
@@ -1666,9 +1680,9 @@ class Banner
             return $canshow;
         }
 
-        if (is_array($_CONF_BANR['ipaddr_dontshow'])) {
+        if (is_array(Config::get('ipaddr_dontshow'))) {
             $is_blocked_ip = false;
-            foreach ($_CONF_BANR['ipaddr_dontshow'] as $addr) {
+            foreach (Config::Get('ipaddr_dontshow') as $addr) {
                 if (empty($addr)) continue;
                 if (strstr($_SERVER['REMOTE_ADDR'], $addr)) {
                     $is_blocked_ip = true;
@@ -1681,9 +1695,9 @@ class Banner
             }
         }
 
-        if (is_array($_CONF_BANR['uagent_dontshow'])) {
+        if (is_array(Config::get('uagent_dontshow'))) {
             $is_blocked_useragent = false;
-            foreach ($_CONF_BANR['uagent_dontshow'] as $agent) {
+            foreach (Config::get('uagent_dontshow') as $agent) {
                 if (empty($agent)) continue;
                 if (stristr($_SERVER['HTTP_USER_AGENT'], $agent)) {
                     $is_blocked_useragent = true;
@@ -1696,11 +1710,8 @@ class Banner
             }
         }
 
-        if (
-            isset($_CONF_BANNER['header_dontshow']) &&
-            is_array($_CONF_BANR['header_dontshow'])
-        ) {
-            foreach ($_CONF_BANR['header_dontshow'] as $header) {
+        if (is_array(Config::get('header_dontshow'))) {
+            foreach (Config::get('header_dontshow') as $header) {
                 if (isset($_SERVER[$header])) {
                     SESS_setVar($sess_var, false);
                     return false;
@@ -1843,7 +1854,7 @@ class Banner
     public static function adminList($isadmin=false, $camp_id='')
     {
         global $LANG_ADMIN, $LANG_BANNER, $_USER,
-                 $_TABLES, $_CONF, $_CONF_BANR;
+                 $_TABLES, $_CONF;
 
         USES_lib_admin();
         $db = Database::getInstance();      // for replacing DB_escapeString()
@@ -1930,7 +1941,7 @@ class Banner
                     'style' => 'success',
                     'text' => $LANG_BANNER['validate'],
                 ) );
-                //$dovalidate_url = BANR_ADMIN_URL . '/index.php';
+                //$dovalidate_url = Config::get('admin_url') . '/index.php';
                     //'/index.php?validate=validate&amp;'. CSRF_TOKEN.'='.$token;
                 //$dovalidate_text = '<button class="lgButton green" name="validate">' .
                 //    $LANG_BANNER['validate_now'] . '</button>';
@@ -1946,7 +1957,7 @@ class Banner
 
         $text_arr = array(
             'has_extras' => true,
-            'form_url' => BANR_ADMIN_URL . '/index.php?banners',
+            'form_url' => Config::get('admin_url') . '/index.php?banners',
         );
 
         $options = array(
@@ -1985,7 +1996,7 @@ class Banner
             'default_filter' => $where,
         );
 
-        $base_url = $isadmin ? BANR_ADMIN_URL : BANR_URL;
+        $base_url = $isadmin ? Config::get('admin_url') :  Config::get('url');
         $retval .= COM_createLink($LANG_BANNER['new_banner'],
             $base_url . '/index.php?editbanner=x',
             array(
@@ -2014,11 +2025,11 @@ class Banner
      */
     public static function getAdminField($fieldname, $fieldvalue, $A, $icon_arr)
     {
-        global $_CONF, $LANG_ACCESS, $_CONF_BANR, $LANG_BANNER;
+        global $_CONF, $LANG_ACCESS, $LANG_BANNER;
 
         $retval = '';
 
-        $base_url = $A['isAdmin'] == 1 ? BANR_ADMIN_URL : BANR_URL;
+        $base_url = $A['isAdmin'] == 1 ? Config::get('admin_url') :  Config::get('url');
 
         switch($fieldname) {
         case 'edit':
