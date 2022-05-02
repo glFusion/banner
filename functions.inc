@@ -676,7 +676,7 @@ function plugin_savesubmission_banner($A)
         $message = $B->Save($A);
         if ($message != '') {
             $retval = COM_siteHeader()
-                . BANNER_errorMessage($message)
+                . COM_showMessageText($message, '', true, 'error')
                 . plugin_submit_banner($A)
                 . COM_siteFooter();
         }
@@ -709,7 +709,7 @@ function Xplugin_submit_banner($A=array())
     if ( COM_isAnonUser() ||
         (Config::get('usersubmit') == 0 && !SEC_hasRights('banner.submit')) ) {
         COM_accessLog("User {$_USER['username']} tried to illegally access the banner submission screen.");
-        return BANNER_errorMessage($LANG_BANNER['access_denied_msg']);
+        return COM_showMessageText($LANG_BANNER['access_denied_msg'], '', true, 'error');
     }
 
     $B = new Banner\Banner();
@@ -1078,7 +1078,7 @@ function plugin_configmanager_select_defgrpsubmit_banner()
     try {
         $data = $db->conn->executeQuery(
             "SELECT grp_id, grp_name FROM {$_TABLES['groups']}"
-        )->fetchAll(Database::ASSCIATIVE);
+        )->fetchAll(Database::ASSOCIATIVE);
     } catch (\Exception $e) {
         Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
         $data = array();
@@ -1095,56 +1095,6 @@ function plugin_configmanager_select_defgrpsubmit_banner()
 //  Public Plugin-Specific Functions Follow
 //
 ////////////////////////////////////////////
-
-
-/**
- * Display a formatted error message
- *
- * @param   string  $msg    Error message to display
- * @param   string  $type   Type of message, used for style and header
- * @param   string  $header Optional header text.
- * @return  string      Formatted error message
- */
-function BANNER_errorMessage($msg, $type = '', $header = '')
-{
-    global $LANG_BANNER;
-
-    // If no header text specified, we'll put in a default.
-    // Also validate the message type in this switch.
-    switch (strtolower($type)) {
-    case 'info':
-        $class = 'info';
-        if ($header == '') $header = $LANG_BANNER['info'];
-        break;
-
-    case 'note':
-        $class = 'note';
-        if ($header == '') $header = $LANG_BANNER['warning'];
-        break;
-
-    case 'alert':
-    default:
-        $class = 'alert';
-        if ($header == '') $header = $LANG_BANNER['alert'];
-        break;
-    }
-
-    if (is_array($msg)) {
-        $text = '<ul>';
-        foreach ($msg as $m) {
-            $text .= "<li>$m</li>\n";
-        }
-        $text .= '</ul>';
-    } else {
-        $text = $msg;
-    }
-    return "<span class=\"$class\">"
-            . COM_startBlock($header)
-            . $text
-            . COM_endBlock()
-            . '</span>';
-}
-
 
 /**
  * Backend function for phpblock functions.
