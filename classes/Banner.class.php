@@ -1440,21 +1440,21 @@ class Banner
         $retval = '';
 
         switch ($mode) {
-        case 'edit':
-        case 'editbanner':
-            $saveaction = 'save';
-            $cancel_url = $this->isAdmin ? Config::get('admin_url') . '/index.php' :
-                BANR_RUL . '/index.php';
-            break;
         case 'submit':
             $saveaction = 'savesubmission';
             $cancel_url =  Config::get('url') . '/index.php';
             break;
-
         case 'moderate':
             $saveoption = $LANG_ADMIN['moderate'];  // Save & Approve
             //$sub_type = '<input type="hidden" name="type" value="submission" />';
             $cancel_url = $_CONF['site_admin_url'] . '/moderation.php';
+            break;
+        case 'edit':
+        case 'editbanner':
+        default:
+            $cancel_url = $this->isAdmin ? Config::get('admin_url') : Config::get('url');
+            $cancel_url .= '/index.php';
+            $saveaction = 'save';
             break;
         }
 
@@ -1557,8 +1557,8 @@ class Banner
                 continue;
             }
             $cats[$C->getCid()] = array(
-                'img_width' => $C->getMaxWidth(),
-                'img_height' => $C->getMaxHeight(),
+                'img_width' => $C->getMaxUploadWidth(),
+                'img_height' => $C->getMaxUploadHeight(),
             );
         }
         $T->set_var('cats_json', json_encode($cats));
@@ -1994,12 +1994,6 @@ class Banner
                     'style' => 'success',
                     'text' => $LANG_BANNER['validate'],
                 ) );
-                //$dovalidate_url = Config::get('admin_url') . '/index.php';
-                    //'/index.php?validate=validate&amp;'. CSRF_TOKEN.'='.$token;
-                //$dovalidate_text = '<button class="lgButton green" name="validate">' .
-                //    $LANG_BANNER['validate_now'] . '</button>';
-                //$form_arr['top'] = COM_createLink($dovalidate_text, $dovalidate_url);
-                //$btn = COM_createLink($dovalidate_text, $dovalidate_url);
                 $header_arr[] = array(
                     'text' => $btn,
                     'field' => 'beforevalidate',
@@ -2013,16 +2007,59 @@ class Banner
             'form_url' => Config::get('admin_url') . '/index.php?banners',
         );
 
+        $bulk_update = FieldList::button(array(
+            'name' => 'banr_bulk_reset',
+            'text' => $LANG_ADMIN['reset'],
+            'value' => 'x',
+            'size' => 'mini',
+            'class' => 'tooltip',
+            'attr' => array(
+                'title' => $LANG_BANNER['reset_hits'],
+                'onclick' => "return confirm('{$LANG_BANNER['q_reset_hits']}');",
+            ),
+        ) );
+        $bulk_update .= FieldList::button(array(
+            'name' => 'banr_bulk_del',
+            'text' => $LANG_ADMIN['delete'],
+            'value' => 'x',
+            'size' => 'mini',
+            'class' => 'tooltip',
+            'style' => 'danger',
+            'attr' => array(
+                'title' => $LANG_BANNER['bulk_delete'],
+                'onclick' => "return confirm('{$LANG_BANNER['confirm_delitems']}');",
+            ),
+        ) );
         $options = array(
             'chkdelete' => 'true',
             'chkfield' => 'bid',
+            'chkall' => true,
+            'chkname' => 'banner_bulk',
+            'chkactions' => $bulk_update,
         );
+
+        $sel_options = '<option value="0">' . $LANG_BANNER['all'] . '</option>' . LB;
+        $sel_options .= COM_optionList(
+                $_TABLES['bannercampaigns'],
+                'camp_id,description',
+                $camp_id,
+                1
+        );
+        $filter = $LANG_BANNER['campaign'] . ': ';
+        $filter .= FieldList::select(array(
+            'name' => 'camp_id',
+            'onchange' => "javascript: document.location.href='" .
+                Config::get('admin_url') . "/index.php?banners" .
+                "&amp;camp_id='+this.options[this.selectedIndex].value",
+            'option_list' => $sel_options,
+        ) );
+
         $defsort_arr = array(
             'field' => 'weight',
             'direction' => 'desc',
         );
         $where = '';
-        if ($camp_id != '') {
+        if (!empty($camp_id)) {
             $where = " AND b.camp_id = " . $db->conn->quote($camp_id);
         }
         $query_arr = array(
@@ -2061,7 +2098,7 @@ class Banner
             'banner',
             array(__CLASS__,  'getAdminField'),
             $header_arr, $text_arr, $query_arr,
-            $defsort_arr, '', '', $options, $form_arr
+            $defsort_arr, $filter, '', $options, $form_arr
         );
         return $retval;
     }
@@ -2215,6 +2252,32 @@ class Banner
                 "UPDATE {$_TABLES['banner']} SET cid = ? WHERE cid = ?",
                 array($new_id, $old_id),
                 array(Database::STRING, Database::STRING)
+            );
+            return true;
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
+    }
+
+
+    /**
+     * Reset the hits and impressions for an array of banner IDs.
+     *
+     * @return  boolean     True on success, False on error
+     */
+    public static function bulkReset(array $bids) : bool
+    {
+        global $_TABLES;
+
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['banner']}
+                SET hits = 0, impressions = 0
+                WHERE bid IN (?)",
+                array($bids),
+                array(Database::PARAM_STR_ARRAY)
             );
             return true;
         } catch (\Exception $e) {

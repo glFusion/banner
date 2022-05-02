@@ -27,12 +27,16 @@ use Banner\Config;
 $action = '';
 $actionval = '';
 $expected = array(
+    // actions
     'save', 'delete', 'delitem', 'validate_all',
     'edit', 'moderate', 'cancel',
+    'banr_bulk_reset', 'banr_bulk_del', 'camp_bulk_reset', 'camp_bulk_del',
+    // views
     'editcampaign', 'editcategory', 'editbanner',
     'banners', 'categories', 'campaigns',
     'mode', 'view',
 );
+
 foreach ($expected as $provided) {
     if (isset($_POST[$provided])) {
         $action = $provided;
@@ -71,6 +75,20 @@ if (isset($_REQUEST['bid'])) {
 }
 
 switch ($action) {
+case 'camp_bulk_reset':
+    if (isset($_POST['campaign_bulk'])) {
+        Banner\Campaign::bulkReset($_POST['campaign_bulk']);
+    }
+    echo COM_refresh(Config::get('admin_url') . '/index.php?campaigns');
+    break;
+
+case 'banr_bulk_reset':
+    if (isset($_POST['banner_bulk'])) {
+        Banner\Banner::bulkReset($_POST['banner_bulk']);
+    }
+    echo COM_refresh(Config::get('admin_url') . '/index.php?banners');
+    break;
+
 case 'validate_all':
     $Banners = Banner\Banner::getAll();
     foreach ($Banners as $Banner) {
@@ -138,7 +156,7 @@ case 'save':
         $C = new Banner\Category($_POST['oldcid']);
         $status = $C->Save($_POST);
         if ($status != '') {
-            COM_setMsg(BANNER_errorMessage($status));
+            COM_setMsg($status, 'error', true);
             COM_refresh(Config::get('admin_url') . '/index.php?editcategory&cid=' . $_POST['oldcid']);
         } else {
             COM_refresh(Config::get('admin_url') . '/index.php?categories');
@@ -149,7 +167,7 @@ case 'save':
         $C = new Banner\Campaign($_POST['old_camp_id']);
         $errors = $C->Save($_POST);
         if ($errors != '') {
-            $content .= BANNER_errorMessage($errors);
+            $content .= COM_showMessageText($errors, '', true, 'error');
             if (isset($_POST['old_camp_id']) && !empty($_POST['old_camp_id'])) {
                 $view = 'editcampaign';
                 $mode = 'edit';
@@ -188,12 +206,11 @@ case 'save':
             }
         }
         if ($status != '') {
-            $content .= BANNER_errorMessage($status);
+            $content .= COM_showMessageText($status, '', true, 'error');
             $bid = '';      // Reset to force new banner form
-            $view = 'edit';
-            $mode = 'edit';
+            $view = 'editbanner';
         } else {
-            $view = 'banners';
+            echo COM_refresh(Config::get('admin_url') . '/index.php?banners');
         }
         break;
     }

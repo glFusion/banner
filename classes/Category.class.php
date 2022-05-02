@@ -151,6 +151,30 @@ class Category
 
 
     /**
+     * Get the maximum width, in pixels, of uploaded images allowed.
+     * This considers the global config max.
+     *
+     * @return  integer     Actually max image upload width
+     */
+    public function getMaxUploadWidth() : int
+    {
+        return min(Config::get('img_max_width'), $this->max_img_width);
+    }
+
+
+    /**
+     * Get the maximum height, in pixels, of uploaded images allowed.
+     * This considers the global config max.
+     *
+     * @return  integer     Actually max image upload width
+     */
+    public function getMaxUploadHeight() : int
+    {
+        return min(Config::get('img_max_height'), $this->max_img_height);
+    }
+
+
+    /**
      * Read the data for a single category into the current object.
      *
      * @see     $this->setVars()

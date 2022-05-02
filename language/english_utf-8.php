@@ -121,6 +121,7 @@ $LANG_BANNER = array(
 'chk_rem_dt_limit' => 'Check to remove date limitation',
 'reset'             => 'Reset',
 'confirm_delitem'   => 'Are you sure you want to delete this item?',
+'confirm_delitems'  => 'Are you sure you want to delete these items?',
 'req_item_msg'  => 'Items in <span class="required">red</span> are required.',
 'user_can_add'  => 'User can submit banners',
 'version'       => 'Version',
@@ -167,6 +168,9 @@ $LANG_BANNER = array(
 'show_admins' => 'Show ads to administrators?',
 'show_adm_pages' => 'Include in admin pages?',
 'render_size_dscp' => 'Displayed size %d pixels wide by %d pixels high,<br />based on category and image size limits.',
+'reset_hits' => 'Reset hits and impressions',
+'bulk_delete' => 'Delete selected items',
+'q_reset_hits' => 'Are you sure you want to reset the hits and impressions?',
 );
 
 ###############################################################################

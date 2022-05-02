@@ -892,10 +892,29 @@ class Campaign
             ),
         );
 
+        $bulk_update = FieldList::button(array(
+            'name' => 'camp_bulk_reset',
+            'text' => $LANG_ADMIN['reset'],
+            'value' => 'x',
+            'size' => 'mini',
+            'class' => 'tooltip',
+            'attr' => array(
+                'title' => $LANG_BANNER['reset_hits'],
+                'onclick' => "return confirm('{$LANG_BANNER['q_reset_hits']}');",
+            ),
+        ) );
+        $options = array(
+            'chkdelete' => 'true',
+            'chkfield' => 'camp_id',
+            'chkall' => true,
+            'chkname' => 'campaign_bulk',
+            'chkactions' => $bulk_update,
+            
+        );
         $defsort_arr = array('field' => 'camp_id', 'direction' => 'asc');
         $text_arr = array(
             'has_extras' => true,
-            'form_url' => Config::get('admin_url') . "?view=campaigns"
+            'form_url' => Config::get('admin_url') . '/index.php?campaigns',
         );
         $query_arr = array(
             'table' => 'bannercampaigns',
@@ -917,7 +936,7 @@ class Campaign
             'bannercampaigns',
             array(__CLASS__ , 'getAdminField'),
             $header_arr, $text_arr, $query_arr,
-            $defsort_arr, '', '', '',
+            $defsort_arr, '', '', $options,
             $form_arr
         );
         return $retval;
@@ -998,6 +1017,47 @@ class Campaign
         }
 
         return $retval;
+    }
+
+
+    /**
+     * Reset the hits and impressions for an array of banner IDs.
+     *
+     * @param   array   $camp_ids   Array of campaign IDs
+     * @return  boolean     True on success, False on error
+     */
+    public static function bulkReset(array $camp_ids) : bool
+    {
+        global $_TABLES;
+
+        $db = Database::getInstance();
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['bannercampaigns']}
+                SET hits = 0, impressions = 0
+                WHERE camp_id IN (?)",
+                array($camp_ids),
+                array(Database::PARAM_STR_ARRAY)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
+
+        // Now reset all the related banners
+        try {
+            $db->conn->executeUpdate(
+                "UPDATE {$_TABLES['banner']}
+                SET hits = 0, impressions = 0
+                WHERE camp_id IN (?)",
+                array($camp_ids),
+                array(Database::PARAM_STR_ARRAY)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
+        return true;
     }
 
 }
