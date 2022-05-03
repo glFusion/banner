@@ -2,7 +2,7 @@
     <id>banner</id>
     <name>Banner Ads</name>
     <description>Manage banner ads and campaigns</description>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
     <glfusionversion>2.0.0</glfusionversion>
     <phpversion>7.4.0</phpversion>
     <url>http://www.leegarner.com</url>
