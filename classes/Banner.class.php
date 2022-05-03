@@ -1026,6 +1026,7 @@ class Banner
 
         $banners = array();
 
+
         // Determine if any ads at all should be displayed to this user
         if (!self::canShow()) {
             return $banners;
@@ -1063,11 +1064,11 @@ class Banner
             case 'type':
             case 'cid':
                 if (is_array($value)) {
-                    $qb->andWhere('c.' . $field . ' IN (:' . $field . ')')
-                       ->setParameter($field, $value, Database::PARAM_STR_ARRAY);
+                    $qb->andWhere('c.cid IN (:cid)')
+                       ->setParameter('cid', $value, Database::PARAM_STR_ARRAY);
                 } else {
-                    $qb->andWhere('c.' . $field . ' = :' . $field)
-                       ->setParameter($field, $value, Database::STRING);
+                    $qb->andWhere('c.cid = :cid')
+                       ->setParameter('cid', $value, Database::STRING);
                 }
                 break;
             case 'category':
@@ -2157,12 +2158,21 @@ class Banner
                     'title' => $LANG_BANNER['html_status_na'],
                 ) );
             } else {
-                if ($A['html_status'] == '200 OK') {
-                    $cls = '';
-                } else {
-                    $cls = 'uk-text-danger';
+                if (!empty($A['html_status'])) {
+                    if ($A['html_status'][0] == '2' || $A['html_status'][0] == '3') {
+                        $cls = '';
+                    } else {
+                        $cls = 'uk-text-danger';
+                    }
+                    $retval .= '<span class="tooltip ' . $cls . '" title="' . $A['dt_validated'] . '">' . $A['html_status'] . '</span>';
                 }
-                $retval = '<span class="tooltip ' . $cls . '" title="' . $A['dt_validated'] . '">' . $A['html_status'] . '</span>';
+                $retval .= '&nbsp' . FieldList::refresh(array(
+                    'url' => Config::get('admin_url') . '/index.php?validate_one=' . $A['bid'],
+                    'attr' => array(
+                        'title' => $LANG_BANNER['click_to_validate'],
+                        'class' => 'tooltip',
+                    ),
+                ) );
             }
             break;
 

@@ -28,9 +28,9 @@ $action = '';
 $actionval = '';
 $expected = array(
     // actions
-    'save', 'delete', 'delitem', 'validate_all',
+    'save', 'delete', 'delitem', 'validate_all', 'validate_one',
     'edit', 'moderate', 'cancel',
-    'banr_bulk_reset', 'banr_bulk_del', 'camp_bulk_reset', 'camp_bulk_del',
+    'banr_bulk_reset', 'banr_bulk_del', 'camp_bulk_reset',
     // views
     'editcampaign', 'editcategory', 'editbanner',
     'banners', 'categories', 'campaigns',
@@ -83,10 +83,22 @@ case 'camp_bulk_reset':
     break;
 
 case 'banr_bulk_reset':
-    if (isset($_POST['banner_bulk'])) {
+    if (isset($_POST['banner_bulk']) && is_array($_POST['banner_bulk'])) {
         Banner\Banner::bulkReset($_POST['banner_bulk']);
     }
     echo COM_refresh(Config::get('admin_url') . '/index.php?banners');
+    break;
+
+case 'banr_bulk_del':
+    if (isset($_POST['banner_bulk']) && is_array($_POST['banner_bulk'])) {
+        foreach ($_POST['banner_bulk'] as $bid) {
+            $B = new Banner\Banner($bid);
+            if (!$B->isNew()) {
+                $B->Delete();
+            }
+        }
+    }
+    echo COM_refresh(Config::get('admin_url') . '/index.php');
     break;
 
 case 'validate_all':
@@ -94,7 +106,15 @@ case 'validate_all':
     foreach ($Banners as $Banner) {
         $Banner->validateUrl();
     }
-    echo COM_refresh(Config::get('admin_url') . '/index.php');
+    echo COM_refresh(Config::get('admin_url') . '/index.php?banners');
+    break;
+
+case 'validate_one':
+    $Banner = Banner\Banner::getInstance($actionval);
+    if (!$Banner->isNew()) {
+        $Banner->validateUrl();
+    }
+    echo COM_refresh(Config::get('admin_url') . '/index.php?banners');
     break;
 
 case 'toggleEnabled':
