@@ -133,9 +133,9 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
         return '';
     }
 
-    $bids = Banner\Banner::getBannerIDs($options);
+    $Banners = Banner\Banner::getBanners($options);
     if (!empty($bids)) {
-        $B = new Banner\Banner($bids[0]);
+        $B = $Banners[0];
         $B->updateImpressions();
 
         $T = new Template(BANR_PI_PATH . '/templates');
@@ -217,11 +217,9 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             if (!empty($type)) {
                 $options['type'] = $type;
             }
-            $bids = Banner\Banner::getBannerIDs($options);
-            if (!empty($bids)) {
-                $B = new Banner\Banner($bids[0]);
-                $banner = $B->BuildBanner($title);
-                $B->updateImpressions();
+            $Banners = Banner\Banner::getBanners($options);
+            if (!empty($Banners)) {
+                $banner = $Banners[0]->updateImpressions()->BuildBanner($title);
             }
             break;
 
@@ -775,16 +773,13 @@ function plugin_templateSetVars_banner($templatename, &$template)
 
     if (empty($templatenames)) return;
     $options['topic'] = empty($topic) ? 'all' : $topic;
-//    $options['topic'] = Topic::currentID('all');
 
     $B = new Banner\Banner();
     foreach ($templatenames as $type) {
         $options['type'] = $type;
-        $bids = Banner\Banner::getBannerIDs($options);
-        if (is_array($bids) && !empty($bids)) {
-            $B->Read($bids[0]);
-            $banner = $B->BuildBanner();
-            $B->updateImpressions();
+        $Banners = Banner\Banner::getBanners($options);
+        if (!empty($Banners)) {
+            $banner = $Banners[0]->updateImpressions()->BuildBanner();
             $template->set_var("banner_{$type}", $banner, true, true);
         }
     }
@@ -828,11 +823,9 @@ function plugin_displayadblock_banner($plugin, $counter)
         'cid' => $Cats,
     );
 
-    $bids = Banner\Banner::getBannerIDs($options);
-    if (is_array($bids) && !empty($bids)) {
-        $B = new Banner\Banner($bids[0]);
-        $B->updateImpressions();
-        return $B->buildBanner();
+    $Banners = Banner\Banner::getBanners($options);
+    if (!empty($Banners)) {
+        return $Banners[0]->updateImpressions()->buildBanner();
     } else {
         return '';
     }
@@ -895,7 +888,6 @@ function plugin_autouninstall_banner ()
  * Returns a list of banners that belong to categories associated with
  * the current topic.
  *
- * @see     BANNER_block_banner()
  * @param   array   $A  Array of parameters for the block (not used)
  * @param   string  $param  Category name
  * @return  string      HTML for banner display.
@@ -918,7 +910,7 @@ function phpblock_banner_topic($A=array(), $param='')
             $extra[$name] = $param[$key];
         }
     }
-    return BANNER_block_banner($extra);
+    return Banner\Banner::renderBlockBanners($extra);
 }
 
 
@@ -926,7 +918,6 @@ function phpblock_banner_topic($A=array(), $param='')
  * Returns a random banner that belongs to categories associated with
  * the current topic.
  *
- * @see     BANNER_block_banner()
  * @param   array   $A  Array of parameters for the block (not used)
  * @param   string  $param  Block information
  * @return  string      HTML for banner display.
@@ -940,7 +931,7 @@ function phpblock_banner_topic_random($A= array(), $param='')
     } else {
         $extra['type'] = 'block';
     }
-    return BANNER_block_banner($extra);
+    return Banner\Banner::renderBlockBanners($extra);
 }
 
 
@@ -1001,13 +992,9 @@ function plugin_getheadercode_banner()
     $options = array(
         'type' => 'htmlheader',
     );
-    $bids = Banner\Banner::getBannerIDs($options);
-    if (is_array($bids) && !empty($bids)) {
-        $B = new Banner\Banner();
-        foreach ($bids as $bid) {
-            $B->Read($bid);
-            $retval .= $B->BuildBanner() . LB;
-        }
+    $Banners = Banner\Banner::getBanners($options);
+    foreach ($Banners as $B) {
+        $retval .= $B->BuildBanner() . LB;
     }
     return $retval;
 }
@@ -1095,55 +1082,6 @@ function plugin_configmanager_select_defgrpsubmit_banner()
 //  Public Plugin-Specific Functions Follow
 //
 ////////////////////////////////////////////
-
-/**
- * Backend function for phpblock functions.
- * Returns one or more banners which fit the request.
- *
- * @param   string  $extra  Optional extra SQL.
- * @return  string          HTML for banner display
- */
-function BANNER_block_banner($extra='')
-{
-    global $_CONF, $_TABLES, $LANG_BANNER, $topic;
-
-    if (!Banner\Banner::canShow()) {
-        return '';
-    }
-
-    $retval = '';
-    $params = array();
-
-    if ($extra == '')
-        $params[] = array('type' => 'block');
-    else
-        $params = $extra;
-
-    if (empty($topic)) {
-        $tid = 'all';
-    }
-    $params['tid'] = $tid;
-
-    // Get the banner IDs that fit the requirements.  Could be an array or a
-    // single value, so convert into an array
-    $bids = Banner\Banner::getBannerIDs($params);
-
-    if (is_array($bids) && !empty($bids)) {
-        $retval .= "<div class=\"aligncenter\">\n";
-        $B = new Banner\Banner();
-        foreach ($bids as $bid) {
-            $B->Read($bid);
-            $retval .= '<div class="blockbanner">' .
-                Banner\Banner::getInstance($bid)
-                    ->updateImpressions()
-                    ->BuildBanner() .
-                '</div>';
-        }
-        $retval .= "</div>\n";
-    }
-    return $retval;
-}
-
 
 /**
  * Return the url to a documentation file.

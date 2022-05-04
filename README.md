@@ -52,13 +52,17 @@ under the first article, `story_2` under the second, etc.
 
 For the full story view, an ad will be selected from among all the `story*` categories.
 
-### Standard Autotag
+#### PHP Block Function
+You can use a PHP Block to create a rotating banner in a block. Simply create a block, specify
+that it is a PHP function block, and use `phpblock_banner_topic(placement count)` as the function.
+Placement refers to the placement value of a category, and count is the optional limit to the number
+of banners shown. If not specified the globally-configured block limit value is used.
+
+#### Standard Autotag
 The third method of ad placement is to use a standard autotag in an article, staticpage, or any other content. The options are:
     * `[banner:banner_id]` to display a specific banner
     * `[randombanner:category_type]` to select a single random banner from all categories of the given type
     * `[bannercategory:category_id]` to select all banners within a specific category. Banners will be formatted and displayed by the `bannercategory.thtml` template which you may wish to customize.
-
-This method should be used to create ad blocks.
 
 ## Configuration Options
 ### General

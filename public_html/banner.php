@@ -24,10 +24,8 @@ $options = array(
     'campaign'  => isset($_GET['campaign']) ? trim($_GET['campaign']) : '',
 );
 
-$bids = Banner\Banner::getBannerIDs($options);
-if (is_array($bids) && !empty($bids)) {
-    echo Banner\Banner::getInstance($bids[0])
-        ->updateImpressions()
-        ->buildBanner();
+$Banners = Banner\Banner::getBanners($options);
+if (!empty($Banners)) {
+    echo $Banners[0]->updateImpressions()->buildBanner();
 }
 

@@ -174,9 +174,11 @@ class Banner
     {
         global $_USER;
 
-        $bid = COM_sanitizeID($bid, false);
-
-        if ($bid != '') {
+        if (is_array($bid)) {       // assume a record from the DB
+            $this->setVars($bid, true);
+            $this->isNew = 0;
+        } elseif ($bid != '') {     // else if not empty, read the banner
+            $bid = COM_sanitizeID($bid, false);
             $this->Read($bid);
             $this->isNew = 0;
         } else {
@@ -715,7 +717,10 @@ class Banner
     }
 
 
-    private function _deleteImages()
+    /**
+     * Delete original and resized images when a banner is removed.
+     */
+    private function _deleteImages() : void
     {
         $filename = $this->getOpt('filename');
         if (!empty($filename) && file_exists(Config::get('img_dir') . $filename)) {
@@ -1015,27 +1020,26 @@ class Banner
 
 
     /**
-     * Returns the banner id for a banner or group of banners.
+     * Returns an array of Banner objects matching the criteria.
      *
      * @param   array   $fields Fields to use in where clause
-     * @return  array           Array of Banner ids, empty if none available
+     * @return  array           Array of Banner objects
      */
-    public static function getBannerIds($fields=array())
+    public static function getBanners($fields=array()) : array
     {
         global $_TABLES, $_CONF, $_USER;
 
-        $banners = array();
-
+        $Banners = array();
 
         // Determine if any ads at all should be displayed to this user
         if (!self::canShow()) {
-            return $banners;
+            return $Banners;
         }
 
         $db = Database::getInstance();
         $qb = $db->conn->createQueryBuilder();
         $now = $_CONF['_now']->toMySQL(true);
-        $qb->select('b.bid', 'b.weight*RAND() AS score')
+        $qb->select('b.*', 'b.weight*RAND() AS score')
            ->from($_TABLES['banner'], 'b')
            ->leftJoin('b', $_TABLES['bannercategories'], 'c', 'b.cid = c.cid')
            ->leftJoin('b', $_TABLES['bannercampaigns'], 'camp', 'b.camp_id = camp.camp_id')
@@ -1061,7 +1065,6 @@ class Banner
         }
         foreach ($fields as $field=>$value) {
             switch(strtolower($field)) {
-            case 'type':
             case 'cid':
                 if (is_array($value)) {
                     $qb->andWhere('c.cid IN (:cid)')
@@ -1069,6 +1072,15 @@ class Banner
                 } else {
                     $qb->andWhere('c.cid = :cid')
                        ->setParameter('cid', $value, Database::STRING);
+                }
+                break;
+            case 'type':
+                if (is_array($value)) {
+                    $qb->andWhere('c.type IN (:type)')
+                       ->setParameter('type', $value, Database::PARAM_STR_ARRAY);
+                } else {
+                    $qb->andWhere('c.type = :type')
+                       ->setParameter('type', $value, Database::STRING);
                 }
                 break;
             case 'category':
@@ -1098,7 +1110,9 @@ class Banner
                 }
                 break;
             case 'limit':
-                $qb->setFirstResult(0)->setMaxResults($value);
+                if ($value > 0) {
+                    $qb->setFirstResult(0)->setMaxResults($value);
+                }
                 break;
             default:
                 $qb->andWhere($field . '= :' . $field)
@@ -1121,9 +1135,9 @@ class Banner
             $data = array();
         }
         foreach ($data as $A) {
-            $banners[] = $A['bid'];
+            $Banners[] = new self($A);
         }
-        return $banners;
+        return $Banners;
     }
 
 
@@ -2294,6 +2308,53 @@ class Banner
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             return false;
         }
+    }
+
+
+    /**
+     * Backend function for phpblock functions.
+     * Returns one or more banners which fit the request.
+     *
+     * @param   array   $extra  Array of limiting values
+     * @return  string          HTML for banner display
+     */
+    public static function renderBlockBanners(?array $extra=NULL) : string
+    {
+        global $_CONF, $_TABLES, $LANG_BANNER, $topic;
+
+        if (!self::canShow()) {
+            return '';
+        }
+
+        $retval = '';
+        $params = array();
+
+        if ($extra == '')
+            $params[] = array('type' => 'block');
+        else
+            $params = $extra;
+
+        if (empty($topic)) {
+            $tid = 'all';
+        }
+        $params['tid'] = $tid;
+
+        // Get the banner IDs that fit the requirements.  Could be an array or a
+        // single value, so convert into an array
+        $Banners = self::getBanners($params);
+
+        if (!empty($Banners)) {
+            $T = new \Template(Config::get('path') . 'templates');
+            $T->set_file('bannerblock', 'blockbanners.thtml');
+            $T->set_block('bannerblock', 'banners', 'item');
+            foreach ($Banners as $Banner) {
+                $T->set_var('banner_ad', $Banner->updateImpressions()->BuildBanner());
+                $T->parse('item', 'banners', true);
+            }
+            $T->parse('output', 'bannerblock');
+            $retval .= $T->finish($T->get_var('output'));
+        }
+        return $retval;
     }
 
 }
