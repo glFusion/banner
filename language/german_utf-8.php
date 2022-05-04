@@ -173,6 +173,9 @@ $LANG_BANNER = array(
 'reset_hits' => 'Reset hits and impressions',
 'bulk_delete' => 'Delete selected items',
 'q_reset_hits' => 'Are you sure you want to reset the hits and impressions?',
+'click_to_validate' => 'Click to validate now',
+'tpl_support' => 'AdBlock Template Support',
+'placement' => 'Placement',
 );
 
 ###############################################################################
@@ -319,7 +322,11 @@ $LANG_confignames['banner'] = array(
     'cb_replhome'   => 'Zentrumsblock ersetzt Startseite',
     'block_limit'   => 'Max. Banner in Blöcken',
     'defgrpsubmit'  => 'Standart-Gruppe Kategorie/Kampagne',
-);
+    'fset_permissions' => 'Standard-Berechtigungen',
+    'adblockvars' => 'Dispaly in AdBlock template vars?',
+    'headercode' => 'Show banners in HTML header?',
+    'fset_ownerdisplay' => 'Ad Owner Settings',
+    'fset_admindisplay' => 'Administrator Settings',);
 
 $LANG_configsubgroups['banner'] = array(
     'sg_main' => 'Haupteinstellungen',
@@ -328,19 +335,27 @@ $LANG_configsubgroups['banner'] = array(
 $LANG_fs['banner'] = array(
     'fs_main' => 'Allgemeine-Einstellungen',
     'fs_adcontrol' => 'Anzeige-Einstellungen',
-    'fs_permissions' => 'Standard-Berechtigungen',
+    'fs_campaigndef' => 'Campaign Defaults',
 );
 
 // Note: entries 0, 1, and 12 are the same as in $LANG_configselects['Core']
-$LANG_configselects['banner'] = array(
-    0 => array('Ja' => 1, 'Nein' => 0),
-    1 => array('Ja' => TRUE, 'Nein' => FALSE),
-    3 => array('Ja' => 1, 'Nein' => 0),
-    4 => array('10' => 10, '09' => 9, '08' => 8, '07' => 7, '06' => 6,
-            '05' => 5, '04' => 4, '03' => 3, '02' => 2, '01' => 1),
-    5 => array('Auf Seite oben' => 1, 'Nach Hauptartikel' => 2, 'Auf Seite unten' => 3),
-    9 => array('Zur Banner-Seite' => 'item', 'Banner-Verwaltung' => 'list', 'Banner anzeigen' => 'plugin', 'Startseite' => 'home', 'Admin-Bereich' => 'admin'),
+$LANG_configSelect['banner'] = array(
+    0 => array(1 => 'Ja', 0 => 'Nein'),
+    1 => array(
+        0 => 'None',
+        1 => 'Template Vars',
+        2 => 'AdBlock Vars',
+        3 => 'Both',
+    ),
+    3 => array(1 => 'Ja', 0 => 'Nein'),
+    //4 => array('10' => 10, '09' => 9, '08' => 8, '07' => 7, '06' => 6,
+    //        '05' => 5, '04' => 4, '03' => 3, '02' => 2, '01' => 1),
+    5 => array(
+        0 => 'Disabled',
+        1 => 'Auf Seite oben',
+        2 => 'Nach Hauptartikel',
+        3 => 'Auf Seite unten',
+    ),
     12 => array('Kein Zugang' => 0, 'Nur Lesen' => 2, 'Lesen-Schreiben' => 3),
 );
 
-?>

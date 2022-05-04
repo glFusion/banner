@@ -6,18 +6,21 @@ Release TBD
 - `E_ALL` fixes.
 - Implement glFusion caching.
 - Implement private class properties and accessor methods.
-- Use transparent icon for command and control.
 - Remove user submission menus.
 - Fixes for MySQL strict mode.
 - Remove max banners setting for campaigns.
 - Remove non-UTF-8 language files.
-- Implement headercode category to add banner code to `head` section.
 - Use normal names for default campaigns and categories.
 - Let Campaigns control whether ads are shown to owners, admins, etc.
-- Refactor url validations, now done through separate call to admin index.php.
+- Refactor url validations.
+  - Done through separate call to admin index.php.
+  - Banners can be valided individually.
 - Implement GD-based image resizing to support transparent PNG.
-- Use uniqid() to name images separately from banner IDs.
+- Name images separately from banner IDs to facilitate banner name changes.
 - Remove dependency on LGLib plugin.
+- Implement headercode category to add banner code to `head` section.
+- Leverage category mapping vs. text category types.
+- Add config vars to control whether templates, adblocks or headercode is used.
 
 ## Version 0.3.0
 Release 2017-10-06

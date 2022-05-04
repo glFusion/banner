@@ -86,7 +86,7 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
     // If centerblock not enabled, or just for homepage and
     // we're not on the homepage, just return
     if (
-        Config::get('cb_enable') == 0 ||
+        Config::get('cb_home') == 0 ||
         (Config::get('cb_home') == 1 && !$on_homepage)
     ) {
         return '';
@@ -750,12 +750,10 @@ function plugin_geticon_banner()
  * @param   string  $templatename   Name of template, e.g. 'header'
  * @param   ref     $template       Reference to actual template
  */
-function plugin_templateSetVars_banner($templatename, &$template)
+function plugin_templateSetVars_banner($templatename, &$template) : void
 {
-    global $_TABLES, $topic;
+    global $topic;
 
-    $templatenames = array();
-    $options = array('limit' => '1');
 
     // We only operate on the 'footer' templatename since 'header' is
     // called twice (from COM_siteHeader() and COM_siteFooter()).
@@ -772,7 +770,10 @@ function plugin_templateSetVars_banner($templatename, &$template)
     }
 
     if (empty($templatenames)) return;
-    $options['topic'] = empty($topic) ? 'all' : $topic;
+    $options = array(
+        'limit' => '1',
+        'topic' => empty($topic) ? 'all' : $topic,
+    );
 
     $B = new Banner\Banner();
     foreach ($templatenames as $type) {
@@ -807,11 +808,11 @@ function plugin_supportadblock_banner()
  * @param   integer $counter    Item display counter
  * @return  string              Banner image and link code
  */
-function plugin_displayadblock_banner($plugin, $counter)
+function plugin_displayadblock_banner($plugin, $counter) : string
 {
     global $topic;
 
-    if (!BANR_isMinVersion('0.3.0')) {
+    if (!BANR_isMinVersion('0.3.0') || !Config::get('adblockvars')) {
         return '';
     }
 
@@ -989,6 +990,11 @@ function plugin_getheadercss_banner()
 function plugin_getheadercode_banner()
 {
     $retval = '';
+    if (!Config::get('headercode')) {
+        // Save cycles by checking if headercode banners are even used.
+        return $retval;
+    }
+
     $Cats = Banner\Mapping::showCats('htmlheader');
     if (!empty($Cats)) {
         $options = array(

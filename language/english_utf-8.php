@@ -173,6 +173,7 @@ $LANG_BANNER = array(
 'bulk_delete' => 'Delete selected items',
 'q_reset_hits' => 'Are you sure you want to reset the hits and impressions?',
 'tpl_support' => 'AdBlock Template Support',
+'placement' => 'Placement',
 );
 
 ###############################################################################
@@ -319,6 +320,11 @@ $LANG_confignames['banner'] = array(
     'cb_replhome'   => 'Centerblock Replaces Home Page?',
     'block_limit'   => 'Max. ads to show in blocks',
     'defgrpsubmit'  => 'Default Category/Campaign Group',
+    'adblockvars'   => 'Dispaly in AdBlock template vars?',
+    'headercode'    => 'Show banners in HTML header?',
+    'fset_ownerdisplay' => 'Ad Owner Settings',
+    'fset_admindisplay' => 'Administrator Settings',
+    'fset_permissions' => 'Default Permissions',
 );
 
 $LANG_configsubgroups['banner'] = array(
@@ -328,10 +334,10 @@ $LANG_configsubgroups['banner'] = array(
 $LANG_fs['banner'] = array(
     'fs_main' => 'Main Banner Settings',
     'fs_adcontrol' => 'Ad Display Control',
-    'fs_permissions' => 'Default Permissions',
+    'fs_campaigndef' => 'Campaign Defaults',
 );
 
-$LANG_configselect['banner'] = array(
+$LANG_configSelect['banner'] = array(
     0 => array(1 => 'True', 0 => 'False',),
     1 => array(
         0 => 'None',
@@ -343,6 +349,7 @@ $LANG_configselect['banner'] = array(
     //4 => array('10' => 10, '09' => 9, '08' => 8, '07' => 7, '06' => 6,
     //        '05' => 5, '04' => 4, '03' => 3, '02' => 2, '01' => 1),
     5 => array(
+        0 => 'Disabled',
         1 => 'Top of Page',
         2 => 'Below Featured Article',
         3 => 'Bottom of Page',
