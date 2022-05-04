@@ -174,6 +174,12 @@ $LANG_BANNER = array(
 'q_reset_hits' => 'Are you sure you want to reset the hits and impressions?',
 'tpl_support' => 'AdBlock Template Support',
 'placement' => 'Placement',
+'count_impressions' => 'Count Impressions',
+'count_hits' => 'Count Hits',
+'only_public' => 'Only Public',
+'owners' => 'Owners',
+'admins' => 'Administrators',
+'owners_admins' => 'Both Owners and Admins',
 );
 
 ###############################################################################

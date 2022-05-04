@@ -22,6 +22,9 @@ use glFusion\FieldList;
  */
 class Campaign
 {
+    public const ADMIN = 2;
+    public const OWNER = 1;
+
     /** Campaign ID.
      * @var string */
     private $camp_id = '';
@@ -106,6 +109,14 @@ class Campaign
      * @var boolean */
     private $show_adm_pages = 0;
 
+    /** Flag to indicate if admins and/owners should count clicks.
+     * @var integer */
+    private $count_hits = 0;
+
+    /** Flag to indicate if admins and/owners should count impressions.
+     * @var integer */
+    private $count_imprssions = 0;
+
     /** Flag to indicate whether this item is new.
      * @var boolean */
     private $isNew = 1;
@@ -138,8 +149,19 @@ class Campaign
             $this->perm_group = (int)Config::get('default_permissions')[1];
             $this->perm_members = (int)Config::get('default_permissions')[2];
             $this->perm_anon = (int)Config::get('default_permissions')[3];
-            /*$this->setPubStart();
-            $this->setPubEnd();*/
+            $this->count_impressions = Config::get('cntimpr_owner') | Config::get('cntimpr_admins');
+            if (Config::get('cntclicks_owner')) {
+                $this->count_hits += self::OWNER;
+            }
+            if (Config::get('cntclicks_admins')) {
+                $this->count_hits += self::ADMIN;
+            }
+            if (Config::get('cntimpr_owner')) {
+                $this->count_impressions += self::OWNER;
+            }
+            if (Config::get('cntimpr_admins')) {
+                $this->count_impressions += self::ADMIN;
+            }
         }
     }
 
@@ -196,6 +218,8 @@ class Campaign
         $this->show_owner = isset($A['show_owner']) && $A['show_owner'] ? 1 : 0;
         $this->show_admins = isset($A['show_admins']) && $A['show_admins'] ? 1 : 0;
         $this->show_adm_pages = isset($A['show_adm_pages']) && $A['show_adm_pages'] ? 1 : 0;
+        $this->count_impressions = (int)$A['count_impressions'];
+        $this->count_hits = (int)$A['count_hits'];
 
         if ($fromDB) {
             $this->setPubStart($A['start']);
@@ -536,6 +560,8 @@ class Campaign
             'show_owner_chk' => $this->showOwner() ? 'checked="checked"' : '',
             'show_admins_chk' => $this->showAdmins() ? 'checked="checked"' : '',
             'show_adm_page_chk' => $this->showAdminPages() ? 'checked="checked"' : '',
+            'cnt_impr_' . $this->count_impressions => 'selected="selected"',
+            'cnt_hits_' . $this->count_hits => 'selected="selected"',
         ) );
 
         if (self::isUsed($this->camp_id)) {
@@ -609,6 +635,8 @@ class Campaign
                     'show_owner' => ':show_owner',
                     'show_admins' => ':show_admins',
                     'show_adm_pages' => ':show_adm_pages',
+                    'count_impressions' => ':count_impressions',
+                    'count_hits' => ':count_hits',
                 ]);
         } else {
             $this->camp_id = COM_sanitizeID($this->camp_id, false);
@@ -640,6 +668,8 @@ class Campaign
                ->set('show_owner', ':show_owner')
                ->set('show_admins', ':show_admins')
                ->set('show_adm_pages', ':show_adm_pages')
+               ->set('count_impressions', ':count_impressions')
+               ->set('count_hits', ':count_hits')
                ->where('camp_id = :old_id')
                ->setParameter('old_id', $this->oldID, Database::STRING);
         }
@@ -664,7 +694,9 @@ class Campaign
            ->setParameter('tid', $this->tid, Database::STRING)
            ->setParameter('show_owner', $this->show_owner, Database::INTEGER)
            ->setParameter('show_admins', $this->show_admins, Database::INTEGER)
-           ->setParameter('show_adm_pages', $this->show_adm_pages, Database::INTEGER);
+           ->setParameter('show_adm_pages', $this->show_adm_pages, Database::INTEGER)
+           ->setParameter('count_impressions', $this->count_impressions, Database::INTEGER)
+           ->setParameter('count_hits', $this->count_hits, Database::INTEGER);
         if (!is_null($this->pubStart)) {
             $qb->setParameter('start', $this->pubStart->toMySQL(true), Database::STRING);
         } else {
@@ -1055,6 +1087,44 @@ class Campaign
             );
         } catch (\Exception $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Check if ad impressions should be counted.
+     *
+     * @param   integer $owner_id   Banner owner ID
+     * @return  boolean     True if counted, False to ignore
+     */
+    public function countImpressions(int $owner_id) : bool
+    {
+        if (
+            (($this->count_impressions | self::ADMIN == 0) && plugin_isadmin_banner())
+            ||
+            (($this->count_impressions | self::OWNER == 0) && $owner_id == $_USER['uid'])
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Check if ad clicks should be counted.
+     *
+     * @param   integer $owner_id   Banner owner ID
+     * @return  boolean     True if counted, False to ignore
+     */
+    public function countHits(int $owner_id) : bool
+    {
+        if (
+            (($this->count_hits | self::ADMIN == 0) && plugin_isadmin_banner())
+            ||
+            (($this->count_hits | self::OWNER == 0) && $owner_id == $_USER['uid'])
+        ) {
             return false;
         }
         return true;

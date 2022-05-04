@@ -87,7 +87,9 @@ $_SQL['bannercampaigns'] = "CREATE TABLE {$_TABLES['bannercampaigns']} (
   `show_owner` tinyint(1) unsigned NOT NULL DEFAULT 0,
   `show_admins` tinyint(1) unsigned NOT NULL DEFAULT 0,
   `show_adm_pages` tinyint(1) unsigned NOT NULL DEFAULT 0,
-  PRIMARY KEY  (`camp_id`)
+  `count_hits` tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `count_impressions` tinyint(1) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY (`camp_id`)
 ) ENGINE=MyISAM";
 
 // template-category mapping introduced in 0.3.0
@@ -204,6 +206,8 @@ $BANR_UPGRADE = array(
     "ALTER TABLE {$_TABLES['bannercampaigns']} ADD `show_owner` tinyint(1) unsigned NOT NULL DEFAULT 0",
     "ALTER TABLE {$_TABLES['bannercampaigns']} ADD `show_admins` tinyint(1) unsigned NOT NULL DEFAULT 0",
     "ALTER TABLE {$_TABLES['bannercampaigns']} ADD `show_adm_pages` tinyint(1) unsigned NOT NULL DEFAULT 0",
+    "ALTER TABLE {$_TABLES['bannercampaigns']} ADD `count_hits` tinyint(1) unsigned NOT NULL DEFAULT 0",
+    "ALTER TABLE {$_TABLES['bannercampaigns']} ADD `count_impressions` tinyint(1) unsigned NOT NULL DEFAULT 0",
     "ALTER TABLE {$_TABLES['banner']} ADD `html_status` varchar(127) NOT NULL DEFAULT '' AFTER `tid`",
     "ALTER TABLE {$_TABLES['banner']} ADD `dt_validated` datetime DEFAULT NULL AFTER `html_status`",
     "ALTER TABLE {$_TABLES['bannersubmission']} ADD `html_status` varchar(127) NOT NULL DEFAULT '' AFTER `tid`",

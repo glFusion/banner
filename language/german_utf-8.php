@@ -176,6 +176,12 @@ $LANG_BANNER = array(
 'click_to_validate' => 'Click to validate now',
 'tpl_support' => 'AdBlock Template Support',
 'placement' => 'Placement',
+'count_impressions' => 'Count Impressions',
+'count_hits' => 'Count Hits',
+'only_public' => 'Only Public',
+'owners' => 'Owners',
+'admins' => 'Administrators',
+'owners_admins' => 'Both Owners and Admins',
 );
 
 ###############################################################################

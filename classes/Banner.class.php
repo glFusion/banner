@@ -27,6 +27,9 @@ class Banner
     const TYPE_SCRIPT   = 2;    // Script, e.g. Google Adsense
     const TYPE_AUTOTAG  = 3;    // Autotag to be processed
 
+    const OWNER = 1;
+    const ADMIN = 2;
+
     /** Banner record ID.
      * @var string */
     private $bid = '';
@@ -164,6 +167,17 @@ class Banner
      * @var integer */
     private $r_width = 0;
 
+    /** Related Campaign object.
+     * @var object */
+    private $Campaign = NULL;
+
+    /** Campaign flag to count hits for admins, owners, or just public.
+     * @var integer */
+    private $count_hits = 0;
+
+    /** Campaign flag to count impressions for admins, owners, or just public.
+     * @var integer */
+    private $count_impressions = 0;
 
     /**
      * Constructor.
@@ -562,6 +576,12 @@ class Banner
                 ->setDate($A['date'])
                 ->setHtmlStatus($A['html_status'])
                 ->setValidationDate($A['dt_validated']);
+            if (isset($A['count_hits'])) {
+                $this->count_hits = (int)$A['count_hits'];
+            }
+            if (isset($A['count_impressions'])) {
+                $this->count_impressions = (int)$A['count_impressions'];
+            }
         } else {
             // Coming from a form
             $this->options = self::$default_opts;
@@ -661,9 +681,9 @@ class Banner
         if (
             $this->isNew()
             ||
-            (Config::get('cntimpr_admins') == 0 && plugin_isadmin_banner())
+            (($this->count_impressions | self::ADMIN == 0) && plugin_isadmin_banner())
             ||
-            (Config::get('cntimpr_owner') == 0 && $this->owner_id == $_USER['uid'])
+            (($this->count_impressions | self::OWNER == 0) && $this->owner_id == $_USER['uid'])
 
         ) {
             return $this;
@@ -695,9 +715,9 @@ class Banner
         // Don't update the count for ads show to admins or owners, if
         // so configured.
         if (
-            (Config::get('cntclicks_admins') == 0 && plugin_isadmin_banner())
+            (($this->count_hits | self::ADMIN == 0) && plugin_isadmin_banner())
             ||
-            (Config::get('cntclicks_owner') == 0 && $this->owner_id == $_USER['uid'])
+            (($this->count_hits | self::OWNER == 0) && $this->owner_id == $_USER['uid'])
         ) {
             return $this;
         }
@@ -712,7 +732,7 @@ class Banner
         } catch (\Exception $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
         }
-        Campaign::updateHits($this->camp_id);
+        $this->Campaign->updateHits();
         return $this;
     }
 
@@ -1039,7 +1059,7 @@ class Banner
         $db = Database::getInstance();
         $qb = $db->conn->createQueryBuilder();
         $now = $_CONF['_now']->toMySQL(true);
-        $qb->select('b.*', 'b.weight*RAND() AS score')
+        $qb->select('b.*', 'b.weight*RAND() AS score', 'camp.count_impressions', 'camp.count_hits')
            ->from($_TABLES['banner'], 'b')
            ->leftJoin('b', $_TABLES['bannercategories'], 'c', 'b.cid = c.cid')
            ->leftJoin('b', $_TABLES['bannercampaigns'], 'camp', 'b.camp_id = camp.camp_id')
@@ -1871,6 +1891,15 @@ class Banner
     private function _isSubmission()
     {
         return $this->table == 'bannersubmission' ? true : false;
+    }
+
+
+    public function getCampaign() : Campaign
+    {
+        if ($this->Campaign === NULL) {
+            $this->Campaign = Campaign::getInstance($this->camp_id);
+        }
+        return $this->Campaign;
     }
 
 
