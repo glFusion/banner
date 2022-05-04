@@ -1,0 +1,9 @@
+{# begin {templatelocation} #}
+<div class="aligncenter">
+<!-- BEGIN banners -->
+	<div class="blockbanner">
+		{banner_ad}
+	</div>
+<!-- END banners -->
+</div>
+{# end {templatelocation} #}
