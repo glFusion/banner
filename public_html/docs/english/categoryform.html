@@ -40,13 +40,12 @@
 
       <dl id="desc_type">
         <dt>Type</dt>
-        <dd>Enter a string to identify the type for this category. This string will be used to determine the ad placement in templates, blocks and content.<p />
-For template variables, use the name of the template itself. For example, to have a category place your ad in the Featured Story, set the "type" to "featuredarticle". Then, in &lt;layout_dir&gt;/featuredstorytext.thtml, add a new template variable "{banner_featuredarticle}". This variable will be replaced with the banner content.</dd>
+		<dd>Enter an optional placement for this category. If not empty this string can be used in a block function, or as a template variable for other placements. For example, enter &quot;myver&quot; and you can then add a template variable named &quot;banner_myvar&quot; to one of your theme templates. Leave empty to just use the default AdBlock placements.</dd>
       </dl>
 
       <dl id="desc_dscp">
         <dt>Description</dt>
-        <dd>Enter a description for this category.</dd>
+		<dd>This is just descriptive text to identify the category.</dd>
       </dl>
 
       <dl id="desc_topic">
@@ -73,6 +72,11 @@ For template variables, use the name of the template itself. For example, to hav
         <dt>Centerblock?</dt>
         <dd>Check this box to have this category&apos;s ads show in a centerblock</dd>
       </dl>
+
+	  <dl id="desc_tpl_support">
+		  <dt>Template Support</dt>
+		  <dd>Use this section to indicate where and how often ads from this category are shown in the Adblock template vars. </dd>
+	  </dl>
 
       <dl id="desc_map_enabled">
         <dt>Mapping Enabled?</dt>

@@ -3,9 +3,9 @@
  * Default English Language file for the Banner plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v0.2.1
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php 
  *              GNU Public License v2 or later
  * @filesource
@@ -93,7 +93,7 @@ $LANG_BANNER = array(
 'cat_mgr_instr' => 'Add, Delete, and Modify banner ad categories.',
 'all'           => 'All',
 'new_cat'       => 'New Category',
-'type'          => 'Type',
+'type'          => 'Placement',
 'cat_name'      => 'Category Name',
 'topic'         => 'Topic',
 'cat_mgmt'      => 'Category Management',
@@ -172,6 +172,7 @@ $LANG_BANNER = array(
 'reset_hits' => 'Reset hits and impressions',
 'bulk_delete' => 'Delete selected items',
 'q_reset_hits' => 'Are you sure you want to reset the hits and impressions?',
+'tpl_support' => 'AdBlock Template Support',
 );
 
 ###############################################################################
@@ -293,7 +294,7 @@ $LANG_configsections['banner'] = array(
 );
 
 $LANG_confignames['banner'] = array(
-    'templatevars' => 'The banner is displayed with the template',
+    'templatevars' => 'Display with template and/or adblock vars',
     'usersubmit' => 'Allow submissions from site members',
     'notification' => 'Notification Email?',
     'delete_banner' => 'Delete Banner with Owner?',
@@ -330,16 +331,22 @@ $LANG_fs['banner'] = array(
     'fs_permissions' => 'Default Permissions',
 );
 
-// Note: entries 0, 1, and 12 are the same as in $LANG_configselects['Core']
-$LANG_configselects['banner'] = array(
-    0 => array('True' => 1, 'False' => 0),
-    1 => array('True' => TRUE, 'False' => FALSE),
-    3 => array('Yes' => 1, 'No' => 0),
-    4 => array('10' => 10, '09' => 9, '08' => 8, '07' => 7, '06' => 6,
-            '05' => 5, '04' => 4, '03' => 3, '02' => 2, '01' => 1),
-    5 => array('Top of Page' => 1, 'Below Featured Article' => 2, 'Bottom of Page' => 3),
-    9 => array('Forward to Bannered Site' => 'item', 'Display Admin Banner' => 'list', 'Display Public Banner' => 'plugin', 'Display Home' => 'home', 'Display Admin' => 'admin'),
-    12 => array('No access' => 0, 'Read-Only' => 2, 'Read-Write' => 3),
+$LANG_configselect['banner'] = array(
+    0 => array(1 => 'True', 0 => 'False',),
+    1 => array(
+        0 => 'None',
+        1 => 'Template Vars',
+        2 => 'AdBlock Vars',
+        3 => 'Both',
+    ),
+    3 => array(1 => 'Yes', 0 => 'No'),
+    //4 => array('10' => 10, '09' => 9, '08' => 8, '07' => 7, '06' => 6,
+    //        '05' => 5, '04' => 4, '03' => 3, '02' => 2, '01' => 1),
+    5 => array(
+        1 => 'Top of Page',
+        2 => 'Below Featured Article',
+        3 => 'Bottom of Page',
+    ),
+    12 => array(0 => 'No access', 2 => 'Read-Only', 3 => 'Read-Write'),
 );
 
-?>
