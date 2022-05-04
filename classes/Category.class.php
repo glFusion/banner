@@ -248,11 +248,11 @@ class Category
                 "UPDATE {$_TABLES['bannercategories']}
                 SET `$field` = ?
                 WHERE cid = ?",
-                array($newval, $cid),
+                array($newval, $id),
                 array(Database::INTEGER, Database::STRING)
             );
         } catch (\Exception $e) {
-            Log::write('systeem', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             $newval = $oldval;
         }
         return $newval;
@@ -295,6 +295,7 @@ class Category
      */
     public static function toggleEnabled($oldval, $id)
     {
+        Cache::clear('cats');
         return self::_toggle('enabled', $oldval, $id);
     }
 
@@ -502,6 +503,7 @@ class Category
         if ($this->oldcid != $this->cid) {
             // Update banners that were associated with the old ID
             Banner::changeCategoryId($this->oldcid, $this->cid);
+            Mapping::delByCategory($this->oldcid);
         }
         if (isset($_POST['map']) && is_array($_POST['map'])) {
             Mapping::saveAll($_POST['map'], $this->cid);
@@ -590,7 +592,7 @@ class Category
 
         foreach (self::getAll() as $C) {
             $str = htmlspecialchars($C->category);
-            if (!$C->enabled) {
+            if (!$C->isEnabled()) {
                 if ($enabled) {
                     continue;
                 } else {

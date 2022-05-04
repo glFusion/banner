@@ -347,10 +347,11 @@ class Mapping
      * @param   string  $tpl        Template name
      * @param   integer $counter    Item instance counter
      */
-    public static function showCats($tpl, $counter)
+    public static function showCats($tpl, ?int $counter=NULL)
     {
         $Maps = self::loadAll();
         $cats = array();
+        $counter = (int)$counter;
         foreach ($Maps as $Map) {
             if ($Map->getTpl() != $tpl) {
                 // This mapping doesn't include the current template, skip.
@@ -377,6 +378,28 @@ class Mapping
         return $cats;
     }
 
+
+    /**
+     * Delete mappings by category.
+     * Called when a category is deleted or the name is changed.
+     *
+     * @param   string  $cat_id     Category ID (Name)
+     */
+    public static function delByCategory(string $cat_id) : void
+    {
+        global $_TABLES;
+
+        $db = Database::getInstance();
+        try {
+            $db->conn->delete(
+                $_TABLES['banner_mapping'],
+                array('cid' => $cat_id),
+                array(Database::STRING)
+            );
+        } catch (\Exception $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
+    }
+
 }
 
-?>
