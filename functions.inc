@@ -794,7 +794,7 @@ function plugin_templateSetVars_banner($templatename, &$template)
 function plugin_supportadblock_banner()
 {
     return array(
-        'banner_htmlheader',
+        'htmlheader',
     );
 }
 
@@ -989,12 +989,15 @@ function plugin_getheadercss_banner()
 function plugin_getheadercode_banner()
 {
     $retval = '';
-    $options = array(
-        'type' => 'htmlheader',
-    );
-    $Banners = Banner\Banner::getBanners($options);
-    foreach ($Banners as $B) {
-        $retval .= $B->BuildBanner() . LB;
+    $Cats = Banner\Mapping::showCats('htmlheader');
+    if (!empty($Cats)) {
+        $options = array(
+            'cid' => $Cats,
+        );
+        $Banners = Banner\Banner::getBanners($options);
+        foreach ($Banners as $B) {
+            $retval .= $B->BuildBanner() . LB;
+        }
     }
     return $retval;
 }

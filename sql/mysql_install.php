@@ -117,7 +117,7 @@ $DEFVALUES['banner_mapping'] = "INSERT INTO {$_TABLES['banner_mapping']}
     VALUES
         ('header', 'header', 1),
         ('footer', 'header', 1),
-        ('banner_htmlheader', 'htmlheader', 1)";
+        ('htmlheader', 'htmlheader', 1)";
 
 $BANR_UPGRADE = array(
 '0.1.0' => array(
@@ -219,7 +219,7 @@ $BANR_UPGRADE = array(
         (cid, type, category, description, max_img_width, max_img_height)
         VALUES ('htmlheader','htmlheader','HTMLHeader','HEAD Section Banners',140,400)",
     "INSERT INTO {$_TABLES['banner_mapping']} (tpl, cid, once)
-        VALUES ('banner_htmlheader', 'htmlheader', 0)",
+        VALUES ('htmlheader', 'htmlheader', 0)",
     ),
 );
 
