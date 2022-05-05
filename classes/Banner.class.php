@@ -1134,9 +1134,12 @@ class Banner
                     $qb->setFirstResult(0)->setMaxResults($value);
                 }
                 break;
-            default:
-                $qb->andWhere($field . '= :' . $field)
-                   ->setParameter($field, $value, Database::STRING);
+            /*default:
+                if (!empty($field) && !empty($value)) {
+                    // protect against an empty fieldname getting through
+                    $qb->andWhere($field . '= :' . $field)
+                       ->setParameter($field, $value, Database::STRING);
+                }*/
                 break;
             }
         }
