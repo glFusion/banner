@@ -1384,22 +1384,23 @@ class Banner
         global $_TABLES, $_USER, $_GROUPS;
 
         if (!Config::get('purchase_enabled')) {
-            return -1;
+            return 0;   // No purchasing allowed
         }
 
         $uid = (int)$uid;
-        if ($uid == 0)
+        if ($uid == 0) {
             $uid = $_USER['uid'];
+        }
 
         foreach (Config::get('purchase_exclude_groups') as $ex_grp) {
             if (array_key_exists($ex_grp, $_GROUPS)) {
-                return -1;
+                return 0;
             }
         }
 
         $db = Database::getInstance();
         $max_days = (int)$db->getItem(
-            $_TABLES['banneraccount'],
+            $_TABLES['banner_account'],
             'days_balance',
             array('uid' => $uid)
         );

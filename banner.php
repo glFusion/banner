@@ -27,24 +27,9 @@ $_TABLES['bannersubmission']    = $_DB_table_prefix . 'bannersubmission';
 $_TABLES['bannercampaigns']     = $_DB_table_prefix . 'bannercampaigns';
 $_TABLES['banner_mapping']      = $_DB_table_prefix . 'banner_mapping';
 // experimental support for purchasing or allocating banners
-$_TABLES['banneraccount']       = $_DB_table_prefix . 'banneraccount';
-$_TABLES['bannertrans']         = $_DB_table_prefix . 'bannertrans';
-
-$_CONF_BANR['pi_name']           = 'banner';
-$_CONF_BANR['pi_version']        = '0.9.2';
-$_CONF_BANR['gl_version']        = '2.0.0';
-$_CONF_BANR['pi_url']            = 'https://glfusion.org';
-$_CONF_BANR['pi_display_name']   = 'Banner Ads';
+$_TABLES['banner_account']      = $_DB_table_prefix . 'banner_account';
+$_TABLES['banner_txn']          = $_DB_table_prefix . 'banner_txn';
 
 Banner\Config::set('pi_version', '1.0.0');
 Banner\Config::set('gl_version', '2.0.0');
-
-$_CONF_BANR['xicons'] = array(
-    'delete'    => '<i class="uk-icon uk-icon-remove uk-text-danger"></i>',
-    'copy'      => '<i class="uk-icon uk-icon-clone"></i>',
-    'edit'      => '<i class="uk-icon uk-icon-edit"></i>',
-    'arrow-up'  => '<i class="uk-icon uk-icon-arrow-up"></i>',
-    'arrow-down'=> '<i class="uk-icon uk-icon-arrow-down"></i>',
-    'reset'     => '<i class="uk-icon uk-icon-refresh"></i>',
-);
 
