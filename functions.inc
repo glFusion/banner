@@ -195,9 +195,13 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
                 break;
        }
     } else if ($op == 'parse') {
+        $t1 = explode(' ', $autotag['parm2']);
+        $opts = array();
+        foreach ($t1 as $tmp) {
+            $t2 = explode(':', $tmp);
+            $opts[$t2[0]] = isset($t2[1]) ? $t2[1] : '';
+        }
         $banner = '';
-        $db = Database::getInstance();
-        $qb = $db->conn->createQueryBuilder();
 
         switch( $autotag['tag'] ) {
         case 'banner':
@@ -205,63 +209,41 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             $bid = COM_sanitizeID($autotag['parm1'], false);
             $B = new Banner\Banner($bid);
             if (!$B->isNew()) {
-                $banner = $B->BuildBanner();
-                $B->updateImpressions();
+                $banner = $B->updateImpressions()->BuildBanner();
             }
             break;
 
         case 'randombanner':
-            // Get a random banner, optionally from a specific category ID
+            // Get one or more banners, optionally from a specific category ID
             $type = isset($autotag['parm1']) ? COM_applyFilter($autotag['parm1']) : '';
-            $options = array('limit' => 1);
             if (!empty($type)) {
-                $options['type'] = $type;
+                $opts['type'] = $type;
             }
-            $Banners = Banner\Banner::getBanners($options);
-            if (!empty($Banners)) {
-                $banner = $Banners[0]->updateImpressions()->BuildBanner($title);
+            if (!isset($opts['limit'])) {
+                $opts['limit'] = 1;
+            }
+            $Banners = Banner\Banner::getBanners($opts);
+            $cnt = count($Banners);
+            for ($i = 0; $i < $cnt; $i++) {
+                if ($i > 0) {
+                    $banner .= "<br />\n";
+                }
+                $banner .= $Banners[$i]->updateImpressions()->BuildBanner();
             }
             break;
 
-        case 'bannercategory' :
-            // Get all banners under a specific categorya
+        case 'bannercategory':
+            // Get all or a number of banners under a specific category.
             $cid = COM_applyFilter($autotag['parm1']);
             if (!empty($cid)) {
-                $qb->leftJoin('b', $_TABLES['bannercategories'], 'c', 'b.cid = c.cid')
-                   ->andWhere('c.cid = :cid')
-                   ->andWhere(COM_getPermSQL('', 0, 2, 'c'));
-                       /*// if there's a cid, join that table
-                $cid_sql = "LEFT JOIN {$_TABLES['bannercategories']} AS c
-                    ON b.cid=c.cid
-                    WHERE c.cid='{$cid}' " .
-                        COM_getPermSQL('AND', 0, 2, 'c') .
-                         ' AND ';
-            } else {
-                $cid_sql = ' WHERE ';*/
+                $opts['cid'] = $cid;
             }
-
-            $qb->select('b.bid')
-               ->from($_TABLES['banner'], 'b')
-               ->where('(b.publishstart IS NULL OR b.publishstart < NOW()')
-               ->andWhere('(b.publishend IS NULL OR b.publishend > NOW())')
-               ->orderBy('RAND()');
-                    /*"SELECT b.bid FROM {$_TABLES['banner']} b
-                    $cid_sql
-                    (b.publishstart IS NULL OR b.publishstart < NOW())
-                    AND (b.publishend IS NULL OR b.publishend > NOW())
-                    ORDER BY RAND()");*/
-            try {
-                $stmt = $qb->execute()->fetchAll(Database::ASSOCIATIVE);
-            } catch (\Exception $e) {
-                Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
-                $data = array();
-            }
-            if (!empty($data)) {
+            $Banners = Banner\Banner::getBanners($opts);
+            if (!empty($Banners)) {
                 $T = new Template(BANR_PI_PATH . '/templates');
                 $T->set_file('block', 'bannercategory.thtml');
                 $T->set_block('block', 'bannerRow', 'BRow');
-                foreach ($data as $A) {
-                    $B = new Banner\Banner($A['bid']);
+                foreach ($Banners as $B) {
                     $T->set_var(array(
                         'banner'    => $B->BuildBanner(),
                         'category'  => $B->getCid(),
