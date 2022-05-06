@@ -732,7 +732,7 @@ class Banner
         } catch (\Exception $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
         }
-        $this->Campaign->updateHits();
+        Campaign::updateHits($this->camp_id);
         return $this;
     }
 
