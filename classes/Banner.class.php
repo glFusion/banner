@@ -1150,6 +1150,7 @@ class Banner
         if (self::_inAdminUrl()) {
             $qb->andWhere('camp.show_adm_pages = 1');
         }
+        $qb->andWhere(COM_getPermSQL('', 0, 2, 'camp'));
 
         try {
             $data = $qb->execute()->fetchAll(Database::ASSOCIATIVE);
@@ -1177,27 +1178,31 @@ class Banner
         if (!self::CanShow()) {
             return $bids;
         }
-        $now = $_CONF['_now']->toMySQL(true);
 
         $db = Database::getInstance();
+        $qb = $db->conn->createQueryBuilder();
         try {
-                //COM_getPermSQL('AND') .
-            $data = $db->conn->executeQuery(
-                "SELECT bid FROM {$_TABLES['banner']}
-                WHERE (date >= (DATE_SUB(:now,
-                        INTERVAL :interval DAY)))
-                AND (publishstart < :now)
-                AND (publishhend > :now)
-                ORDER BY date DESC LIMIT 15",
-                array('now' => $now, 'interval' => Config::get('newbannerinterval')),
-                array(Database::STRING, Database::INTEGER)
-            )->fetchAll(Database::ASSOCIATIVE);
+            $qb->select('b.bid')
+               ->from($_TABLES['banner'], 'b')
+               ->leftJoin('b', $_TABLES['campaigns'], 'camp', 'camp.camp_id=b.camp_id')
+               ->where('date >= (DATE_SUB(:now, INTERVAL :interval DAY))')
+               ->andWhere('publishstart < :now')
+               ->andWhere('publishhend > :now')
+               ->andWhere(COM_getPermSQL('', 0, 2, 'camp'))
+               ->orderBy('date', 'DESC')
+               ->setFirstResult(0)
+               ->setMaxResults(15)
+               ->setParameter('now', $_CONF['_now']->toMySQL(true), Database::STRING)
+               ->setParameter('interval', Config::get('newbannerinterval'), Database::INTEGER);
+           $data = $qb->execute()->fetchAllAssociative();
         } catch (\Exception $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
-            $data = array();
+            $data = false;
         }
-        foreach ($data as $A) {
-            $bids[] = $A['bid'];
+        if (is_array($data)) {
+            foreach ($data as $A) {
+                $bids[] = $A['bid'];
+            }
         }
         return $bids;
     }
@@ -1214,7 +1219,6 @@ class Banner
 
         $db = Database::getInstance();
         try {
-                //COM_getPermSQL('AND') .
             $data = $db->conn->executeQuery(
                 "SELECT * FROM {$_TABLES['banner']}",
             )->fetchAll(Database::ASSOCIATIVE);
