@@ -120,6 +120,17 @@ $bannerConfigData = array(
         'set' => true,
         'group' => 'banner',
     ),
+    array(
+        'name' => 'def_rel_tag',
+        'default_value' => 'sponsored,nofollow',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 90,
+        'set' => true,
+        'group' => 'banner',
+    ),
 
     array(
         'name' => 'fs_adcontrol',

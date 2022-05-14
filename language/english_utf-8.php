@@ -314,6 +314,7 @@ $LANG_confignames['banner'] = array(
     'ipaddr_dontshow' => 'IP Addresses that will not be shown ads',
     'uagent_dontshow' => 'User Agents that will not be shown ads',
     'def_weight'    => 'Default Weight',
+    'def_rel_tag'   => 'Default Rel Tag',
     'adshow_owner'  => 'Show ads to the ad owner?',
     'adshow_admins' => 'Show ads to ad administrators?',
     'cntclicks_owner' => 'Count ad clicks made by the ad owner?',

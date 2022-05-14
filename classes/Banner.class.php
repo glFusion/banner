@@ -156,7 +156,6 @@ class Banner
      * @var array */
     private static $default_opts = array(
         'target' => '_blank',
-        'rel' => 'sponsored,nofollow',
     );
 
     /** Final calculated image height.
@@ -178,6 +177,7 @@ class Banner
     /** Campaign flag to count impressions for admins, owners, or just public.
      * @var integer */
     private $count_impressions = 0;
+
 
     /**
      * Constructor.
@@ -458,12 +458,12 @@ class Banner
      * @param   mixed   $default    Default value
      * @return  mixed           Option value, $default if not set
      */
-    public function getOpt($name, $default='')
+    public function getOpt(string $name, ?string $default=NULL) : string
     {
         if (isset($this->options[$name])) {
             return $this->options[$name];
         } else {
-            return $default;
+            return (string)$default;
         }
     }
 
@@ -482,6 +482,12 @@ class Banner
     }
 
 
+    /**
+     * Set the HTML Status field value.
+     *
+     * @param   string  $status     HTML Status, e.g. `200 OK`
+     * @return  object  $this
+     */
     public function setHtmlStatus(string $status) : self
     {
         $this->html_status = $status;
@@ -489,6 +495,12 @@ class Banner
     }
 
 
+    /**
+     * Set the validation date field value.
+     *
+     * @param   string  $dt     Date, current date if null
+     * @return  object  $this
+     */
     public function setValidationDate(?string $dt=NULL) : self
     {
         global $_CONF;
@@ -924,8 +936,9 @@ class Banner
             break;
 
         case self::TYPE_SCRIPT:
-            if (empty($this->options['url']))
+            if (empty($this->options['url'])) {
                 unset($this->options['url']);
+            }
         case self::TYPE_AUTOTAG:
             unset($this->options['filename']);
             unset($this->options['image_url']);
@@ -1308,7 +1321,7 @@ class Banner
         }
         $a_attr = array(
             'target' => $this->getOpt('target', '_blank'),
-            'rel' => 'sponsored,nofollow',
+            'rel' => Config::get('def_rel_tag'),
         );
         $img_attr = array(
             'class' => 'banner_img',
@@ -1422,8 +1435,8 @@ class Banner
         global $LANG_BANNER_STATUS, $LANG_BANNER, $_TABLES;
 
         // Have to have a valid url to check
-        if (!isset($this->options['url']) || empty($this->options['url'])) {
-            $retval = 'n/a';
+        if (empty($this->getOpt('url'))) {
+            $retval = 'No URL';
         } else {
             // Get the header and response code
             $ch = curl_init();
@@ -1754,21 +1767,6 @@ class Banner
         //static $is_blocked_ip = NULL;
         $sess_var = 'glf_banr_canshow';
 
-        // Check if this is an admin URL and the banner should not be shown.
-        if (Config::get('show_in_admin') == 0) {
-            if ($in_admin_url === NULL) {
-                $urlparts = parse_url($_CONF['site_admin_url']);
-                if (stristr($_SERVER['REQUEST_URI'], $urlparts['path']) != false) {
-                    $in_admin_url = true;
-                } else {
-                    $in_admin_url = false;
-                }
-            }
-            if ($in_admin_url) {
-                return false;
-            }
-        }
-
         // Get the status from a session var, if it has been set.
         $canshow = SESS_getVar($sess_var);
         if ($canshow !== 0) {
@@ -1828,6 +1826,11 @@ class Banner
     }
 
 
+    /**
+     * Determine if this is an admin url.
+     *
+     * @return  boolean     True if url begins with /admin/, False if not
+     */
     private static function _inAdminUrl() : bool
     {
         global $_CONF;
@@ -2366,15 +2369,16 @@ class Banner
         $retval = '';
         $params = array();
 
-        if ($extra == '')
-            $params[] = array('type' => 'block');
-        else
+        if (empty($extra)) {
+            $params['type'] = 'block';
+        } else {
             $params = $extra;
-
-        if (empty($topic)) {
-            $tid = 'all';
         }
-        $params['tid'] = $tid;
+        if (empty($topic)) {
+            $params['tid'] = 'all';
+        } else {
+            $params['tid'] = $topic;
+        }
 
         // Get the banner IDs that fit the requirements.  Could be an array or a
         // single value, so convert into an array

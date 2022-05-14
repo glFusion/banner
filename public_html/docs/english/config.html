@@ -33,9 +33,18 @@
 
       <dl id="desc_templatevars">
         <dt>Display banners in templates?</dt>
-        <dd>Select whether to display banners in templates.  If "No", then no banners will appear in the header or footer templates.<p />
-<span style="color:red;">IMPORTANT:</span>  If you enable this function, and you have categories enabled which use any of the standard template names (header, footer, article, etc.), then you MUST make sure that the template variables are defined properly in order to keep your impression count accurate.<p />
+        <dd>Select whether to display banners in templates.  If "No", then no banners will appear in the header or footer templates. IMPORTANT: If you enable this function, and you have categories enabled which use any of the standard template names (header, footer, article, etc.), then you MUST make sure that the template variables are defined properly in order to keep your impression count accurate.
 The plugin has no way of knowing whether template variables are actually defined, so it counts each attempt to display an ad whether it is actually displayed or not.</dd>
+      </dl>
+
+      <dl id="desc_adblockvars">
+        <dt>Display banners with AdBlock template var?</dt>
+		<dd>Select whether to display ads with the standard adblock template variable. Default is &quot;Yes&quot;</dd>
+      </dl>
+
+      <dl id="desc_headercode">
+		  <dt>Display banners in the HTML header?</dt>
+		  <dd>Select whether banners would be include in the HTML header, for example analytics tracking code</dd>
       </dl>
 
       <dl id="desc_usersubmit">
@@ -77,6 +86,11 @@ The plugin has no way of knowing whether template variables are actually defined
         <dt>Default Weight</dt>
         <dd>Select the default weight to be applied to new ads. The weight indicates the liklihood that a banner will be displayed relative to other banners.</dd>
       </dl>
+
+	  <dl id="desc_def_rel_tag">
+		  <dt>Default value for rel tag</dt>
+		  <dd>Enter the value for the &quot;rel&quot; tag used with the banner display.</dd>
+	  </dl>
 
       <h2>Banner Display Settings</h2>
 
