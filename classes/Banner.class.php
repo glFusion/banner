@@ -2119,7 +2119,7 @@ class Banner
             'sql' => "SELECT
                     b.bid AS bid, b.cid as cid, b.title AS title, b.weight,
                     c.category AS category,
-                    b.enabled AS enabled,
+                    b.enabled AS enabled, b.ad_type,
                     b.hits AS hits, b.impressions as impressions,
                     b.max_hits AS max_hits,
                     b.max_impressions as max_impressions,
@@ -2204,8 +2204,8 @@ class Banner
             break;
 
         case 'beforevalidate':
-            if ($A['html_status'] == 'n/a') {
-                $retval = $A['html_status'] . '&nbsp;' . FieldList::info(array(
+            if ($A['ad_type'] == self::TYPE_SCRIPT) {
+                $retval = 'n/a&nbsp;' . FieldList::info(array(
                     'title' => $LANG_BANNER['html_status_na'],
                 ) );
             } else {
