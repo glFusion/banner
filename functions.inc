@@ -862,7 +862,7 @@ function plugin_autouninstall_banner ()
     );
 
     // Reset this value to avoid trying to display a banner on the final page.
-    $Config::set('templatevars', 0);
+    Config::set('templatevars', 0);
     return $out;
 }
 

@@ -50,10 +50,7 @@ $banner_def =
   `weight` int(2) unsigned DEFAULT 5,
   `tid` varchar(20) DEFAULT 'all',
   `html_status` varchar(127) NOT NULL DEFAULT '',
-  `dt_validated` datetime DEFAULT NULL,
-  PRIMARY KEY (`bid`),
-  KEY `banner_category` (`cid`),
-  KEY `banner_date` (`date`)";
+  `dt_validated` datetime DEFAULT NULL";
 
 $_SQL['banner'] = "CREATE TABLE {$_TABLES['banner']} (
   $banner_def,

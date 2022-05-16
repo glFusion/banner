@@ -37,7 +37,7 @@ $INSTALL_plugin['banner'] = array(
         'ver'       => Config::get('pi_version'),
         'gl_ver'    => Config::get('gl_version'),
         'url'       => Config::get('pi_url'),
-        'display'   => Config::get('pi_display_name'],
+        'display'   => Config::get('pi_display_name'),
     ),
 
     array(
