@@ -1,7 +1,7 @@
 # Changelog - Banner plugin for glFusion
 
 ## Version 1.0.0
-Release TBD
+Release 2022-05-15
 - Remove support for non-UIkit themes.
 - `E_ALL` fixes.
 - Implement glFusion caching.
