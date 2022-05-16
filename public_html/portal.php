@@ -3,7 +3,7 @@
  * Portal page that tracks banner clicks and redirects to the target.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
  * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
@@ -40,8 +40,5 @@ if (!empty($bid)) {
     }
 }
 
-header('HTTP/1.1 301 Moved');
-header('Location: ' . $url);
-header('Connection: close');
+echo COM_refresh($url);
 
-?>
