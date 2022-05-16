@@ -26,17 +26,12 @@ COM_setArgNames(array('id'));
 $bid = COM_getArgument('id');
 
 if (!empty($bid)) {
-    // Hack from Links plugin:
-    // Due to PLG_afterSaveSwitch settings, we may get
-    // an attached &msg - strip it off
-    $i = explode('&', $bid);
-    $bid = $i[0];
     $B = new Banner\Banner($bid);
     $url = $B->getOpt('url');
     if (!empty($url)) {
         $B->updateHits();
     } else {
-        $url = $_CONF['site_url'];
+        $url = $_CONF['site_url'];  // just to go somewhere
     }
 }
 
