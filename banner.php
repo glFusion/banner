@@ -30,6 +30,6 @@ $_TABLES['banner_mapping']      = $_DB_table_prefix . 'banner_mapping';
 $_TABLES['banner_account']      = $_DB_table_prefix . 'banner_account';
 $_TABLES['banner_txn']          = $_DB_table_prefix . 'banner_txn';
 
-Banner\Config::set('pi_version', '1.0.0');
+Banner\Config::set('pi_version', '1.0.1');
 Banner\Config::set('gl_version', '2.0.0');
 
