@@ -1324,7 +1324,7 @@ class Banner
             'rel' => Config::get('def_rel_tag'),
         );
         $img_attr = array(
-            'class' => 'banner_img',
+            'class' => 'banner_img nosmartresize',
         );
         if (!empty($title)) {
             $img_attr['title'] = htmlspecialchars($title);
@@ -1530,7 +1530,7 @@ class Banner
         $weight_select = '';
         if ($this->isAdmin) {
             $T->set_var('action_url', Config::get('admin_url') . '/index.php');
-            for ($i = 1; $i < 11; $i++) {
+            for ($i = 1; $i < 10; $i++) {
                 $sel = $i == $this->weight ? 'selected="selected"' : '';
                 $weight_select .= "<option value=\"$i\" $sel>$i</option>\n";
             }
