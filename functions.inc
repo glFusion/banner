@@ -462,7 +462,7 @@ function plugin_upgrade_banner()
  */
 function plugin_enablestatechange_banner($enabled)
 {
-    global $_TABLES, $_PLUGINS;
+    global $_TABLES;
 
     $enabled = $enabled == 1 ? 1 : 0;
     $blockfns = array('phpblock_banner_');
