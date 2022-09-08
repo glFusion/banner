@@ -206,6 +206,8 @@ class Local
      */
     public function reDim(int $width, int $height, bool $expand=false) : self
     {
+        $this->status = true;
+
         $dimensions = @getimagesize($this->s_path);
         if ($dimensions === false) {
             $this->status = false;
@@ -232,14 +234,6 @@ class Local
 
         $this->d_width = (int)($this->s_width * $sizefactor);
         $this->d_height = (int)($this->s_height * $sizefactor);
-
-        /*return array(
-            's_width'   => $s_width,
-            's_height'  => $s_height,
-            'd_width'   => $newwidth,
-            'd_height'  => $newheight,
-            'mime'      => $mime_type,
-        );*/
         return $this;
     }
 
@@ -271,7 +265,7 @@ class Local
         }
 
         // Calculate the new dimensions
-        self::reDim($this->d_width, $this->d_height, $expand);
+        $this->reDim($this->d_width, $this->d_height, $expand);
         if ($this->status == false) {
             Log::write('system', Log::ERROR, __CLASS__ . ": Invalid image {$this->s_path}");
             return $this;

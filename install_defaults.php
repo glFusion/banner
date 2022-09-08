@@ -122,7 +122,7 @@ $bannerConfigData = array(
     ),
     array(
         'name' => 'def_rel_tag',
-        'default_value' => 'sponsored,nofollow',
+        'default_value' => 'sponsored nofollow noopener noreferrer',
         'type' => 'text',
         'subgroup' => 0,
         'fieldset' => 0,
