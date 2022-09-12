@@ -1,7 +1,7 @@
 # Changelog - Banner plugin for glFusion
 
 ## Version 1.0.1
-Release TBD
+Release 2022-09-12
 - Limit weight selections to single digits.
 - Add `nosmartresize` to banners not in links to prevent lgLib resizing.
 
