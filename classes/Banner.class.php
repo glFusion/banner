@@ -1838,13 +1838,15 @@ class Banner
         static $in_admin_url = NULL;
 
         // Check if this is an admin URL and the banner should not be shown.
-        if ($in_admin_url === NULL) {
+        if ($in_admin_url === NULL && isset($_SERVER) && isset($_SERVER['REQUEST_URI'])) {
             $urlparts = parse_url($_CONF['site_admin_url']);
             if (stristr($_SERVER['REQUEST_URI'], $urlparts['path']) != false) {
                 $in_admin_url = true;
             } else {
                 $in_admin_url = false;
             }
+        } else {
+            $in_admin_url = false;
         }
         return $in_admin_url;
     }
