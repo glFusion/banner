@@ -5,7 +5,7 @@
  * @author      Lee Garner <lee@leegarner.com>
  * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     banner
- * @version     v1.0.0
+ * @version     v1.0.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -30,6 +30,6 @@ $_TABLES['banner_mapping']      = $_DB_table_prefix . 'banner_mapping';
 $_TABLES['banner_account']      = $_DB_table_prefix . 'banner_account';
 $_TABLES['banner_txn']          = $_DB_table_prefix . 'banner_txn';
 
-Banner\Config::set('pi_version', '1.0.1');
+Banner\Config::set('pi_version', '1.0.1.1');
 Banner\Config::set('gl_version', '2.0.0');
 
