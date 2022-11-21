@@ -423,13 +423,13 @@ function plugin_user_move_banner($origUID, $destUID)
     $tables = array(
         'banner',
         'bannersubmission',
-        'banneraccount',
+        'bannercampaigns',
     );
     $db = Database::getInstance();
     foreach ($tables as $table) {
         try {
             $db->conn->executeUpdate(
-                "UPDATE {$_TABLES[$table]} SET uid = ? WHERE uid = ?",
+                "UPDATE {$_TABLES[$table]} SET owner_id = ? WHERE owner_id = ?",
                 array($destUID, $origUID),
                 array(Database::INTEGER, Database::INTEGER)
             );
