@@ -1,0 +1,7 @@
+{# begin {templatelocation} #}
+<!-- BEGIN blkBanners -->
+<div class="banner_list {campaign} {category} {banner_id}">
+{banner}
+</div>
+<!-- END blkBanners -->
+{# end {templatelocation} #}

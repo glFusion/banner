@@ -1,5 +1,9 @@
 # Changelog - Banner plugin for glFusion
 
+## Version 1.1.0
+Release TBD
+- Add autotags for common page layouts (grid, page w/ descriptions, random).
+
 ## Version 1.0.1
 Release 2022-09-12
 - Limit weight selections to single digits.

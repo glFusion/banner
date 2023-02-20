@@ -1,0 +1,7 @@
+{# begin {templatelocation} #}
+<ul class="uk-grid" data-uk-grid-margin>
+<!-- BEGIN blkBanners -->
+	<li>{banner}</li>
+<!-- END blkBanners -->
+</ul>
+{# end {templatelocation} #}

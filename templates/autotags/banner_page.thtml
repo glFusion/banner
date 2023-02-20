@@ -1,0 +1,15 @@
+{# begin {templatelocation} #}
+<div class="banner_page">
+<!-- BEGIN blkBanners -->
+<div class="uk-grid" style="clear:both; padding-bottom:20px">
+{!if odd}
+<div class="uk-push-2-3 uk-width-medium-1-3 uk-width-small-1-1">{banner}</div>
+<div class="uk-pull-1-3 uk-width-medium-2-3 uk-width-small-1-1">{dscp}</div>
+{!else}
+<div class="uk-width-medium-1-3 uk-width-small-1-1">{banner}</div>
+<div class="uk-width-medium-2-3 uk-width-small-1-1">{dscp}</div>
+{!endif}
+</div>
+<!-- END blkBanners -->
+</div>
+{# end {templatelocation} #}

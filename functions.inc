@@ -141,7 +141,7 @@ function plugin_centerblock_banner($where=1, $page=1, $topic ='')
         $T = new Template(BANR_PI_PATH . '/templates');
         $T->set_file('page', 'centerblock.thtml');
         $T->set_var(array(
-            'banner'    => $B->BuildBanner(),
+            'banner'    => $B->buildBanner(),
             'category'  => $B->getCid(),
             'banner_id' => $B->getBid(),
             'campaign'  => $B->getCampID(),
@@ -195,26 +195,50 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
                 break;
        }
     } else if ($op == 'parse') {
-        $t1 = explode(' ', $autotag['parm2']);
+        $option = COM_applyFilter($autotag['parm1']);
+        $parms = explode(' ', $autotag['parm2']);
         $opts = array();
-        foreach ($t1 as $tmp) {
-            $t2 = explode(':', $tmp);
+        $HTML = '';
+        $opts = array();
+
+        foreach ($parms as $parm) {
+            $t2 = explode(':', $parm);
             $opts[$t2[0]] = isset($t2[1]) ? $t2[1] : '';
         }
-        $banner = '';
 
         switch( $autotag['tag'] ) {
         case 'banner':
             // Get a specific banner
-            $bid = COM_sanitizeID($autotag['parm1'], false);
-            $B = new Banner\Banner($bid);
-            if (!$B->isNew()) {
-                $banner = $B->updateImpressions()->BuildBanner();
+            switch ($option) {      // going forward, only one autotag `banner`
+            case 'category':
+                $option = 'cat';
+            case 'grid':
+            case 'page':
+            case 'cat':
+                $tpl = 'banner_' . $option;
+                $AT = new Banner\Autotags\BannerPage;
+                $HTML = $AT->withTemplate($tpl)->parse($option, $opts, $autotag['tagstr']);
+                break;
+            case 'single':
+                // Render a single, specific banner
+                if (isset($opts['id']) && !empty($opts['id'])) {
+                    $B = new Banner\Banner($opts['id']);
+                    if (!$B->isNew()) {
+                        $HTML = $B->updateImpressions()->buildBanner();
+                    }
+                }
+                break;
+            default:
+                // Legacy, option is a banner ID
+                $B = new Banner\Banner($option);
+                if (!$B->isNew()) {
+                    $HTML = $B->updateImpressions()->buildBanner();
+                }
+                break;
             }
             break;
 
-        case 'randombanner':
-            // Get one or more banners, optionally from a specific category ID
+            /*// Get one or more banners, optionally from a specific category ID
             $type = isset($autotag['parm1']) ? COM_applyFilter($autotag['parm1']) : '';
             if (!empty($type)) {
                 $opts['type'] = $type;
@@ -226,26 +250,29 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
             $cnt = count($Banners);
             for ($i = 0; $i < $cnt; $i++) {
                 if ($i > 0) {
-                    $banner .= "<br />\n";
+                    $HTML .= "<br />\n";
                 }
-                $banner .= $Banners[$i]->updateImpressions()->BuildBanner();
+                $HTML .= $Banners[$i]->updateImpressions()->buildBanner();
             }
-            break;
+            break;*/
 
+        case 'randombanner':
         case 'bannercategory':
             // Get all or a number of banners under a specific category.
             $cid = COM_applyFilter($autotag['parm1']);
             if (!empty($cid)) {
                 $opts['cid'] = $cid;
             }
-            $Banners = Banner\Banner::getBanners($opts);
+            $AT = new Banner\Autotags\BannerPage;
+            $HTML = $AT->withTemplate('banner_cat')->parse($option, $opts, $autotag['tagstr']);
+            /*$Banners = Banner\Banner::getBanners($opts);
             if (!empty($Banners)) {
-                $T = new Template(BANR_PI_PATH . '/templates');
+                $T = new Template(Config::path_template());
                 $T->set_file('block', 'bannercategory.thtml');
                 $T->set_block('block', 'bannerRow', 'BRow');
                 foreach ($Banners as $B) {
                     $T->set_var(array(
-                        'banner'    => $B->BuildBanner(),
+                        'banner'    => $B->buildBanner(),
                         'category'  => $B->getCid(),
                         'banner_id' => $B->getBid(),
                         'campaign'  => $B->getCampId(),
@@ -254,13 +281,13 @@ function plugin_autotags_banner($op, $content = '', $autotag = '')
                     $T->parse('BRow', 'bannerRow', true);
                 }
                 $T->parse('output','block');
-                $banner = $T->finish($T->get_var('output'));
+                $HTML = $T->finish($T->get_var('output'));
             } else {
-                $banner = '';
-            }
+                $HTML = '';
+            }*/
             break;
         }
-        $content = str_replace($autotag['tagstr'], $banner, $content);
+        $content = str_replace($autotag['tagstr'], $HTML, $content);
         return $content;
     }
 }
@@ -762,7 +789,7 @@ function plugin_templateSetVars_banner($templatename, &$template) : void
         $options['type'] = $type;
         $Banners = Banner\Banner::getBanners($options);
         if (!empty($Banners)) {
-            $banner = $Banners[0]->updateImpressions()->BuildBanner();
+            $banner = $Banners[0]->updateImpressions()->buildBanner();
             $template->set_var("banner_{$type}", $banner, true, true);
         }
     }
@@ -984,7 +1011,7 @@ function plugin_getheadercode_banner()
         );
         $Banners = Banner\Banner::getBanners($options);
         foreach ($Banners as $B) {
-            $retval .= $B->BuildBanner() . LB;
+            $retval .= $B->buildBanner() . LB;
         }
     }
     return $retval;

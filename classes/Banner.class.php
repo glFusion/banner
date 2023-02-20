@@ -452,6 +452,17 @@ class Banner
 
 
     /**
+     * Get the descriptive text for the banner.
+     *
+     * @return  string      Description, vendor ad blurb
+     */
+    public function getDscp() : string
+    {
+        return $this->notes;
+    }
+
+
+    /**
      * Get an option value.
      *
      * @param   string  $name       Option name
@@ -530,7 +541,7 @@ class Banner
                 WHERE bid = ?",
                 array($bid),
                 array(Database::STRING)
-            )->fetch(Database::ASSOCIATIVE);
+            )->fetchAssociative();
         } catch (\Exception $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             $data = NULL;
@@ -1087,9 +1098,12 @@ class Banner
            ->andWhere('camp.hits < camp.max_hits OR camp.max_hits = 0')
            ->andWhere('camp.max_impressions = 0 OR camp.impressions < camp.max_impressions')
            ->andWhere('b.owner_id <> :uid OR camp.show_owner = 1')
-           ->orderBy('score', 'DESC')
            ->setParameter('now', $now, Database::STRING)
            ->setParameter('uid', $_USER['uid'], Database::INTEGER);
+
+        // Default ordering
+        $sortby = 'score';
+        $sortdir = 'DESC';
 
         if (!is_array($fields)) $fields = array();
         if (!isset($fields['topic'])) {
@@ -1147,6 +1161,12 @@ class Banner
                     $qb->setFirstResult(0)->setMaxResults($value);
                 }
                 break;
+            case 'sortby':
+                $sortby = $value;
+                break;
+            case 'sortdir':
+                $sortdir = $value;
+                break;
             /*default:
                 if (!empty($field) && !empty($value)) {
                     // protect against an empty fieldname getting through
@@ -1157,6 +1177,14 @@ class Banner
             }
         }
 
+        // Add orderby clause after params have been evaluated.
+        // Fix parameters where order by is random.
+        if ($sortdir == 'random') {
+            $sortby = 'RAND()';
+            $sortdir = '';
+        }
+        $qb->orderBy($sortby, $sortdir);
+
         if (plugin_isadmin_banner()) {
             $qb->andWhere('camp.show_admins = 1');
         }
@@ -1166,7 +1194,7 @@ class Banner
         $qb->andWhere(COM_getPermSQL('', 0, 2, 'camp'));
 
         try {
-            $data = $qb->execute()->fetchAll(Database::ASSOCIATIVE);
+            $data = $qb->execute()->fetchAllAssociative();
         } catch (\Exception $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             $data = array();
@@ -1234,7 +1262,7 @@ class Banner
         try {
             $data = $db->conn->executeQuery(
                 "SELECT * FROM {$_TABLES['banner']}",
-            )->fetchAll(Database::ASSOCIATIVE);
+            )->fetchAllAssociative();
         } catch (\Exception $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             $data = array();
@@ -1326,9 +1354,12 @@ class Banner
         $img_attr = array(
             'class' => 'banner_img nosmartresize',
         );
+        if (empty($title)) {
+            $title = $this->getTitle();
+        }
         if (!empty($title)) {
             $img_attr['title'] = htmlspecialchars($title);
-            $img_attr['data-uk-tooltip'] = '';
+            $img_attr['class'] = 'tooltip';
         }
 
         $C = Category::getInstance($this->cid);
@@ -1552,7 +1583,7 @@ class Banner
 
         if (!$this->isNew) {
             // Calculate display dimensions
-            $disp_img = $this->BuildBanner('', 0, 0, false);
+            $disp_img = $this->buildBanner('', 0, 0, false);
             $T->set_var('disp_img', $disp_img);
             $T->set_var('size_dscp', sprintf($LANG_BANNER['render_size_dscp'], $this->r_height, $this->r_width));
             if (SEC_hasRights('banner.edit')) {
@@ -1583,6 +1614,7 @@ class Banner
 
         $T->set_var(array(
             'banner_title' => htmlspecialchars($this->title),
+            'notes' => htmlspecialchars($this->notes),
             'max_url_length' => 255,
             'category_options' => Category::Dropdown(0, $this->cid, !plugin_isadmin_banner()),
             'campaign_options' => $camp_select,
@@ -1907,12 +1939,28 @@ class Banner
     }
 
 
+    /**
+     * Get the campaign object associated with this banner.
+     *
+     * @return  object      Campaign object
+     */
     public function getCampaign() : Campaign
     {
         if ($this->Campaign === NULL) {
             $this->Campaign = Campaign::getInstance($this->camp_id);
         }
         return $this->Campaign;
+    }
+
+
+    /**
+     * Get the banner title.
+     *
+     * @return  string      Banner title
+     */
+    public function getTitle() : string
+    {
+        return $this->title;
     }
 
 
@@ -2391,7 +2439,7 @@ class Banner
             $T->set_file('bannerblock', 'blockbanners.thtml');
             $T->set_block('bannerblock', 'banners', 'item');
             foreach ($Banners as $Banner) {
-                $T->set_var('banner_ad', $Banner->updateImpressions()->BuildBanner());
+                $T->set_var('banner_ad', $Banner->updateImpressions()->buildBanner());
                 $T->parse('item', 'banners', true);
             }
             $T->parse('output', 'bannerblock');
@@ -2401,4 +2449,3 @@ class Banner
     }
 
 }
-

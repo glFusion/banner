@@ -3,10 +3,6 @@
 The Banner plugin for glFusion allows site administrators to display
 banner ads in the header, footer, blocks or within other content on their site.
 
-Version 1.0.0 includes a category for "headercode" to inject banners into the
-`head` section of your site. This way you can add simple javascript tracking
-codes using the Banner plugin instead of editing theme templates.
-
 ## Requirements
 * glFusion 2.0.0 or higher
 
@@ -60,9 +56,28 @@ of banners shown. If not specified the globally-configured block limit value is 
 
 #### Standard Autotag
 The third method of ad placement is to use a standard autotag in an article, staticpage, or any other content. The options are:
-    * `[banner:banner_id]` to display a specific banner
-    * `[randombanner:category_type]` to select a single random banner from all categories of the given type
-    * `[bannercategory:category_id]` to select all banners within a specific category. Banners will be formatted and displayed by the `bannercategory.thtml` template which you may wish to customize.
+
+##### [banner:_option_]
+Use this autotag with one of the following formats
+  * `[banner:grid]`: Display banner images in a grid.
+  * `[banner:page`]: Display banner images and text alternating on a page. Good for a "visit our sponsors" page.
+  * `banner:_bannerId_]`: Display a specific banner (legacy). None of the following options will be applied.
+
+Additional parameters may be supplied:
+  * cid:_categoryId_: Limits display to banners from a given category.
+  * category:_categoryName_: Limits to banners from a given category by name.
+  * campaign:_campaignId_: Limits display to banners from a given campaign.
+  * topic:_tid_ or tid:_tid_: Limits to banners shown for a specific topic.
+  * limit:_number_: Limits to a fixed maximum number of banners.
+  * sortby:_field_: Sort by the specified field.
+  * sortdir:_AscDesc_: Sort banners either ascending or descending order. `random` can be specified but is the default.
+  * template:_fileName_: Use the specified template under private/plugins/banner/templates/autotags. Put custom templates in the `custom` subdirectory.
+
+##### [randombanner:_categoryType_]
+Selects a single random banner from all categories of the given type.
+
+##### [bannercategory:_categoryId_]
+Selects all banners within a specific category. Banners will be formatted and displayed by the `bannercategory.thtml` template which you may wish to customize.
 
 ## Configuration Options
 ### General
